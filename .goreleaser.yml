@@ -1,0 +1,61 @@
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - freebsd
+      - linux
+      - solaris
+      - windows
+    goarch:
+      - 386
+      - amd64
+      - arm64
+
+archives:
+  - format_overrides:
+      - goos: windows
+        format: zip
+
+nfpms:
+  - maintainer: &author
+      Maxime VISONNEAU <maxime.visonneau@gmail.com>
+    description: &description
+      Safely Store Super Sensitive Stuff
+    license: &license
+      Apache 2.0
+    homepage: &homepage
+      https://github.com/mvisonneau/s5
+    vendor: *author
+    formats:
+      - deb
+      - rpm
+
+brews:
+  - description: *description
+    homepage: *homepage
+    folder: Formula
+    github:
+      owner: mvisonneau
+      name: homebrew-tap
+
+scoop:
+  description: *description
+  homepage: *homepage
+  license: *license
+  bucket:
+    owner: mvisonneau
+    name: scoops
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  name_template: "{{ .Tag }}-{{ .ShortCommit }}"
+
+changelog:
+  skip: true

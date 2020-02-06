@@ -1,0 +1,83 @@
+---
+kind: pipeline
+name: test
+
+steps:
+  - name: lint
+    image: golang:1.13
+    commands:
+      - make lint
+  - name: test
+    image: golang:1.13
+    commands:
+      - make test
+  - name: build
+    image: goreleaser/goreleaser:v0.125.0
+    commands:
+      - apk add --no-cache make
+      - make build
+      - make is-git-dirty
+  - name: all_ok
+    image: busybox
+    depends_on:
+      - lint
+      - test
+      - build
+    commands:
+      - 'true'
+
+trigger:
+  event:
+    - push
+    - pull_request
+    - tag
+
+---
+kind: pipeline
+name: coverage
+
+steps:
+  - name: coverage
+    image: golang:1.13
+    environment:
+      COVERALLS_TOKEN:
+        from_secret: COVERALLS_TOKEN
+    commands:
+      - make coverage
+      - make publish-coveralls
+
+trigger:
+  repo:
+    - mvisonneau/tfcs
+  event:
+    - push
+    - tag
+
+---
+kind: pipeline
+name: release
+
+steps:
+  - name: fetch
+    image: docker:git
+    commands:
+      - git fetch --tags
+
+  - name: release
+    image: goreleaser/goreleaser:v0.125.0
+    environment:
+      GITHUB_TOKEN:
+        from_secret: GITHUB_TOKEN
+    commands:
+      - apk add --no-cache make
+      - make release
+
+trigger:
+  repo:
+    - mvisonneau/tfcs
+  event:
+    - tag
+
+depends_on:
+  - test
+  - coverage
