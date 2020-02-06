@@ -81,3 +81,8 @@ trigger:
 depends_on:
   - test
   - coverage
+---
+kind: signature
+hmac: 55248a444fec371765b4756a87ce45b8b95cf4ef9dc5684cdb0ae524033645b4
+
+...
