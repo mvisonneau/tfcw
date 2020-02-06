@@ -1,4 +1,5 @@
-tfcs.hcl
-tfcs
-vendor
 coverage.out
+dist
+tfcs
+tfcs.hcl
+vendor

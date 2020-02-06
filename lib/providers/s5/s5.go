@@ -1,4 +1,4 @@
-package provider
+package s5
 
 import (
 	"fmt"
