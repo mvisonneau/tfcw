@@ -172,7 +172,7 @@ func (c *Client) processVariable(v *schemas.Variable) error {
 					v.Value = &value
 					setVariable(v)
 				} else {
-					return fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, v.Vault.Path)
+					return fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, *v.Vault.Path)
 				}
 			}
 		}
