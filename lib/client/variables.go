@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/hashicorp/go-tfe"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 
 	log "github.com/sirupsen/logrus"
 )
 
-func (c *Client) ProcessAllVariables(cfg *schemas.Config) (err error) {
+func (c *Client) ProcessAllVariables(cfg *schemas.Config) error {
 	variables := schemas.Variables{}
 
 	for _, variable := range cfg.TerraformVariables {
@@ -22,13 +23,20 @@ func (c *Client) ProcessAllVariables(cfg *schemas.Config) (err error) {
 		variables = append(variables, variable)
 	}
 
-	return c.processVariables(variables)
+	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace)
+	if err != nil {
+		return fmt.Errorf("terraform cloud: %s", err)
+	}
+
+	log.Debugf("workspace id for %s: %s", w.Name, w.ID)
+
+	return c.processVariables(w, variables)
 }
 
 func (c *Client) isVariableAlreadyProcessed(name string, kind schemas.VariableKind) bool {
 	c.ProcessedVariablesMutex.Lock()
+	defer c.ProcessedVariablesMutex.Unlock()
 	k, exists := c.ProcessedVariables[name]
-	c.ProcessedVariablesMutex.Unlock()
 
 	if exists && k == kind {
 		return true
@@ -38,16 +46,22 @@ func (c *Client) isVariableAlreadyProcessed(name string, kind schemas.VariableKi
 	return false
 }
 
-func (c *Client) processVariables(vars schemas.Variables) error {
+func (c *Client) processVariables(w *tfe.Workspace, vars schemas.Variables) error {
+	// Find existing variables on TFC
+	e, err := c.listVariables(w)
+	if err != nil {
+		return fmt.Errorf("terraform cloud: %s", err)
+	}
+
 	ch := make(chan error)
 	wg := sync.WaitGroup{}
 
 	for _, v := range vars {
 		wg.Add(1)
-		go func(c *Client, v *schemas.Variable) {
+		go func(c *Client, w *tfe.Workspace, v *schemas.Variable, e TFEVariables) {
 			defer wg.Done()
-			ch <- c.processVariable(v)
-		}(c, v)
+			ch <- c.processVariable(w, v, e)
+		}(c, w, v, e)
 	}
 
 	go func() {
@@ -63,7 +77,7 @@ func (c *Client) processVariables(vars schemas.Variables) error {
 	return nil
 }
 
-func (c *Client) processVariable(v *schemas.Variable) error {
+func (c *Client) processVariable(w *tfe.Workspace, v *schemas.Variable, e TFEVariables) error {
 	if c.isVariableAlreadyProcessed(v.Name, v.Kind) {
 		return fmt.Errorf("duplicate variable '%s' (%s)", v.Name, v.Kind)
 	}
@@ -104,7 +118,10 @@ func (c *Client) processVariable(v *schemas.Variable) error {
 				if value, found := values[vaultKey]; found {
 					v.Name = variableName
 					v.Value = &value
-					setVariable(v)
+					if _, err := c.setVariable(w, v, e); err != nil {
+						return err
+					}
+					logVariable(v)
 				} else {
 					return fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, *v.Vault.Path)
 				}
@@ -119,18 +136,24 @@ func (c *Client) processVariable(v *schemas.Variable) error {
 		}
 
 		v.Value = &value
-		setVariable(v)
+		if _, err := c.setVariable(w, v, e); err != nil {
+			return err
+		}
+		logVariable(v)
 	}
 
 	if v.Env != nil {
 		value := c.Env.GetValue(v.Env)
 		v.Value = &value
-		setVariable(v)
+		if _, err := c.setVariable(w, v, e); err != nil {
+			return err
+		}
+		logVariable(v)
 	}
 	return nil
 }
 
-func setVariable(v *schemas.Variable) error {
+func logVariable(v *schemas.Variable) error {
 	log.WithFields(log.Fields{
 		"kind":  v.Kind,
 		"name":  v.Name,

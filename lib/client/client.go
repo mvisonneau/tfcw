@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	providerEnv "github.com/mvisonneau/tfcw/lib/providers/env"
@@ -39,7 +40,7 @@ func NewClient(cfg *schemas.Config, tfeToken string) (c *Client, err error) {
 
 	vaultClient, err := providerVault.GetClient(vaultAddress, vaultToken)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("vault: %s", err)
 	}
 
 	// Initializing S5 client with default values
@@ -73,7 +74,7 @@ func NewClient(cfg *schemas.Config, tfeToken string) (c *Client, err error) {
 	})
 
 	if err != nil {
-		return
+		return nil, fmt.Errorf("terraform cloud: %s", err)
 	}
 
 	// Create a context

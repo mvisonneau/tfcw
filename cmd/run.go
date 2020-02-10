@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func Validate(ctx *cli.Context) error {
+func Run(ctx *cli.Context) error {
 	c, cfg, err := configure(ctx)
 	if err != nil {
 		return exit(err, 1)

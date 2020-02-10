@@ -43,9 +43,9 @@ func Init(version *string, start time.Time) (app *cli.App) {
 
 	app.Commands = []cli.Command{
 		{
-			Name:   "validate",
-			Usage:  "validate the config and access to all the providers included",
-			Action: cmd.Validate,
+			Name:   "run",
+			Usage:  "applies the config",
+			Action: cmd.Run,
 		},
 	}
 
