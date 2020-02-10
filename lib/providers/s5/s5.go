@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/mvisonneau/s5/cipher"
-	"github.com/mvisonneau/tfcs/lib/schemas"
+	"github.com/mvisonneau/tfcw/lib/schemas"
 )
 
 type Client struct {

@@ -12,4 +12,4 @@ and this project adheres to [0ver](https://0ver.org).
 - Read configuration form HCL (or json) file
 - Fetch sensitive values from 3 providers : `vault`, `s5` and `environment variables`
 
-[Unreleased]: https://github.com/mvisonneau/tfcs/compare/0.0.0...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.0...HEAD

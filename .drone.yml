@@ -48,7 +48,7 @@ steps:
 
 trigger:
   repo:
-    - mvisonneau/tfcs
+    - mvisonneau/tfcw
   event:
     - push
     - tag
@@ -74,7 +74,7 @@ steps:
 
 trigger:
   repo:
-    - mvisonneau/tfcs
+    - mvisonneau/tfcw
   event:
     - tag
 
@@ -83,6 +83,6 @@ depends_on:
   - coverage
 ---
 kind: signature
-hmac: 55248a444fec371765b4756a87ce45b8b95cf4ef9dc5684cdb0ae524033645b4
+hmac: 296e0160bd576c7f644eedfa3d0c31df72f0f67cd43b5ea913b1e76a664f4c80
 
 ...

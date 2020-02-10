@@ -4,18 +4,18 @@ import (
 	"time"
 
 	"github.com/hashicorp/hcl/v2/hclsimple"
-	"github.com/mvisonneau/tfcs/logger"
+	"github.com/mvisonneau/tfcw/logger"
 	"github.com/urfave/cli"
 
-	tfcs "github.com/mvisonneau/tfcs/lib/client"
-	"github.com/mvisonneau/tfcs/lib/schemas"
+	tfcw "github.com/mvisonneau/tfcw/lib/client"
+	"github.com/mvisonneau/tfcw/lib/schemas"
 
 	log "github.com/sirupsen/logrus"
 )
 
 var start time.Time
 
-func configure(ctx *cli.Context) (c *tfcs.Client, cfg *schemas.Config, err error) {
+func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error) {
 	start = ctx.App.Metadata["startTime"].(time.Time)
 
 	lc := &logger.Config{
@@ -33,7 +33,7 @@ func configure(ctx *cli.Context) (c *tfcs.Client, cfg *schemas.Config, err error
 		return
 	}
 
-	c, err = tfcs.NewClient(cfg)
+	c, err = tfcw.NewClient(cfg, ctx.GlobalString("token"))
 	return
 }
 

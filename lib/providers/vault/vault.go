@@ -8,7 +8,7 @@ import (
 	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/go-homedir"
 
-	"github.com/mvisonneau/tfcs/lib/schemas"
+	"github.com/mvisonneau/tfcw/lib/schemas"
 )
 
 type Client struct {

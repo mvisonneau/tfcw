@@ -1,4 +1,4 @@
-NAME          := tfcs
+NAME          := tfcw
 FILES         := $(shell find * -type f ! -path 'vendor/*' -name '*.go')
 REPOSITORY    := mvisonneau/$(NAME)
 .DEFAULT_GOAL := help

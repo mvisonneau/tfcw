@@ -20,7 +20,7 @@ FROM busybox:1.31-glibc
 WORKDIR /
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /build/dist/tfcs_linux_amd64/tfcs /usr/local/bin/
+COPY --from=builder /build/dist/tfcw_linux_amd64/tfcw /usr/local/bin/
 
-ENTRYPOINT ["/usr/local/bin/tfcs"]
+ENTRYPOINT ["/usr/local/bin/tfcw"]
 CMD [""]

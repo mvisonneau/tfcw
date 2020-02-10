@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/mvisonneau/tfcs/cli"
+	"github.com/mvisonneau/tfcw/cli"
 	log "github.com/sirupsen/logrus"
 )
 
