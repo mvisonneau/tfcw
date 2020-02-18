@@ -7,6 +7,8 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [0.0.1] - 2020-02-18
+
 ### Added
 
 - Read configuration form HCL (or json) file
@@ -15,4 +17,5 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.0...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.1...HEAD
+[0.0.1]: https://github.com/mvisonneau/tfcw/tree/0.0.1
