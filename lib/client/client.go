@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
+	"github.com/jpillora/backoff"
 	providerEnv "github.com/mvisonneau/tfcw/lib/providers/env"
 	providerS5 "github.com/mvisonneau/tfcw/lib/providers/s5"
 	providerVault "github.com/mvisonneau/tfcw/lib/providers/vault"
@@ -21,9 +23,21 @@ type Client struct {
 	Context                 context.Context
 	ProcessedVariablesMutex sync.Mutex
 	ProcessedVariables      map[string]schemas.VariableKind
+	Backoff                 *backoff.Backoff
 }
 
-func NewClient(cfg *schemas.Config, tfeToken string) (c *Client, err error) {
+type Config struct {
+	*schemas.Config
+	Runtime struct {
+		TFE struct {
+			Disabled bool
+			Address  string
+			Token    string
+		}
+	}
+}
+
+func NewClient(cfg *Config) (c *Client, err error) {
 	// Initializing Vault client with default values
 	var vaultAddress, vaultToken string
 	if cfg.Defaults != nil {
@@ -69,12 +83,16 @@ func NewClient(cfg *schemas.Config, tfeToken string) (c *Client, err error) {
 	}
 
 	// Configure TFE client
-	tfeClient, err := tfe.NewClient(&tfe.Config{
-		Token: tfeToken,
-	})
+	tfeClient := &tfe.Client{}
+	if !cfg.Runtime.TFE.Disabled {
+		tfeClient, err = tfe.NewClient(&tfe.Config{
+			Address: cfg.Runtime.TFE.Address,
+			Token:   cfg.Runtime.TFE.Token,
+		})
 
-	if err != nil {
-		return nil, fmt.Errorf("terraform cloud: %s", err)
+		if err != nil {
+			return nil, fmt.Errorf("terraform cloud: %s", err)
+		}
 	}
 
 	// Create a context
@@ -87,6 +105,12 @@ func NewClient(cfg *schemas.Config, tfeToken string) (c *Client, err error) {
 		TFE:                tfeClient,
 		Context:            ctx,
 		ProcessedVariables: map[string]schemas.VariableKind{},
+		Backoff: &backoff.Backoff{
+			Min:    1 * time.Second,
+			Max:    15 * time.Second,
+			Factor: 2,
+			Jitter: false,
+		},
 	}
 
 	return

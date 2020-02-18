@@ -4,64 +4,41 @@ import (
 	"github.com/urfave/cli"
 )
 
-var aesFlags = []cli.Flag{
+var tfc = []cli.Flag{
 	cli.StringFlag{
-		Name:   "key",
-		EnvVar: "S5_AES_KEY",
-		Usage:  "`path` to a readable key for AES encryption/decryption",
+		Name:   "tfc-address",
+		EnvVar: "TFCW_TFC_ADDRESS",
+		Usage:  "`address` to access Terraform Cloud API",
+		Value:  "https://app.terraform.io",
+	},
+	cli.StringFlag{
+		Name:   "tfc-token,t",
+		EnvVar: "TFCW_TFC_TOKEN",
+		Usage:  "`token` to access Terraform Cloud API",
 	},
 }
 
-var awsFlags = []cli.Flag{
+var tf = []cli.Flag{
 	cli.StringFlag{
-		Name:   "kms-key-arn",
-		EnvVar: "S5_AWS_KMS_KEY_ARN",
-		Usage:  "`arn` of a usable AWS KMS key for (de)ciphering text",
-	},
-}
-
-var gcpFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:   "kms-key-name",
-		EnvVar: "S5_GCP_KMS_KEY_NAME",
-		Usage:  "`name` of a usable GCP KMS key for (de)ciphering text",
-	},
-}
-
-var noTrimFlag = cli.BoolFlag{
-	Name:   "no-trim",
-	EnvVar: "S5_NO_TRIM",
-	Usage:  "if set, will not trim the input string from whitespaces and return carriages",
-}
-
-var pgpPublicKeyPathFlag = cli.StringFlag{
-	Name:   "public-key-path",
-	EnvVar: "S5_PGP_PUBLIC_KEY_PATH",
-	Usage:  "`path` to a readable public pgp key (armored)",
-}
-
-var pgpPrivateKeyPathFlag = cli.StringFlag{
-	Name:   "private-key-path",
-	EnvVar: "S5_PGP_PRIVATE_KEY_PATH",
-	Usage:  "`path` to a readable private pgp key (armored)",
-}
-
-var renderFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:  "output,o",
-		Usage: "output `filename`",
+		Name:   "tf-config-folder,f",
+		EnvVar: "TFCW_TF_CONFIG_FOLDER",
+		Usage:  "`path` to the Terraform configuration folder",
+		Value:  ".",
 	},
 	cli.BoolFlag{
-		Name:  "in-place,i",
-		Usage: " ",
+		Name:   "no-render",
+		EnvVar: "TFCW_NO_RENDER",
+		Usage:  "do not attempt to render variables before applying",
+	},
+	cli.BoolFlag{
+		Name:   "render-local",
+		EnvVar: "TFCW_RENDER_LOCAL",
+		Usage:  "render files locally instead of updating their values in TFC",
 	},
 }
 
-var vaultFlags = []cli.Flag{
-	cli.StringFlag{
-		Name:   "transit-key",
-		EnvVar: "S5_VAULT_TRANSIT_KEY",
-		Usage:  "`name` of the transit key used by s5 to cipher/decipher data",
-		Value:  "default",
-	},
+var dryRun = cli.BoolFlag{
+	Name:   "dry-run",
+	EnvVar: "TFCW_DRY_RUN",
+	Usage:  "simulate what TFCW would do onto the TFC API",
 }

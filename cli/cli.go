@@ -23,11 +23,6 @@ func Init(version *string, start time.Time) (app *cli.App) {
 			Value:  "./tfcw.hcl",
 		},
 		cli.StringFlag{
-			Name:   "token,t",
-			EnvVar: "TFCW_TOKEN",
-			Usage:  "`token` to access Terraform Cloud API",
-		},
-		cli.StringFlag{
 			Name:   "log-level",
 			EnvVar: "TFCW_LOG_LEVEL",
 			Usage:  "log `level` (debug,info,warn,fatal,panic)",
@@ -43,9 +38,33 @@ func Init(version *string, start time.Time) (app *cli.App) {
 
 	app.Commands = []cli.Command{
 		{
-			Name:   "run",
-			Usage:  "applies the config",
-			Action: cmd.Run,
+			Name:  "render",
+			Usage: "render the variables",
+			Subcommands: []cli.Command{
+				{
+					Name:   "tfc",
+					Usage:  "update the variables on TFC directly",
+					Action: cmd.Render,
+					Flags:  append(tfc, dryRun),
+				},
+				{
+					Name:   "local",
+					Usage:  "render the variables locally, on disk",
+					Action: cmd.Render,
+				},
+			},
+		},
+		{
+			Name:   "plan",
+			Usage:  "plans the config",
+			Action: cmd.TFERun,
+			Flags:  append(tfc, tf...),
+		},
+		{
+			Name:   "apply",
+			Usage:  "plans and applies the config",
+			Action: cmd.TFERun,
+			Flags:  append(tfc, tf...),
 		},
 	}
 

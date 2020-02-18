@@ -33,7 +33,21 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 		return
 	}
 
-	c, err = tfcw.NewClient(cfg, ctx.GlobalString("token"))
+	clientConfig := &tfcw.Config{
+		Config: cfg,
+	}
+
+	// We do not need TFC access to render variables locally
+	switch ctx.Command.Name {
+	case "local":
+		clientConfig.Runtime.TFE.Disabled = true
+	default:
+		clientConfig.Runtime.TFE.Disabled = false
+		clientConfig.Runtime.TFE.Address = ctx.String("tfc-address")
+		clientConfig.Runtime.TFE.Token = ctx.String("tfc-token")
+	}
+
+	c, err = tfcw.NewClient(clientConfig)
 	return
 }
 

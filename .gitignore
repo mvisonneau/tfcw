@@ -2,4 +2,7 @@ coverage.out
 dist
 tfcw
 tfcw.hcl
+*.env
+*.tfvars
 vendor
+tests/stack/.terraform
