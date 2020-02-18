@@ -16,7 +16,7 @@ It is particularily useful when you work with ephemeral secrets which need to be
 
 Assuming you are using Terraform Cloud for managing this super simple stack:
 
-```json
+```hcl
 // terraform.tf
 
 terraform {
@@ -55,7 +55,7 @@ Once done, you can trigger a `terraform` run, manually, through the Terraform Cl
 
 You do not have to change any of your Terraform code, you can eventually omit the remote backend if you want to though:
 
-```json
+```hcl
 // terraform.tf
 
 provider "local" {
@@ -73,7 +73,7 @@ resource "local_file" "credentials_file" {
 
 You need to add a new file within your Terraform folder (or anywhere you would like to store it) which can look like this at a bare minimum:
 
-```json
+```hcl
 // tfcw.hcl
 
 tfc {
@@ -148,7 +148,7 @@ OPTIONS:
 
 You can also do [dry runs](https://en.wikipedia.org/wiki/Dry_run_(testing)) if you want to get insights about what tfcw would actually do.
 
-```
+```shell
 ~$ tfcw render tfc --dry-run
 INFO[2020-02-18T17:31:36Z] Processing variables and updating their values on TFC
 INFO[2020-02-18T17:31:48Z] [DRY-RUN] Set variable credentials - (terraform) : x********x

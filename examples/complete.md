@@ -1,6 +1,6 @@
 # Complete example of the configuration syntax
 
-```json
+```hcl
 // tfcw.hcl
 
 // Terraform Cloud related configuration
