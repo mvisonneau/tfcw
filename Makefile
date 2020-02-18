@@ -60,6 +60,10 @@ coverage: ## Generates coverage report
 	rm -rf *.out
 	go test -v ./... -coverpkg=./... -coverprofile=coverage.out
 
+.PHONY: show-coverage
+show-coverage: ## Display coverage report in browser
+	go tool cover -html=coverage.out
+
 .PHONY: is-git-dirty
 is-git-dirty: ## Tests if git is in a dirty state
 	@test $(shell git status --porcelain | grep -c .) -eq 0

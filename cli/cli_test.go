@@ -5,9 +5,8 @@ import (
 	"time"
 )
 
-func TestRunCli(t *testing.T) {
-	version := "0.0.0"
-	app := Init(&version, time.Now())
+func TestNewApp(t *testing.T) {
+	app := newApp("0.0.0", time.Now())
 	if app.Name != "tfcw" {
 		t.Fatalf("Expected app.Name to be tfcw, got '%s'", app.Name)
 	}

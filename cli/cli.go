@@ -1,17 +1,24 @@
 package cli
 
 import (
+	"log"
+	"os"
 	"time"
 
 	"github.com/mvisonneau/tfcw/cmd"
 	"github.com/urfave/cli"
 )
 
-// Init : Generates CLI configuration for the application
-func Init(version *string, start time.Time) (app *cli.App) {
+func Run(version string) {
+	if err := newApp(version, time.Now()).Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func newApp(version string, start time.Time) (app *cli.App) {
 	app = cli.NewApp()
 	app.Name = "tfcw"
-	app.Version = *version
+	app.Version = version
 	app.Usage = "Terraform Cloud wrapper which can be used to manage variables dynamically"
 	app.EnableBashCompletion = true
 
