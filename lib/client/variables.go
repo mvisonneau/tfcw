@@ -186,7 +186,7 @@ func (c *Client) fetchVariableValue(v *schemas.Variable) error {
 	// We can map several keys in a single API call
 	if v.Vault != nil && v.Vault.Path != nil {
 		if values, err := c.Vault.GetValues(v.Vault); err == nil {
-			if v.Vault.Key == nil && (v.Vault.Keys == nil || len(*v.Vault.Keys) == 0) {
+			if v.Key == nil && (v.Vault.Keys == nil || len(*v.Vault.Keys) == 0) {
 				return fmt.Errorf("you either need to set 'key' or 'keys' when using the Vault provider")
 			}
 

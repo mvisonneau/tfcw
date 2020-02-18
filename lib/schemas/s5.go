@@ -13,8 +13,8 @@ type S5 struct {
 type S5CipherEngineType string
 
 const (
-	S5CipherEngineTypeAES   S5CipherEngineType = "aes-gcm"
-	S5CipherEngineTypeAWS   S5CipherEngineType = "aws-kms"
+	S5CipherEngineTypeAES   S5CipherEngineType = "aes"
+	S5CipherEngineTypeAWS   S5CipherEngineType = "aws"
 	S5CipherEngineTypeGCP   S5CipherEngineType = "gcp"
 	S5CipherEngineTypePGP   S5CipherEngineType = "pgp"
 	S5CipherEngineTypeVault S5CipherEngineType = "vault"
