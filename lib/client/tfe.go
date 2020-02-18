@@ -39,7 +39,7 @@ func (c *Client) Run(cfg *schemas.Config, uploadPath string, t TFERunType) error
 			return fmt.Errorf("unable to find absolute path for terraform configuration folder %s", err.Error())
 		}
 		uploadPath = strings.Replace(absolutePath, w.WorkingDirectory, "", 1)
-		log.Debugf("Upload path set to ", uploadPath)
+		log.Debugf("Upload path set to %s", uploadPath)
 	}
 
 	log.Debug("Creating configuration version..")
@@ -69,7 +69,7 @@ func (c *Client) Run(cfg *schemas.Config, uploadPath string, t TFERunType) error
 		return err
 	}
 
-	log.Info("Run ID: %s", run.ID)
+	log.Infof("Run ID: %s", run.ID)
 
 	// Sometimes the plan ID is not immediately available
 	for {
