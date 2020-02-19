@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewApp(t *testing.T) {
-	app := newApp("0.0.0", time.Now())
+	app := NewApp("0.0.0", time.Now())
 	if app.Name != "tfcw" {
 		t.Fatalf("Expected app.Name to be tfcw, got '%s'", app.Name)
 	}

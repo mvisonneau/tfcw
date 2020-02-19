@@ -10,12 +10,12 @@ import (
 )
 
 func Run(version string) {
-	if err := newApp(version, time.Now()).Run(os.Args); err != nil {
-		log.Fatal(err)
+	if err := NewApp(version, time.Now()).Run(os.Args); err != nil {
+		log.Fatal("foo")
 	}
 }
 
-func newApp(version string, start time.Time) (app *cli.App) {
+func NewApp(version string, start time.Time) (app *cli.App) {
 	app = cli.NewApp()
 	app.Name = "tfcw"
 	app.Version = version
@@ -51,26 +51,26 @@ func newApp(version string, start time.Time) (app *cli.App) {
 				{
 					Name:   "tfc",
 					Usage:  "update the variables on TFC directly",
-					Action: cmd.Render,
+					Action: cmd.ExecWrapper(cmd.Render),
 					Flags:  append(tfc, dryRun),
 				},
 				{
 					Name:   "local",
 					Usage:  "render the variables locally, on disk",
-					Action: cmd.Render,
+					Action: cmd.ExecWrapper(cmd.Render),
 				},
 			},
 		},
 		{
 			Name:   "plan",
 			Usage:  "plans the config",
-			Action: cmd.TFERun,
+			Action: cmd.ExecWrapper(cmd.TFERun),
 			Flags:  append(tfc, tf...),
 		},
 		{
 			Name:   "apply",
 			Usage:  "plans and applies the config",
-			Action: cmd.TFERun,
+			Action: cmd.ExecWrapper(cmd.TFERun),
 			Flags:  append(tfc, tf...),
 		},
 	}

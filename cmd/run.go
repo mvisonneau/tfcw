@@ -5,24 +5,24 @@ import (
 	"github.com/urfave/cli"
 )
 
-func Render(ctx *cli.Context) error {
+func Render(ctx *cli.Context) (error, int) {
 	c, cfg, err := configure(ctx)
 	if err != nil {
-		return exit(err, 1)
+		return err, 1
 	}
 
 	err = c.RenderVariables(cfg, tfcw.RenderVariablesType(ctx.Command.Name), ctx.Bool("dry-run"))
 	if err != nil {
-		return exit(err, 1)
+		return err, 1
 	}
 
-	return exit(nil, 0)
+	return nil, 0
 }
 
-func TFERun(ctx *cli.Context) error {
+func TFERun(ctx *cli.Context) (error, int) {
 	c, cfg, err := configure(ctx)
 	if err != nil {
-		return exit(err, 1)
+		return err, 1
 	}
 
 	if !ctx.Bool("no-render") {
@@ -33,14 +33,14 @@ func TFERun(ctx *cli.Context) error {
 
 		err = c.RenderVariables(cfg, renderVariablesType, false)
 		if err != nil {
-			return exit(err, 1)
+			return err, 1
 		}
 	}
 
 	err = c.Run(cfg, ctx.String("tf-config-folder"), tfcw.TFERunType(ctx.Command.Name))
 	if err != nil {
-		return exit(err, 1)
+		return err, 1
 	}
 
-	return exit(nil, 0)
+	return nil, 0
 }
