@@ -38,23 +38,26 @@ type Config struct {
 }
 
 func NewClient(cfg *Config) (c *Client, err error) {
-	// Initializing Vault client with default values
-	var vaultAddress, vaultToken string
-	if cfg.Defaults != nil {
-		if cfg.Defaults.Vault != nil {
-			if cfg.Defaults.Vault.Address != nil {
-				vaultAddress = *cfg.Defaults.Vault.Address
-			}
+	vaultClient := &providerVault.Client{}
+	if cfg.isVaultClientRequired() {
+		// Initializing Vault client with default values
+		var vaultAddress, vaultToken string
+		if cfg.Defaults != nil {
+			if cfg.Defaults.Vault != nil {
+				if cfg.Defaults.Vault.Address != nil {
+					vaultAddress = *cfg.Defaults.Vault.Address
+				}
 
-			if cfg.Defaults.Vault.Address != nil {
-				vaultToken = *cfg.Defaults.Vault.Token
+				if cfg.Defaults.Vault.Address != nil {
+					vaultToken = *cfg.Defaults.Vault.Token
+				}
 			}
 		}
-	}
 
-	vaultClient, err := providerVault.GetClient(vaultAddress, vaultToken)
-	if err != nil {
-		return nil, fmt.Errorf("vault: %s", err)
+		vaultClient, err = providerVault.GetClient(vaultAddress, vaultToken)
+		if err != nil {
+			return nil, fmt.Errorf("vault: %s", err)
+		}
 	}
 
 	// Initializing S5 client with default values
@@ -114,4 +117,13 @@ func NewClient(cfg *Config) (c *Client, err error) {
 	}
 
 	return
+}
+
+func (cfg *Config) isVaultClientRequired() bool {
+	for _, v := range append(cfg.TerraformVariables, cfg.EnvironmentVariables...) {
+		if v.Vault != nil {
+			return true
+		}
+	}
+	return false
 }
