@@ -10,9 +10,7 @@ import (
 )
 
 func Run(version string) {
-	if err := NewApp(version, time.Now()).Run(os.Args); err != nil {
-		log.Fatal("foo")
-	}
+	NewApp(version, time.Now()).Run(os.Args)
 }
 
 func NewApp(version string, start time.Time) (app *cli.App) {
