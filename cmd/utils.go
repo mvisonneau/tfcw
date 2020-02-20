@@ -29,6 +29,7 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 	}
 
 	cfg = &schemas.Config{}
+	log.Debugf("Using config file at %s", ctx.GlobalString("config-path"))
 	err = hclsimple.DecodeFile(ctx.GlobalString("config-path"), nil, cfg)
 	if err != nil {
 		return c, cfg, fmt.Errorf("tfcw config/hcl: %s", err.Error())
