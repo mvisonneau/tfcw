@@ -78,7 +78,7 @@ func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err err
 			return results, fmt.Errorf("vault error : %s", err)
 		}
 
-		if len(secret.Data) == 0 {
+		if secret == nil || len(secret.Data) == 0 {
 			return results, fmt.Errorf("no results/keys returned for secret : %s", *v.Path)
 		}
 
