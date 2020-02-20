@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/hcl/v2/hclsimple"
-	"github.com/mvisonneau/tfcw/logger"
+	"github.com/mvisonneau/go-helpers/logger"
 	"github.com/urfave/cli"
 
 	tfcw "github.com/mvisonneau/tfcw/lib/client"

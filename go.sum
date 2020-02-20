@@ -153,6 +153,8 @@ github.com/mitchellh/go-wordwrap v1.0.0/go.mod h1:ZXFpozHsX6DPmq2I0TCekCxypsnAUb
 github.com/mitchellh/mapstructure v1.1.2 h1:fmNYVwqnSfB9mZU6OS2O6GsXM+wcskZDuKQzvN1EDeE=
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mitchellh/reflectwalk v1.0.0/go.mod h1:mSTlrgnPZtwu0c4WaC2kGObEpuNDbx0jmZXqmk4esnw=
+github.com/mvisonneau/go-helpers v0.0.0-20200220092628-fad41be13d09 h1:DZ9HS2em1Co7j/9C2V03hmXNR4v16+iyaD0lxjTuGWk=
+github.com/mvisonneau/go-helpers v0.0.0-20200220092628-fad41be13d09/go.mod h1:IGzQk4Sr2yIiknxXmOqvhf6uQy+8bVzvkP1005Tbt9I=
 github.com/mvisonneau/s5 v0.0.0-20200205221749-1153d0e78149 h1:ZNW4iwOpdxqCprEPM8bBgc0pSuZoIs9NazJYUvg8w80=
 github.com/mvisonneau/s5 v0.0.0-20200205221749-1153d0e78149/go.mod h1:pru3RkN7OzAovvGXHjz0tiYGfrtEkjEoCrsCy4s24eg=
 github.com/oklog/run v1.0.0/go.mod h1:dlhp/R75TPv97u0XWUtDeV/lRKWPKSdTuV0TZvrmrQA=
