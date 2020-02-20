@@ -53,7 +53,6 @@ func GetClient(address, token string) (*Client, error) {
 func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err error) {
 	results = make(map[string]string)
 	if v != nil && v.Path != nil {
-		//log.Infof("Using Vault for variable '%s'", v.Name)
 		var secret *vault.Secret
 
 		if v.Method != nil {
@@ -90,27 +89,5 @@ func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err err
 		return
 	}
 
-	// if v.S5 != nil && v.S5.Value != nil {
-	// 	log.Infof("Using S5 for variable '%s'", v.Name)
-
-	// 	c, s5Err := getS5CipherEngine(v.S5, c.Defaults.S5)
-	// 	if s5Err != nil {
-	// 		return results, s5Err
-	// 	}
-
-	// 	input, s5Err := cipher.ParseInput(*v.S5.Value)
-	// 	if s5Err != nil {
-	// 		return results, s5Err
-	// 	}
-
-	// 	o, s5Err := c.Decipher(input)
-	// 	if s5Err != nil {
-	// 		return results, s5Err
-	// 	}
-
-	// 	results["s5"] = o
-	// 	return
-	// }
-
-	return results, fmt.Errorf("No provider defined for variable '%v'", v)
+	return results, fmt.Errorf("No path defined for retrieving vault secret '%v'", v)
 }
