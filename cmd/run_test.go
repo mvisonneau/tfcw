@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mvisonneau/go-helpers/test"
 	"github.com/urfave/cli"
 )
 
@@ -31,10 +32,6 @@ func NewTestContext() (ctx *cli.Context, flags, globalFlags *flag.FlagSet) {
 func TestRenderWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
 	err, exitCode := Render(ctx)
-	if err.Error() != "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist." {
-		t.Fatalf("expected to get following error 'tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.', got '%s'", err.Error())
-	}
-	if exitCode != 1 {
-		t.Fatalf("expected exitCode to be 1, got %d", exitCode)
-	}
+	test.Expect(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
+	test.Expect(t, exitCode, 1)
 }

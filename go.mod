@@ -9,7 +9,7 @@ require (
 	github.com/jpillora/backoff v1.0.0
 	github.com/manifoldco/promptui v0.7.0
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mvisonneau/go-helpers v0.0.0-20200220092628-fad41be13d09
+	github.com/mvisonneau/go-helpers v0.0.0-20200220095647-0b5df48fe758
 	github.com/mvisonneau/s5 v0.0.0-20200205221749-1153d0e78149
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli v1.22.2
