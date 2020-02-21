@@ -53,7 +53,7 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 	return
 }
 
-func exit(err error, exitCode int) *cli.ExitError {
+func exit(exitCode int, err error) *cli.ExitError {
 	defer log.Debugf("Executed in %s, exiting..", time.Since(start))
 	if err != nil {
 		log.Error(err.Error())
@@ -62,7 +62,8 @@ func exit(err error, exitCode int) *cli.ExitError {
 	return cli.NewExitError("", exitCode)
 }
 
-func ExecWrapper(f func(ctx *cli.Context) (error, int)) func(*cli.Context) error {
+// ExecWrapper gracefully logs and exits our `run` functions
+func ExecWrapper(f func(ctx *cli.Context) (int, error)) func(*cli.Context) error {
 	return func(ctx *cli.Context) error {
 		return exit(f(ctx))
 	}

@@ -66,7 +66,7 @@ func createTestConfigFile(config string) (string, error) {
 
 func TestRenderWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
-	err, exitCode := Render(ctx)
+	exitCode, err := Render(ctx)
 	test.Expect(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
 	test.Expect(t, exitCode, 1)
 }
@@ -84,14 +84,14 @@ func TestRenderLocalWithValidConfig(t *testing.T) {
 
 	defer os.Remove(fmt.Sprint(wd, "/tfcw.auth.tfvars"))
 	defer os.Remove(fmt.Sprint(wd, "/tfcw.env"))
-	err, exitCode := Render(ctx)
+	exitCode, err := Render(ctx)
 	test.Expect(t, err, nil)
 	test.Expect(t, exitCode, 0)
 }
 
 func TestTFERunWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
-	err, exitCode := TFERun(ctx)
+	exitCode, err := TFERun(ctx)
 	test.Expect(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
 	test.Expect(t, exitCode, 1)
 }

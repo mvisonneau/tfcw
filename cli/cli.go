@@ -8,10 +8,12 @@ import (
 	"github.com/urfave/cli"
 )
 
+// Run handles the instanciation of the CLI application
 func Run(version string) {
 	NewApp(version, time.Now()).Run(os.Args)
 }
 
+// NewApp configures the CLI application
 func NewApp(version string, start time.Time) (app *cli.App) {
 	app = cli.NewApp()
 	app.Name = "tfcw"

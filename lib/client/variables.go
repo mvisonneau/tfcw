@@ -11,13 +11,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// RenderVariablesType defines possible rendering methods
 type RenderVariablesType string
 
 const (
-	RenderVariablesTypeTFC   RenderVariablesType = "tfc"
+	// RenderVariablesTypeTFC refers to a Terraform Cloud rendering
+	RenderVariablesTypeTFC RenderVariablesType = "tfc"
+
+	// RenderVariablesTypeLocal refers to a local rendering
 	RenderVariablesTypeLocal RenderVariablesType = "local"
 )
 
+// RenderVariables issues a rendering of all variables defined in a schemas.Config object
 func (c *Client) RenderVariables(cfg *schemas.Config, t RenderVariablesType, dryRun bool) error {
 	variables := schemas.Variables{}
 
@@ -166,66 +171,62 @@ func (c *Client) fetchVariableValue(v *schemas.Variable) error {
 		return fmt.Errorf("duplicate variable '%s' (%s)", v.Name, v.Kind)
 	}
 
-	configuredProviders := 0
-	if v.Vault != nil && v.Vault.Path != nil {
-		configuredProviders++
+	provider, err := v.GetProvider()
+	if err != nil {
+		return err
 	}
 
-	if v.S5 != nil {
-		configuredProviders++
-	}
-
-	if v.Env != nil {
-		configuredProviders++
-	}
-
-	if configuredProviders != 1 {
-		return fmt.Errorf("you can't have more or less than one provider configured per variable. Found %d for '%s'", configuredProviders, v.Name)
-	}
-
-	// We can map several keys in a single API call
-	if v.Vault != nil && v.Vault.Path != nil {
-		if values, err := c.Vault.GetValues(v.Vault); err == nil {
-			if v.Vault.Key == nil && (v.Vault.Keys == nil || len(*v.Vault.Keys) == 0) {
-				return fmt.Errorf("you either need to set 'key' or 'keys' when using the Vault provider")
-			}
-
-			if v.Vault.Keys == nil {
-				v.Vault.Keys = &map[string]string{}
-			}
-
-			if v.Vault.Keys == nil || len(*v.Vault.Keys) == 0 {
-				(*v.Vault.Keys)[*v.Vault.Key] = v.Name
-			}
-
-			for vaultKey, variableName := range *v.Vault.Keys {
-				if value, found := values[vaultKey]; found {
-					v.Name = variableName
-					v.Value = &value
-					return nil
-				}
-				return fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, *v.Vault.Path)
-			}
-		}
-	}
-
-	if v.S5 != nil {
-		value, err := c.S5.GetValue(v.S5)
+	var value string
+	switch *provider {
+	case schemas.VariableProviderEnv:
+		value = c.Env.GetValue(v.Env)
+		v.Value = &value
+	case schemas.VariableProviderS5:
+		value, err = c.S5.GetValue(v.S5)
 		if err != nil {
 			return fmt.Errorf("s5 error: %s", err)
 		}
-
-		v.Value = &value
-		return nil
+	case schemas.VariableProviderVault:
+		if err = c.getAndProcessVaultValues(v); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("unkown provider '%s' for variable '%s'", *provider, v.Name)
 	}
 
-	if v.Env != nil {
-		value := c.Env.GetValue(v.Env)
-		v.Value = &value
-		return nil
+	v.Value = &value
+	return nil
+}
+
+func (c *Client) getAndProcessVaultValues(v *schemas.Variable) error {
+	values, err := c.Vault.GetValues(v.Vault)
+	if err != nil {
+		return fmt.Errorf("error getting values from vault for variable '%s' : %s", v.Name, err)
 	}
 
-	return fmt.Errorf("no providers could be used to fetch the variable value")
+	// We can map several keys in a single API call
+	if v.Vault.Key == nil && (v.Vault.Keys == nil || len(*v.Vault.Keys) == 0) {
+		return fmt.Errorf("you either need to set 'key' or 'keys' when using the Vault provider")
+	}
+
+	if v.Vault.Keys == nil {
+		v.Vault.Keys = &map[string]string{}
+	}
+
+	if v.Vault.Keys == nil || len(*v.Vault.Keys) == 0 {
+		(*v.Vault.Keys)[*v.Vault.Key] = v.Name
+	}
+
+	for vaultKey, variableName := range *v.Vault.Keys {
+		if value, found := values[vaultKey]; found {
+			v.Name = variableName
+			v.Value = &value
+			return nil
+		}
+		return fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, *v.Vault.Path)
+	}
+
+	return nil
 }
 
 func (c *Client) isVariableAlreadyProcessed(name string, kind schemas.VariableKind) bool {

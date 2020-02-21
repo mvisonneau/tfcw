@@ -14,81 +14,49 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// TFEVariables gives us an accessible fashion for managing all our
+// variables independently of their kind
 type TFEVariables map[tfe.CategoryType]map[string]*tfe.Variable
 
+// TFERunType defines possible TFC run types
 type TFERunType string
 
 const (
-	TFERunTypePlan  TFERunType = "plan"
+	// TFERunTypePlan refers to a TFC `plan`
+	TFERunTypePlan TFERunType = "plan"
+
+	// TFERunTypeApply refers to a TFC `apply`
 	TFERunTypeApply TFERunType = "apply"
 )
 
+// Run triggers a `run` over the TFC API
 func (c *Client) Run(cfg *schemas.Config, uploadPath string, t TFERunType) error {
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace)
-	if err != nil {
-		return fmt.Errorf("terraform cloud: %s", err)
-	}
-
 	log.Info("Preparing plan")
-	log.Debugf("Workspace id for %s: %s", w.Name, w.ID)
-	log.Debugf("Configured working directory: %s", w.WorkingDirectory)
-
-	if len(w.WorkingDirectory) > 0 {
-		absolutePath, err := filepath.Abs(uploadPath)
-		if err != nil {
-			return fmt.Errorf("unable to find absolute path for terraform configuration folder %s", err.Error())
-		}
-		uploadPath = strings.Replace(absolutePath, w.WorkingDirectory, "", 1)
-		log.Debugf("Upload path set to %s", uploadPath)
-	}
-
-	log.Debug("Creating configuration version..")
-	configVersion, err := c.TFE.ConfigurationVersions.Create(c.Context, w.ID, tfe.ConfigurationVersionCreateOptions{
-		AutoQueueRuns: tfe.Bool(false),
-	})
-	log.Debugf("Configuration version ID: %s", configVersion.ID)
-
-	if err != nil {
-		return fmt.Errorf("terraform cloud: %s", err)
-	}
-
-	log.Debug("Uploading configuration version..")
-	err = c.TFE.ConfigurationVersions.Upload(c.Context, configVersion.UploadURL, uploadPath)
-	if err != nil {
-		return fmt.Errorf("terraform cloud: %s", err)
-	}
-	log.Debug("Uploaded configuration version!")
-
-	run, err := c.TFE.Runs.Create(c.Context, tfe.RunCreateOptions{
-		Message:              tfe.String("Triggered from TFCW"),
-		ConfigurationVersion: configVersion,
-		Workspace:            w,
-	})
-
+	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace)
 	if err != nil {
 		return err
 	}
 
-	log.Infof("Run ID: %s", run.ID)
-
-	// Sometimes the plan ID is not immediately available
-	for {
-		if run.Plan != nil {
-			log.Debugf("Plan ID: %s", run.Plan.ID)
-			break
-		}
-
-		t := c.Backoff.Duration()
-		log.Infof("Waiting %s for plan ID to be generated..", t.String())
-		time.Sleep(t)
-
-		run, err = c.TFE.Runs.Read(c.Context, run.ID)
-		if err != nil {
-			return nil
-		}
+	configVersion, err := c.createConfigurationVersion(w)
+	if err != nil {
+		return err
 	}
 
-	plan, err := c.waitForTerraformPlan(run.Plan.ID)
+	if err := c.uploadConfigurationVersion(w, configVersion, uploadPath); err != nil {
+		return err
+	}
+
+	run, err := c.createRun(w, configVersion)
+	if err != nil {
+		return err
+	}
+
+	planID, err := c.getTerraformPlanID(run)
+	if err != nil {
+		return err
+	}
+
+	plan, err := c.waitForTerraformPlan(planID)
 	if err != nil {
 		return err
 	}
@@ -124,7 +92,63 @@ func (c *Client) Run(cfg *schemas.Config, uploadPath string, t TFERunType) error
 }
 
 func (c *Client) getWorkspace(organization, workspace string) (*tfe.Workspace, error) {
-	return c.TFE.Workspaces.Read(c.Context, organization, workspace)
+	log.Debug("Fetching workspace")
+	w, err := c.TFE.Workspaces.Read(c.Context, organization, workspace)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching TFC workspace: %s", err)
+	}
+
+	log.Debugf("Found workspace id for '%s': %s", w.Name, w.ID)
+	log.Debugf("Configured working directory: %s", w.WorkingDirectory)
+
+	return w, nil
+}
+
+func (c *Client) createConfigurationVersion(w *tfe.Workspace) (*tfe.ConfigurationVersion, error) {
+	log.Debug("Creating configuration version")
+	configVersion, err := c.TFE.ConfigurationVersions.Create(c.Context, w.ID, tfe.ConfigurationVersionCreateOptions{
+		AutoQueueRuns: tfe.Bool(false),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error creating TFC configuration version: %s", err)
+	}
+
+	log.Debugf("Configuration version ID: %s", configVersion.ID)
+	return configVersion, nil
+}
+
+func (c *Client) uploadConfigurationVersion(w *tfe.Workspace, configVersion *tfe.ConfigurationVersion, uploadPath string) error {
+	if len(w.WorkingDirectory) > 0 {
+		absolutePath, err := filepath.Abs(uploadPath)
+		if err != nil {
+			return fmt.Errorf("unable to find absolute path for terraform configuration folder %s", err.Error())
+		}
+		uploadPath = strings.Replace(absolutePath, w.WorkingDirectory, "", 1)
+		log.Debugf("Upload path set to %s", uploadPath)
+	}
+
+	log.Debug("Uploading configuration version..")
+	if err := c.TFE.ConfigurationVersions.Upload(c.Context, configVersion.UploadURL, uploadPath); err != nil {
+		return fmt.Errorf("error uploading configuration version: %s", err)
+	}
+	log.Debug("Uploaded configuration version!")
+	return nil
+}
+
+func (c *Client) createRun(w *tfe.Workspace, configVersion *tfe.ConfigurationVersion) (*tfe.Run, error) {
+	log.Debugf("Creating run for workspace '%s' / configuration version '%s'", w.ID, configVersion.ID)
+	run, err := c.TFE.Runs.Create(c.Context, tfe.RunCreateOptions{
+		Message:              tfe.String("Triggered from TFCW"),
+		ConfigurationVersion: configVersion,
+		Workspace:            w,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("error creating run: %s", err)
+	}
+
+	log.Debugf("Run ID: %s", run.ID)
+	return run, nil
 }
 
 func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.Variable, e TFEVariables) (*tfe.Variable, error) {
@@ -230,6 +254,29 @@ func getCategoryType(kind schemas.VariableKind) tfe.CategoryType {
 	}
 
 	return tfe.CategoryType("")
+}
+
+func (c *Client) getTerraformPlanID(run *tfe.Run) (string, error) {
+	var err error
+
+	// Sometimes the plan ID is not immediately available when the run is created
+	for {
+		if run.Plan != nil {
+			break
+		}
+
+		t := c.Backoff.Duration()
+		log.Infof("Waiting %s for plan ID to be generated..", t.String())
+		time.Sleep(t)
+
+		run, err = c.TFE.Runs.Read(c.Context, run.ID)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	log.Debugf("Plan ID: %s", run.Plan.ID)
+	return run.Plan.ID, nil
 }
 
 func (c *Client) waitForTerraformPlan(planID string) (plan *tfe.Plan, err error) {
@@ -342,9 +389,8 @@ func readTerraformLogs(l io.Reader) error {
 		if err != nil {
 			if err == io.EOF {
 				break
-			} else {
-				return err
 			}
+			return err
 		}
 		fmt.Print(line)
 	}

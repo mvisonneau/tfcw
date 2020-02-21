@@ -5,24 +5,27 @@ import (
 	"github.com/urfave/cli"
 )
 
-func Render(ctx *cli.Context) (error, int) {
+// Render handles the processing of the variables and update of their values
+// on supported providers (tfc or local)
+func Render(ctx *cli.Context) (int, error) {
 	c, cfg, err := configure(ctx)
 	if err != nil {
-		return err, 1
+		return 1, err
 	}
 
 	err = c.RenderVariables(cfg, tfcw.RenderVariablesType(ctx.Command.Name), ctx.Bool("dry-run"))
 	if err != nil {
-		return err, 1
+		return 1, err
 	}
 
-	return nil, 0
+	return 0, nil
 }
 
-func TFERun(ctx *cli.Context) (error, int) {
+// TFERun handles Terraform runs over TFC
+func TFERun(ctx *cli.Context) (int, error) {
 	c, cfg, err := configure(ctx)
 	if err != nil {
-		return err, 1
+		return 1, err
 	}
 
 	if !ctx.Bool("no-render") {
@@ -33,14 +36,14 @@ func TFERun(ctx *cli.Context) (error, int) {
 
 		err = c.RenderVariables(cfg, renderVariablesType, false)
 		if err != nil {
-			return err, 1
+			return 1, err
 		}
 	}
 
 	err = c.Run(cfg, ctx.String("tf-config-folder"), tfcw.TFERunType(ctx.Command.Name))
 	if err != nil {
-		return err, 1
+		return 1, err
 	}
 
-	return nil, 0
+	return 0, nil
 }

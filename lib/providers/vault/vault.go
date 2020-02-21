@@ -11,6 +11,7 @@ import (
 	"github.com/mvisonneau/tfcw/lib/schemas"
 )
 
+// Client is here to support provider related functions
 type Client struct {
 	*vault.Client
 }
@@ -50,6 +51,7 @@ func GetClient(address, token string) (*Client, error) {
 	return &Client{c}, nil
 }
 
+// GetValues returns values from Vault
 func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err error) {
 	results = make(map[string]string)
 	if v != nil && v.Path != nil {

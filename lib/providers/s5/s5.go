@@ -8,6 +8,7 @@ import (
 	"github.com/mvisonneau/tfcw/lib/schemas"
 )
 
+// Client is here to support provider related functions
 type Client struct {
 	CipherEngineType  *schemas.S5CipherEngineType
 	CipherEngineAES   *schemas.S5CipherEngineAES
@@ -17,6 +18,7 @@ type Client struct {
 	CipherEngineVault *schemas.S5CipherEngineVault
 }
 
+// GetValue returns a deciphered value from S5
 func (c *Client) GetValue(v *schemas.S5) (string, error) {
 	variableCipher, err := c.getCipherEngine(v)
 	if err != nil {

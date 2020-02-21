@@ -15,6 +15,7 @@ import (
 	tfe "github.com/hashicorp/go-tfe"
 )
 
+// Client aggregates provider clients
 type Client struct {
 	Vault                   *providerVault.Client
 	S5                      *providerS5.Client
@@ -26,6 +27,8 @@ type Client struct {
 	Backoff                 *backoff.Backoff
 }
 
+// Config is a subset of schemas.Config with a few more runtime
+// related values
 type Config struct {
 	*schemas.Config
 	Runtime struct {
@@ -37,8 +40,37 @@ type Config struct {
 	}
 }
 
+// NewClient instanciate a Client from a provider Config
 func NewClient(cfg *Config) (c *Client, err error) {
-	vaultClient := &providerVault.Client{}
+	vaultClient, err := getVaultClient(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("error getting vault client: %s", err)
+	}
+
+	tfeClient, err := getTFEClient(cfg)
+	if err != nil {
+		return nil, fmt.Errorf("error getting terraform cloud client: %s", err)
+	}
+
+	c = &Client{
+		Vault:              vaultClient,
+		S5:                 getS5Client(cfg),
+		Env:                &providerEnv.Client{},
+		TFE:                tfeClient,
+		Context:            context.Background(),
+		ProcessedVariables: map[string]schemas.VariableKind{},
+		Backoff: &backoff.Backoff{
+			Min:    1 * time.Second,
+			Max:    15 * time.Second,
+			Factor: 2,
+			Jitter: false,
+		},
+	}
+
+	return
+}
+
+func getVaultClient(cfg *Config) (c *providerVault.Client, err error) {
 	if cfg.isVaultClientRequired() {
 		// Initializing Vault client with default values
 		var vaultAddress, vaultToken string
@@ -54,68 +86,42 @@ func NewClient(cfg *Config) (c *Client, err error) {
 			}
 		}
 
-		vaultClient, err = providerVault.GetClient(vaultAddress, vaultToken)
-		if err != nil {
-			return nil, fmt.Errorf("vault: %s", err)
+		c, err = providerVault.GetClient(vaultAddress, vaultToken)
+	}
+	return
+}
+
+func getS5Client(cfg *Config) (c *providerS5.Client) {
+	if cfg.Defaults != nil && cfg.Defaults.S5 != nil {
+		if cfg.Defaults.S5.CipherEngineType != nil {
+			c.CipherEngineType = cfg.Defaults.S5.CipherEngineType
+		}
+		if cfg.Defaults.S5.CipherEngineAES != nil {
+			c.CipherEngineAES = cfg.Defaults.S5.CipherEngineAES
+		}
+		if cfg.Defaults.S5.CipherEngineAWS != nil {
+			c.CipherEngineAWS = cfg.Defaults.S5.CipherEngineAWS
+		}
+		if cfg.Defaults.S5.CipherEngineGCP != nil {
+			c.CipherEngineGCP = cfg.Defaults.S5.CipherEngineGCP
+		}
+		if cfg.Defaults.S5.CipherEnginePGP != nil {
+			c.CipherEnginePGP = cfg.Defaults.S5.CipherEnginePGP
+		}
+		if cfg.Defaults.S5.CipherEngineVault != nil {
+			c.CipherEngineVault = cfg.Defaults.S5.CipherEngineVault
 		}
 	}
+	return
+}
 
-	// Initializing S5 client with default values
-	s5Client := &providerS5.Client{}
-	if cfg.Defaults != nil {
-		if cfg.Defaults.S5 != nil {
-			if cfg.Defaults.S5.CipherEngineType != nil {
-				s5Client.CipherEngineType = cfg.Defaults.S5.CipherEngineType
-			}
-			if cfg.Defaults.S5.CipherEngineAES != nil {
-				s5Client.CipherEngineAES = cfg.Defaults.S5.CipherEngineAES
-			}
-			if cfg.Defaults.S5.CipherEngineAWS != nil {
-				s5Client.CipherEngineAWS = cfg.Defaults.S5.CipherEngineAWS
-			}
-			if cfg.Defaults.S5.CipherEngineGCP != nil {
-				s5Client.CipherEngineGCP = cfg.Defaults.S5.CipherEngineGCP
-			}
-			if cfg.Defaults.S5.CipherEnginePGP != nil {
-				s5Client.CipherEnginePGP = cfg.Defaults.S5.CipherEnginePGP
-			}
-			if cfg.Defaults.S5.CipherEngineVault != nil {
-				s5Client.CipherEngineVault = cfg.Defaults.S5.CipherEngineVault
-			}
-		}
-	}
-
-	// Configure TFE client
-	tfeClient := &tfe.Client{}
+func getTFEClient(cfg *Config) (c *tfe.Client, err error) {
 	if !cfg.Runtime.TFE.Disabled {
-		tfeClient, err = tfe.NewClient(&tfe.Config{
+		c, err = tfe.NewClient(&tfe.Config{
 			Address: cfg.Runtime.TFE.Address,
 			Token:   cfg.Runtime.TFE.Token,
 		})
-
-		if err != nil {
-			return nil, fmt.Errorf("terraform cloud: %s", err)
-		}
 	}
-
-	// Create a context
-	ctx := context.Background()
-
-	c = &Client{
-		Vault:              vaultClient,
-		S5:                 s5Client,
-		Env:                &providerEnv.Client{},
-		TFE:                tfeClient,
-		Context:            ctx,
-		ProcessedVariables: map[string]schemas.VariableKind{},
-		Backoff: &backoff.Backoff{
-			Min:    1 * time.Second,
-			Max:    15 * time.Second,
-			Factor: 2,
-			Jitter: false,
-		},
-	}
-
 	return
 }
 

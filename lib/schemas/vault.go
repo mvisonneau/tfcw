@@ -1,5 +1,6 @@
 package schemas
 
+// Vault is a provider type
 type Vault struct {
 	Address *string            `hcl:"address"`
 	Token   *string            `hcl:"token"`
