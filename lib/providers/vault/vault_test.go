@@ -43,13 +43,17 @@ func TestGetValues(t *testing.T) {
 	defer ln.Close()
 	c := Client{client}
 
+	// Undefined path
+	v := &schemas.Vault{}
+	r, err := c.GetValues(v)
+	test.Expect(t, err, fmt.Errorf("no path defined for retrieving vault secret"))
+	test.Expect(t, r, map[string]string{})
+
 	// Valid secret
 	validPath := "secret/foo"
-	v := &schemas.Vault{
-		Path: &validPath,
-	}
+	v.Path = &validPath
 
-	r, err := c.GetValues(v)
+	r, err = c.GetValues(v)
 	test.Expect(t, err, nil)
 	test.Expect(t, r, map[string]string{"secret": "bar"})
 

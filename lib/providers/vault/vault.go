@@ -57,23 +57,24 @@ func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err err
 	if v != nil && v.Path != nil {
 		var secret *vault.Secret
 
-		if v.Method != nil {
-			switch *v.Method {
-			case "read":
-				secret, err = c.Logical().Read(*v.Path)
-			case "write":
-				params := map[string]interface{}{}
-				if v.Params != nil {
-					for k, v := range *v.Params {
-						params[k] = v
-					}
-				}
-				secret, err = c.Logical().Write(*v.Path, params)
-			default:
-				return results, fmt.Errorf("unsupported method '%s'", *v.Method)
-			}
-		} else {
+		if v.Method == nil {
+			m := "read"
+			v.Method = &m
+		}
+
+		switch *v.Method {
+		case "read":
 			secret, err = c.Logical().Read(*v.Path)
+		case "write":
+			params := map[string]interface{}{}
+			if v.Params != nil {
+				for k, v := range *v.Params {
+					params[k] = v
+				}
+			}
+			secret, err = c.Logical().Write(*v.Path, params)
+		default:
+			return results, fmt.Errorf("unsupported method '%s'", *v.Method)
 		}
 
 		if err != nil {
@@ -91,5 +92,5 @@ func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err err
 		return
 	}
 
-	return results, fmt.Errorf("No path defined for retrieving vault secret '%v'", v)
+	return results, fmt.Errorf("no path defined for retrieving vault secret")
 }
