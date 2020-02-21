@@ -70,7 +70,7 @@ func TestGetCipherEngineAES(t *testing.T) {
 	test.Expect(t, err, nil)
 	test.Expect(t, cipherEngine, expectedEngine)
 
-	// other engine & key defined in client, overriden in variable
+	// other engine & key defined in client, overridden in variable
 	otherCipherEngineType := schemas.S5CipherEngineTypeVault
 	otherKey := "4177252ea44dea6b9d66815ab5dda08b"
 

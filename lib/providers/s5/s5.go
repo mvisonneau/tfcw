@@ -22,15 +22,20 @@ type Client struct {
 func (c *Client) GetValue(v *schemas.S5) (string, error) {
 	variableCipher, err := c.getCipherEngine(v)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("s5 error whilst getting cipher engine: %s", err.Error())
 	}
 
 	parsedValue, err := cipher.ParseInput(*v.Value)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("s5 error whilst parsing input: %s", err.Error())
 	}
 
-	return variableCipher.Decipher(parsedValue)
+	value, err := variableCipher.Decipher(parsedValue)
+	if err != nil {
+		return "", fmt.Errorf("s5 error whilst deciphering: %s", err.Error())
+	}
+
+	return value, nil
 }
 
 func (c *Client) getCipherEngine(v *schemas.S5) (cipher.Engine, error) {
@@ -55,7 +60,7 @@ func (c *Client) getCipherEngine(v *schemas.S5) (cipher.Engine, error) {
 	case schemas.S5CipherEngineTypeVault:
 		return c.getCipherEngineVault(v)
 	default:
-		return nil, fmt.Errorf("Engine %s is not implemented yet", *cipherEngineType)
+		return nil, fmt.Errorf("engine %s is not implemented yet", *cipherEngineType)
 	}
 }
 

@@ -39,7 +39,7 @@ type Variable struct {
 	HCL       *bool  `hcl:"hcl"`
 
 	Kind  VariableKind
-	Value *string
+	Value string
 }
 
 // Variables is a slice of *Variable

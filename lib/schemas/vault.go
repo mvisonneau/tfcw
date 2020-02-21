@@ -9,4 +9,5 @@ type Vault struct {
 	Path    *string            `hcl:"path"`
 	Key     *string            `hcl:"key"`
 	Keys    *map[string]string `hcl:"keys"`
+	Values  map[string]string
 }

@@ -163,7 +163,7 @@ func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.Variable, e TFEVa
 	if existingVariable, ok := e[getCategoryType(v.Kind)][v.Name]; ok {
 		updatedVariable, err := c.TFE.Variables.Update(c.Context, w.ID, existingVariable.ID, tfe.VariableUpdateOptions{
 			Key:       &v.Name,
-			Value:     v.Value,
+			Value:     &v.Value,
 			Sensitive: v.Sensitive,
 			HCL:       v.HCL,
 		})
@@ -182,7 +182,7 @@ func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.Variable, e TFEVa
 
 	return c.TFE.Variables.Create(c.Context, w.ID, tfe.VariableCreateOptions{
 		Key:       &v.Name,
-		Value:     v.Value,
+		Value:     &v.Value,
 		Category:  tfe.Category(getCategoryType(v.Kind)),
 		Sensitive: v.Sensitive,
 		HCL:       v.HCL,
