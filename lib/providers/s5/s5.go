@@ -40,7 +40,7 @@ func (c *Client) getCipherEngine(v *schemas.S5) (cipher.Engine, error) {
 	} else if c.CipherEngineType != nil {
 		cipherEngineType = c.CipherEngineType
 	} else {
-		return nil, fmt.Errorf("You need to specify a cipher engine")
+		return nil, fmt.Errorf("you need to specify a S5 cipher engine")
 	}
 
 	switch *cipherEngineType {
