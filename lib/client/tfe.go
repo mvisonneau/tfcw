@@ -331,13 +331,18 @@ wait:
 }
 
 func (c *Client) waitForTerraformApply(applyID string) error {
-	time.Sleep(2 * time.Second)
-	apply, err := c.TFE.Applies.Read(c.Context, applyID)
+	var apply *tfe.Apply
+	var err error
+
+	// Reset the backoff in case it got incremented somewhere else beforehand
 	c.Backoff.Reset()
+
+	// Sleep for a second on init
+	time.Sleep(time.Second)
 
 wait:
 	for {
-		apply, err := c.TFE.Applies.Read(c.Context, applyID)
+		apply, err = c.TFE.Applies.Read(c.Context, applyID)
 		if err != nil {
 			return err
 		}
