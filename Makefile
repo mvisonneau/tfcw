@@ -9,17 +9,31 @@ export GO111MODULE=on
 setup: ## Install required libraries/tools for build tasks
 	@command -v cover 2>&1 >/dev/null     || GO111MODULE=off go get -u -v golang.org/x/tools/cmd/cover
 	@command -v goimports 2>&1 >/dev/null || GO111MODULE=off go get -u -v golang.org/x/tools/cmd/goimports
-	@command -v revive 2>&1 >/dev/null    || GO111MODULE=off go get -u -v github.com/mgechev/revive
 	@command -v goveralls 2>&1 >/dev/null || GO111MODULE=off go get -u -v github.com/mattn/goveralls
+	@command -v misspell 2>&1 >/dev/null || GO111MODULE=off go get -u -v github.com/client9/misspell/cmd/misspell
+	@command -v revive 2>&1 >/dev/null || GO111MODULE=off go get -u -v github.com/mgechev/revive
 
 .PHONY: fmt
 fmt: setup ## Format source code
 	goimports -w $(FILES)
 
 .PHONY: lint
-lint: setup ## Run golint, goimports and go vet against the codebase
+lint: revive misspell vet goimports ## Run golint, goimports and go vet against the codebase
+
+.PHONY: revive
+revive: setup ## Test code syntax with revive
 	revive -config .revive.toml ./...
+
+.PHONY: misspell
+misspell: setup ## Test code with misspell
+	misspell -error $(FILES)
+
+.PHONY: vet
+vet: ## Test code syntax with go vet
 	go vet ./...
+
+.PHONY: goimports
+goimports: setup ## Test code syntax with goimports
 	goimports -d $(FILES) > goimports.out
 	@if [ -s goimports.out ]; then cat goimports.out; rm goimports.out; exit 1; else rm goimports.out; fi
 

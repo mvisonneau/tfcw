@@ -40,7 +40,7 @@ type Config struct {
 	}
 }
 
-// NewClient instanciate a Client from a provider Config
+// NewClient instantiate a Client from a provider Config
 func NewClient(cfg *Config) (c *Client, err error) {
 	vaultClient, err := getVaultClient(cfg)
 	if err != nil {

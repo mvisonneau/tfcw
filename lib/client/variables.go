@@ -159,7 +159,7 @@ func (c *Client) renderVariableLocally(v *schemas.Variable, envFile, tfFile *os.
 			return err
 		}
 	default:
-		return fmt.Errorf("unkown kind '%s' for variable %s", v.Kind, v.Name)
+		return fmt.Errorf("unknown kind '%s' for variable %s", v.Kind, v.Name)
 	}
 
 	logVariable(v, false)
@@ -191,7 +191,7 @@ func (c *Client) fetchVariableValue(v *schemas.Variable) error {
 			return err
 		}
 	default:
-		return fmt.Errorf("unkown provider '%s' for variable '%s'", *provider, v.Name)
+		return fmt.Errorf("unknown provider '%s' for variable '%s'", *provider, v.Name)
 	}
 
 	v.Value = &value
