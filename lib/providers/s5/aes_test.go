@@ -1,7 +1,6 @@
 package s5
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -11,19 +10,8 @@ import (
 )
 
 const (
-	testAESKey       string = "cc6af4c2bf251c1cce0aebdbd39dc91d"
-	testAWSKMSKeyArn string = "arn:aws:kms:*:111111111111:key/mykey"
+	testAESKey string = "cc6af4c2bf251c1cce0aebdbd39dc91d"
 )
-
-func TestGetCipherEngineUndefined(t *testing.T) {
-	c := &Client{}
-	v := &schemas.S5{}
-
-	// Empty cipher engine
-	cipherEngine, err := c.getCipherEngine(v)
-	test.Expect(t, err, fmt.Errorf("you need to specify a S5 cipher engine"))
-	test.Expect(t, cipherEngine, nil)
-}
 
 func TestGetCipherEngineAES(t *testing.T) {
 	cipherEngineType := schemas.S5CipherEngineTypeAES
@@ -91,6 +79,3 @@ func TestGetCipherEngineAES(t *testing.T) {
 	test.Expect(t, err, nil)
 	test.Expect(t, cipherEngine, expectedEngine)
 }
-
-// TODO: Do others, however we need to figure out how to validate
-// the configuration has there are no getters on S5 side.

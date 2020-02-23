@@ -432,6 +432,7 @@ github.com/modern-go/reflect2 v1.0.1/go.mod h1:bx2lNnkwVCuqBIxFjflWJWanXIb3Rllmb
 github.com/mvisonneau/go-helpers v0.0.0-20200220095647-0b5df48fe758/go.mod h1:IGzQk4Sr2yIiknxXmOqvhf6uQy+8bVzvkP1005Tbt9I=
 github.com/mvisonneau/go-helpers v0.0.0-20200220160437-6b16986a9c1a h1:bMbD1ivFeUKaLUWKtEoJvSGVEodfL/pQWQ8xM6IbMWs=
 github.com/mvisonneau/go-helpers v0.0.0-20200220160437-6b16986a9c1a/go.mod h1:IGzQk4Sr2yIiknxXmOqvhf6uQy+8bVzvkP1005Tbt9I=
+github.com/mvisonneau/s5 v0.0.0-20200223142144-c3bdbfe873a8 h1:7jJ+IWjNzgT2dvCqITEpak070jw5NnDC/pFtVXXcoDE=
 github.com/mvisonneau/s5 v0.0.0-20200223143854-f6ce10501064 h1:9d7SuI3ornN3wyzaqGTkaUIFcJUc0rFmHmZkv8KuzbQ=
 github.com/mvisonneau/s5 v0.0.0-20200223143854-f6ce10501064/go.mod h1:HSDrXInHz6fh64Q1VDI4y7znE1GeMiPKcrabkwcKwVU=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
