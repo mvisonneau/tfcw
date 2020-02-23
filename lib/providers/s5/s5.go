@@ -66,38 +66,38 @@ func (c *Client) getCipherEngine(v *schemas.S5) (cipher.Engine, error) {
 
 func (c *Client) getCipherEngineAES(v *schemas.S5) (cipher.Engine, error) {
 	if v.CipherEngineAES != nil && v.CipherEngineAES.Key != nil {
-		return cipher.NewAES(*v.CipherEngineAES.Key)
+		return cipher.NewAESClient(*v.CipherEngineAES.Key)
 	}
 
 	if c.CipherEngineAES != nil && c.CipherEngineAES.Key != nil {
-		return cipher.NewAES(*c.CipherEngineAES.Key)
+		return cipher.NewAESClient(*c.CipherEngineAES.Key)
 	}
 
-	return cipher.NewAES(os.Getenv("S5_AES_KEY"))
+	return cipher.NewAESClient(os.Getenv("S5_AES_KEY"))
 }
 
 func (c *Client) getCipherEngineAWS(v *schemas.S5) (cipher.Engine, error) {
 	if v.CipherEngineAWS != nil && v.CipherEngineAWS.KmsKeyArn != nil {
-		return cipher.NewAWS(*v.CipherEngineAWS.KmsKeyArn)
+		return cipher.NewAWSClient(*v.CipherEngineAWS.KmsKeyArn)
 	}
 
 	if c.CipherEngineAWS != nil && c.CipherEngineAWS.KmsKeyArn != nil {
-		return cipher.NewAWS(*c.CipherEngineAWS.KmsKeyArn)
+		return cipher.NewAWSClient(*c.CipherEngineAWS.KmsKeyArn)
 	}
 
-	return cipher.NewAWS(os.Getenv("S5_AWS_KMS_KEY_ARN"))
+	return cipher.NewAWSClient(os.Getenv("S5_AWS_KMS_KEY_ARN"))
 }
 
 func (c *Client) getCipherEngineGCP(v *schemas.S5) (cipher.Engine, error) {
 	if v.CipherEngineGCP != nil && v.CipherEngineGCP.KmsKeyName != nil {
-		return cipher.NewAWS(*v.CipherEngineGCP.KmsKeyName)
+		return cipher.NewGCPClient(*v.CipherEngineGCP.KmsKeyName)
 	}
 
 	if c.CipherEngineGCP != nil && c.CipherEngineGCP.KmsKeyName != nil {
-		return cipher.NewAWS(*c.CipherEngineGCP.KmsKeyName)
+		return cipher.NewGCPClient(*c.CipherEngineGCP.KmsKeyName)
 	}
 
-	return cipher.NewGCP(os.Getenv("S5_GCP_KMS_KEY_NAME"))
+	return cipher.NewGCPClient(os.Getenv("S5_GCP_KMS_KEY_NAME"))
 }
 
 func (c *Client) getCipherEnginePGP(v *schemas.S5) (cipher.Engine, error) {
@@ -119,17 +119,17 @@ func (c *Client) getCipherEnginePGP(v *schemas.S5) (cipher.Engine, error) {
 		privateKeyPath = os.Getenv("S5_PGP_PUBLIC_KEY_PATH")
 	}
 
-	return cipher.NewPGP(publicKeyPath, privateKeyPath)
+	return cipher.NewPGPClient(publicKeyPath, privateKeyPath)
 }
 
 func (c *Client) getCipherEngineVault(v *schemas.S5) (cipher.Engine, error) {
 	if v.CipherEngineVault != nil && v.CipherEngineVault.TransitKey != nil {
-		return cipher.NewAWS(*v.CipherEngineVault.TransitKey)
+		return cipher.NewVaultClient(*v.CipherEngineVault.TransitKey)
 	}
 
 	if c.CipherEngineVault != nil && c.CipherEngineVault.TransitKey != nil {
-		return cipher.NewAWS(*c.CipherEngineVault.TransitKey)
+		return cipher.NewVaultClient(*c.CipherEngineVault.TransitKey)
 	}
 
-	return cipher.NewVault(os.Getenv("S5_VAULT_TRANSIT_KEY"))
+	return cipher.NewVaultClient(os.Getenv("S5_VAULT_TRANSIT_KEY"))
 }

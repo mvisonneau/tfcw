@@ -23,7 +23,7 @@ lint: revive vet goimports ineffassign misspell ## Run all lint related tests ag
 
 .PHONY: revive
 revive: setup ## Test code syntax with revive
-	revive -config .revive.toml ./...
+	revive -config .revive.toml $(FILES)
 
 .PHONY: vet
 vet: ## Test code syntax with go vet

@@ -30,7 +30,7 @@ func TestGetCipherEngineAES(t *testing.T) {
 	key := testAESKey
 
 	// expected engine
-	expectedEngine, err := cipher.NewAES(testAESKey)
+	expectedEngine, err := cipher.NewAESClient(testAESKey)
 	test.Expect(t, err, nil)
 
 	// all defined in client, empty variable config (default settings)
