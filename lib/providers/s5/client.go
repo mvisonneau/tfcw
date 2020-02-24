@@ -59,6 +59,6 @@ func (c *Client) getCipherEngine(v *schemas.S5) (cipher.Engine, error) {
 	case schemas.S5CipherEngineTypeVault:
 		return c.getCipherEngineVault(v)
 	default:
-		return nil, fmt.Errorf("engine %s is not implemented yet", *cipherEngineType)
+		return nil, fmt.Errorf("engine '%s' is not implemented yet", *cipherEngineType)
 	}
 }
