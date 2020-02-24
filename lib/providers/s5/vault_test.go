@@ -18,6 +18,9 @@ func TestGetCipherEngineVault(t *testing.T) {
 	cipherEngineType := schemas.S5CipherEngineTypeVault
 	key := testVaultTransitKey
 
+	os.Setenv("VAULT_ADDR", "http://foo")
+	os.Setenv("VAULT_TOKEN", "bar")
+
 	// expected engine
 	expectedEngine, err := cipher.NewVaultClient(key)
 	test.Expect(t, err, nil)
