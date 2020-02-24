@@ -83,6 +83,6 @@ depends_on:
   - coverage
 ---
 kind: signature
-hmac: 316d973863b124173c27e6dfc3f947d6a2b8dc100d3b0f99785844af71277b5a
+hmac: d76d83efd17afa8bd557c649026c21ee9d9cea4927855ec0f562f9947fb2d9c7
 
 ...
