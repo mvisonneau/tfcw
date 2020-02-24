@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/tfcw/lib/schemas"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/http"

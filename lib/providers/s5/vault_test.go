@@ -4,10 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/s5/cipher"
 	cipherVault "github.com/mvisonneau/s5/cipher/vault"
 	"github.com/mvisonneau/tfcw/lib/schemas"
+	"github.com/stretchr/testify/assert"
 )
 
 const (

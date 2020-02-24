@@ -4,7 +4,7 @@ package s5
 // 	"os"
 // 	"testing"
 
-// 	"github.com/mvisonneau/go-helpers/assert"
+// 	"github.com/stretchr/testify/assert"
 // 	"github.com/mvisonneau/s5/cipher"
 // 	cipherGCP "github.com/mvisonneau/s5/cipher/gcp"
 // 	"github.com/mvisonneau/tfcw/lib/schemas"

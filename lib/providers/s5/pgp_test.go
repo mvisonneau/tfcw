@@ -6,10 +6,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/s5/cipher"
 	cipherPGP "github.com/mvisonneau/s5/cipher/pgp"
 	"github.com/mvisonneau/tfcw/lib/schemas"
+	"github.com/stretchr/testify/assert"
 )
 
 const testPGPPublicKey = `-----BEGIN PGP PUBLIC KEY BLOCK-----

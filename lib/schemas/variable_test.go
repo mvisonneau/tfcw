@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestVariableGetProviderEnv(t *testing.T) {

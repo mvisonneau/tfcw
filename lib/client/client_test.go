@@ -3,11 +3,11 @@ package client
 import (
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/assert"
 	providerEnv "github.com/mvisonneau/tfcw/lib/providers/env"
 	providerS5 "github.com/mvisonneau/tfcw/lib/providers/s5"
 	providerVault "github.com/mvisonneau/tfcw/lib/providers/vault"
 	"github.com/mvisonneau/tfcw/lib/schemas"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIsVaultClientRequired(t *testing.T) {
@@ -51,9 +51,9 @@ func TestNewClient(t *testing.T) {
 
 	c, err := NewClient(cfg)
 	assert.Equal(t, err, nil)
-	assert.TypeEqual(t, c.Vault, &providerVault.Client{})
-	assert.TypeEqual(t, c.S5, &providerS5.Client{})
-	assert.TypeEqual(t, c.Env, &providerEnv.Client{})
+	assert.IsType(t, c.Vault, &providerVault.Client{})
+	assert.IsType(t, c.S5, &providerS5.Client{})
+	assert.IsType(t, c.Env, &providerEnv.Client{})
 }
 
 func TestGetVaultClient(t *testing.T) {

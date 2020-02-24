@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mvisonneau/go-helpers/assert"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 

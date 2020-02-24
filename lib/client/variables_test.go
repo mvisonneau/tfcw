@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/http"
 	"github.com/hashicorp/vault/vault"
-	"github.com/mvisonneau/go-helpers/assert"
 	providerVault "github.com/mvisonneau/tfcw/lib/providers/vault"
 	"github.com/mvisonneau/tfcw/lib/schemas"
+	"github.com/stretchr/testify/assert"
 
 	log "github.com/sirupsen/logrus"
 )
