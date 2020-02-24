@@ -164,16 +164,15 @@ func TestGetCipherEnginePGP(t *testing.T) {
 	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
 
 	// key defined in environment variable
-	// TODO: Fix!
-	// os.Setenv("S5_PGP_PUBLIC_KEY_PATH", publicKeyPath)
-	// os.Setenv("S5_PGP_PRIVATE_KEY_PATH", privateKeyPath)
-	// c = &Client{}
-	// v = &schemas.S5{
-	// 	CipherEngineType: &cipherEngineType,
-	// }
+	os.Setenv("S5_PGP_PUBLIC_KEY_PATH", publicKeyPath)
+	os.Setenv("S5_PGP_PRIVATE_KEY_PATH", privateKeyPath)
+	c = &Client{}
+	v = &schemas.S5{
+		CipherEngineType: &cipherEngineType,
+	}
 
-	// cipherEngine, err = c.getCipherEngine(v)
-	// test.Expect(t, err, nil)
-	// test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
-	// test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
+	cipherEngine, err = c.getCipherEngine(v)
+	test.Expect(t, err, nil)
+	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
+	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
 }

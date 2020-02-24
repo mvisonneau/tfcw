@@ -23,7 +23,7 @@ func (c *Client) getCipherEnginePGP(v *schemas.S5) (cipher.Engine, error) {
 	} else if c.CipherEnginePGP != nil && c.CipherEnginePGP.PrivateKeyPath != nil {
 		privateKeyPath = *c.CipherEnginePGP.PrivateKeyPath
 	} else {
-		privateKeyPath = os.Getenv("S5_PGP_PUBLIC_KEY_PATH")
+		privateKeyPath = os.Getenv("S5_PGP_PRIVATE_KEY_PATH")
 	}
 
 	return cipher.NewPGPClient(publicKeyPath, privateKeyPath)
