@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 )
 
@@ -23,8 +23,8 @@ func TestGetValueValid(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, value, "foo")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, value, "foo")
 }
 
 func TestGetValueInvalidCipherEngine(t *testing.T) {
@@ -35,8 +35,8 @@ func TestGetValueInvalidCipherEngine(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	test.Expect(t, err, fmt.Errorf("s5 error whilst getting cipher engine: engine 'foo' is not implemented yet"))
-	test.Expect(t, value, "")
+	assert.Equal(t, err, fmt.Errorf("s5 error whilst getting cipher engine: engine 'foo' is not implemented yet"))
+	assert.Equal(t, value, "")
 }
 
 func TestGetValueInvalidInput(t *testing.T) {
@@ -54,8 +54,8 @@ func TestGetValueInvalidInput(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	test.Expect(t, err, fmt.Errorf("s5 error whilst parsing input: Invalid string format, should be '{{s5:*}}'"))
-	test.Expect(t, value, "")
+	assert.Equal(t, err, fmt.Errorf("s5 error whilst parsing input: Invalid string format, should be '{{s5:*}}'"))
+	assert.Equal(t, value, "")
 }
 
 func TestGetValueInvalidDecipher(t *testing.T) {
@@ -73,8 +73,8 @@ func TestGetValueInvalidDecipher(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	test.Expect(t, err, fmt.Errorf("s5 error whilst deciphering: base64decode error : illegal base64 data at input byte 0 - value : foo"))
-	test.Expect(t, value, "")
+	assert.Equal(t, err, fmt.Errorf("s5 error whilst deciphering: base64decode error : illegal base64 data at input byte 0 - value : foo"))
+	assert.Equal(t, value, "")
 }
 
 func TestGetCipherEngineUndefined(t *testing.T) {
@@ -82,8 +82,8 @@ func TestGetCipherEngineUndefined(t *testing.T) {
 	v := &schemas.S5{}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	test.Expect(t, err, fmt.Errorf("you need to specify a S5 cipher engine"))
-	test.Expect(t, cipherEngine, nil)
+	assert.Equal(t, err, fmt.Errorf("you need to specify a S5 cipher engine"))
+	assert.Equal(t, cipherEngine, nil)
 }
 
 func TestGetCipherEngineInvalid(t *testing.T) {
@@ -94,6 +94,6 @@ func TestGetCipherEngineInvalid(t *testing.T) {
 	}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	test.Expect(t, err, fmt.Errorf("engine 'foo' is not implemented yet"))
-	test.Expect(t, cipherEngine, nil)
+	assert.Equal(t, err, fmt.Errorf("engine 'foo' is not implemented yet"))
+	assert.Equal(t, cipherEngine, nil)
 }

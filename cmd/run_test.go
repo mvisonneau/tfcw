@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/urfave/cli"
 )
 
@@ -67,8 +67,8 @@ func createTestConfigFile(config string) (string, error) {
 func TestRenderWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
 	exitCode, err := Render(ctx)
-	test.Expect(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
-	test.Expect(t, exitCode, 1)
+	assert.Equal(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
+	assert.Equal(t, exitCode, 1)
 }
 
 func TestRenderLocalWithValidConfig(t *testing.T) {
@@ -85,13 +85,13 @@ func TestRenderLocalWithValidConfig(t *testing.T) {
 	defer os.Remove(fmt.Sprint(wd, "/tfcw.auth.tfvars"))
 	defer os.Remove(fmt.Sprint(wd, "/tfcw.env"))
 	exitCode, err := Render(ctx)
-	test.Expect(t, err, nil)
-	test.Expect(t, exitCode, 0)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, exitCode, 0)
 }
 
 func TestTFERunWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
 	exitCode, err := TFERun(ctx)
-	test.Expect(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
-	test.Expect(t, exitCode, 1)
+	assert.Equal(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
+	assert.Equal(t, exitCode, 1)
 }

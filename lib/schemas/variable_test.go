@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 )
 
 func TestVariableGetProviderEnv(t *testing.T) {
@@ -13,8 +13,8 @@ func TestVariableGetProviderEnv(t *testing.T) {
 	}
 
 	p, err := v.GetProvider()
-	test.Expect(t, err, nil)
-	test.Expect(t, *p, VariableProviderEnv)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, *p, VariableProviderEnv)
 }
 
 func TestVariableGetProviderS5(t *testing.T) {
@@ -23,8 +23,8 @@ func TestVariableGetProviderS5(t *testing.T) {
 	}
 
 	p, err := v.GetProvider()
-	test.Expect(t, err, nil)
-	test.Expect(t, *p, VariableProviderS5)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, *p, VariableProviderS5)
 }
 
 func TestVariableGetProviderVault(t *testing.T) {
@@ -33,8 +33,8 @@ func TestVariableGetProviderVault(t *testing.T) {
 	}
 
 	p, err := v.GetProvider()
-	test.Expect(t, err, nil)
-	test.Expect(t, *p, VariableProviderVault)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, *p, VariableProviderVault)
 }
 
 func TestVariableGetProviderInvalid(t *testing.T) {
@@ -43,6 +43,6 @@ func TestVariableGetProviderInvalid(t *testing.T) {
 	}
 	p, err := v.GetProvider()
 	var emptyProvider *VariableProvider
-	test.Expect(t, err, fmt.Errorf("you can't have more or less than one provider configured per variable. Found 0 for 'foo'"))
-	test.Expect(t, p, emptyProvider)
+	assert.Equal(t, err, fmt.Errorf("you can't have more or less than one provider configured per variable. Found 0 for 'foo'"))
+	assert.Equal(t, p, emptyProvider)
 }

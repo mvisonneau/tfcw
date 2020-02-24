@@ -8,7 +8,7 @@ import (
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/http"
 	"github.com/hashicorp/vault/vault"
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 	providerVault "github.com/mvisonneau/tfcw/lib/providers/vault"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 
@@ -34,8 +34,8 @@ func TestGetAndProcessVaultValues(t *testing.T) {
 	}
 
 	value, err := c.getAndProcessVaultValues(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, value, "bar")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, value, "bar")
 }
 
 func TestIsVariableAlreadyProcessed(t *testing.T) {
@@ -44,10 +44,10 @@ func TestIsVariableAlreadyProcessed(t *testing.T) {
 	}
 
 	v1 := "foo"
-	test.Expect(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment), false)
-	test.Expect(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment), true)
-	test.Expect(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform), false)
-	test.Expect(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform), true)
+	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment), false)
+	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment), true)
+	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform), false)
+	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform), true)
 }
 
 func TestLogVariable(t *testing.T) {
@@ -62,18 +62,18 @@ func TestLogVariable(t *testing.T) {
 	}
 
 	logVariable(v, true)
-	test.Expect(t, str.String()[28:], "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n")
+	assert.Equal(t, str.String()[28:], "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n")
 
 	// no dry-mode with value set
 	v.Value = "love"
 	str.Reset()
 	logVariable(v, false)
-	test.Expect(t, str.String()[28:], "level=info msg=\"Set variable 'foo' (environment)\"\n")
+	assert.Equal(t, str.String()[28:], "level=info msg=\"Set variable 'foo' (environment)\"\n")
 }
 
 func TestSecureSensitiveString(t *testing.T) {
-	test.Expect(t, secureSensitiveString("foo"), "**********")
-	test.Expect(t, secureSensitiveString("love"), "l********e")
+	assert.Equal(t, secureSensitiveString("foo"), "**********")
+	assert.Equal(t, secureSensitiveString("love"), "l********e")
 }
 
 func createTestVault(t *testing.T) (net.Listener, *api.Client) {

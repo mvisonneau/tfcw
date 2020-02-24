@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/s5/cipher"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 )
@@ -19,7 +19,7 @@ func TestGetCipherEngineAES(t *testing.T) {
 
 	// expected engine
 	expectedEngine, err := cipher.NewAESClient(testAESKey)
-	test.Expect(t, err, nil)
+	assert.Equal(t, err, nil)
 
 	// all defined in client, empty variable config (default settings)
 	v := &schemas.S5{}
@@ -31,8 +31,8 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, cipherEngine, expectedEngine)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, cipherEngine, expectedEngine)
 
 	// all defined in variable, empty client config
 	c = &Client{}
@@ -44,8 +44,8 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, cipherEngine, expectedEngine)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, cipherEngine, expectedEngine)
 
 	// key defined in environment variable
 	os.Setenv("S5_AES_KEY", testAESKey)
@@ -55,8 +55,8 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, cipherEngine, expectedEngine)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, cipherEngine, expectedEngine)
 
 	// other engine & key defined in client, overridden in variable
 	otherCipherEngineType := schemas.S5CipherEngineTypeVault
@@ -76,6 +76,6 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, cipherEngine, expectedEngine)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, cipherEngine, expectedEngine)
 }

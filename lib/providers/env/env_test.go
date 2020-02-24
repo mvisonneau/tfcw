@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 )
 
@@ -16,5 +16,5 @@ func TestGetValue(t *testing.T) {
 		Variable: "TEST_ENV",
 	}
 
-	test.Expect(t, c.GetValue(e), "foo")
+	assert.Equal(t, c.GetValue(e), "foo")
 }

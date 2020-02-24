@@ -92,6 +92,7 @@ func getVaultClient(cfg *Config) (c *providerVault.Client, err error) {
 }
 
 func getS5Client(cfg *Config) (c *providerS5.Client) {
+	c = &providerS5.Client{}
 	if cfg.Defaults != nil && cfg.Defaults.S5 != nil {
 		if cfg.Defaults.S5.CipherEngineType != nil {
 			c.CipherEngineType = cfg.Defaults.S5.CipherEngineType

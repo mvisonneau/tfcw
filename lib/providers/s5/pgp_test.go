@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/s5/cipher"
 	cipherPGP "github.com/mvisonneau/s5/cipher/pgp"
 	"github.com/mvisonneau/tfcw/lib/schemas"
@@ -131,7 +131,7 @@ func TestGetCipherEnginePGP(t *testing.T) {
 
 	// expected engine
 	expectedEngine, err := cipher.NewPGPClient(publicKeyPath, privateKeyPath)
-	test.Expect(t, err, nil)
+	assert.Equal(t, err, nil)
 
 	// all defined in client, empty variable config (default settings)
 	v := &schemas.S5{}
@@ -144,9 +144,9 @@ func TestGetCipherEnginePGP(t *testing.T) {
 	}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
-	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
+	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
 
 	// all defined in variable, empty client config
 	c = &Client{}
@@ -159,9 +159,9 @@ func TestGetCipherEnginePGP(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
-	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
+	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
 
 	// key defined in environment variable
 	os.Setenv("S5_PGP_PUBLIC_KEY_PATH", publicKeyPath)
@@ -172,7 +172,7 @@ func TestGetCipherEnginePGP(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
-	test.Expect(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
+	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
 }

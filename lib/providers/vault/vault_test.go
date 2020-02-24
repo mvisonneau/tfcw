@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mvisonneau/go-helpers/test"
+	"github.com/mvisonneau/go-helpers/assert"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 
 	"github.com/hashicorp/vault/api"
@@ -24,18 +24,18 @@ func TestGetClient(t *testing.T) {
 	os.Unsetenv("VAULT_TOKEN")
 
 	_, err := GetClient("", "")
-	test.Expect(t, err, fmt.Errorf("Vault address is not defined"))
+	assert.Equal(t, err, fmt.Errorf("Vault address is not defined"))
 
 	_, err = GetClient("foo", "")
-	test.Expect(t, err, fmt.Errorf("Vault token is not defined (VAULT_TOKEN or ~/.vault-token)"))
+	assert.Equal(t, err, fmt.Errorf("Vault token is not defined (VAULT_TOKEN or ~/.vault-token)"))
 
 	_, err = GetClient("foo", "bar")
-	test.Expect(t, err, nil)
+	assert.Equal(t, err, nil)
 
 	os.Setenv("VAULT_ADDR", "foo")
 	os.Setenv("VAULT_TOKEN", "bar")
 	_, err = GetClient("", "")
-	test.Expect(t, err, nil)
+	assert.Equal(t, err, nil)
 }
 
 func TestGetValues(t *testing.T) {
@@ -46,31 +46,31 @@ func TestGetValues(t *testing.T) {
 	// Undefined path
 	v := &schemas.Vault{}
 	r, err := c.GetValues(v)
-	test.Expect(t, err, fmt.Errorf("no path defined for retrieving vault secret"))
-	test.Expect(t, r, map[string]string{})
+	assert.Equal(t, err, fmt.Errorf("no path defined for retrieving vault secret"))
+	assert.Equal(t, r, map[string]string{})
 
 	// Valid secret
 	validPath := "secret/foo"
 	v.Path = &validPath
 
 	r, err = c.GetValues(v)
-	test.Expect(t, err, nil)
-	test.Expect(t, r, map[string]string{"secret": "bar"})
+	assert.Equal(t, err, nil)
+	assert.Equal(t, r, map[string]string{"secret": "bar"})
 
 	// Unexistent secret
 	invalidPath := "secret/baz"
 	v.Path = &invalidPath
 
 	r, err = c.GetValues(v)
-	test.Expect(t, err, fmt.Errorf("no results/keys returned for secret : secret/baz"))
-	test.Expect(t, r, map[string]string{})
+	assert.Equal(t, err, fmt.Errorf("no results/keys returned for secret : secret/baz"))
+	assert.Equal(t, r, map[string]string{})
 
 	// Invalid method
 	invalidMethod := "foo"
 	v.Method = &invalidMethod
 	r, err = c.GetValues(v)
-	test.Expect(t, err, fmt.Errorf("unsupported method 'foo'"))
-	test.Expect(t, r, map[string]string{})
+	assert.Equal(t, err, fmt.Errorf("unsupported method 'foo'"))
+	assert.Equal(t, r, map[string]string{})
 
 	// Write method
 	writeMethod := "write"
@@ -80,8 +80,8 @@ func TestGetValues(t *testing.T) {
 	v.Params = &params
 
 	r, err = c.GetValues(v)
-	test.Expect(t, err, fmt.Errorf("no results/keys returned for secret : secret/foo"))
-	test.Expect(t, r, map[string]string{})
+	assert.Equal(t, err, fmt.Errorf("no results/keys returned for secret : secret/foo"))
+	assert.Equal(t, r, map[string]string{})
 }
 
 func createTestVault(t *testing.T) (net.Listener, *api.Client) {
