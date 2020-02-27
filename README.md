@@ -93,7 +93,7 @@ tfvar "credentials" {
 That's it, you now have a declarative way to ensure that your variable is picked up from **Vault** whenever you trigger a Terraform run, even if it is a [remote operation](https://www.terraform.io/docs/cloud/run/index.html#remote-operations)!
 
 ```shell
-~$ tfcw plan
+~$ tfcw run create
 INFO[2020-02-18T17:34:55Z] Processing variables and updating their values on TFC
 INFO[2020-02-18T17:34:55Z] Set variable credentials (terraform)
 INFO[2020-02-18T17:34:55Z] Preparing plan
@@ -183,20 +183,23 @@ We currently support **6 sources** as variable storage backends (2 natively and 
 ## Usage
 
 ```bash
-~$ NAME:
+~$ tfcw --help
+NAME:
    tfcw - Terraform Cloud wrapper which can be used to manage variables dynamically
 
 USAGE:
    tfcw [global options] command [command options] [arguments...]
 
 COMMANDS:
-   render   render the variables
-   plan     plans the config
-   apply    plans and applies the config
-   help, h  Shows a list of commands or help for one command
+   render     render the variables
+   run        manipulate runs
+   workspace  manipulate the workspace
+   help, h    Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
    --config-path path, -c path  path to a readable configuration file (.hcl or .json) (default: "./tfcw.hcl") [$TFCW_CONFIG_PATH]
+   --tfc-address address        address to access Terraform Cloud API (default: "https://app.terraform.io") [$TFCW_TFC_ADDRESS]
+   --tfc-token token, -t token  token to access Terraform Cloud API [$TFCW_TFC_TOKEN]
    --log-level level            log level (debug,info,warn,fatal,panic) (default: "info") [$TFCW_LOG_LEVEL]
    --log-format format          log format (json,text) (default: "text") [$TFCW_LOG_FORMAT]
    --help, -h                   show help
