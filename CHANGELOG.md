@@ -7,6 +7,15 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- Custom name for runs
+- Workspace status and current-run-id commands
+- Refactored the CLI for creating runs
+- Added standalone commands for approving or discarding runs
+- Covered ~40% of the codebase with unit tests
+- Added the possibility to export the runID into a file when created
+
 ## [0.0.1] - 2020-02-18
 
 ### Added
