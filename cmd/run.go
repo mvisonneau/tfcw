@@ -49,6 +49,7 @@ func RunCreate(ctx *cli.Context) (int, error) {
 		AutoDiscard: ctx.Bool("auto-discard"),
 		NoPrompt:    ctx.Bool("no-prompt"),
 		OutputPath:  ctx.String("output"),
+		Message:     ctx.String("message"),
 	}); err != nil {
 		return 1, err
 	}
@@ -71,7 +72,7 @@ func RunApprove(ctx *cli.Context) (int, error) {
 		}
 	}
 
-	if err := c.ApproveRun(runID); err != nil {
+	if err := c.ApproveRun(runID, ctx.String("message")); err != nil {
 		return 1, err
 	}
 
@@ -93,7 +94,7 @@ func RunDiscard(ctx *cli.Context) (int, error) {
 		}
 	}
 
-	if err := c.DiscardRun(runID); err != nil {
+	if err := c.DiscardRun(runID, ctx.String("message")); err != nil {
 		return 1, err
 	}
 

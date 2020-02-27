@@ -46,3 +46,9 @@ var currentRun = cli.BoolFlag{
 	Name:  "current",
 	Usage: "perform the action against the current run",
 }
+
+var message = cli.StringFlag{
+	Name:  "message,m",
+	Usage: "custom message for the action",
+	Value: "from TFCW",
+}

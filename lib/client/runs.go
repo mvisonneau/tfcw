@@ -33,6 +33,7 @@ type TFECreateRunOptions struct {
 	NoPrompt    bool
 	ConfigPath  string
 	OutputPath  string
+	Message     string
 }
 
 // CreateRun triggers a `run` over the TFC API
@@ -52,7 +53,7 @@ func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error
 		return err
 	}
 
-	run, err := c.createRun(w, configVersion)
+	run, err := c.createRun(w, configVersion, opts.Message)
 	if err != nil {
 		return err
 	}
@@ -60,30 +61,30 @@ func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error
 	if len(opts.OutputPath) > 0 {
 		log.Debugf("saving run ID on disk at '%s'", opts.OutputPath)
 		if err = ioutil.WriteFile(opts.OutputPath, []byte(run.ID), 0644); err != nil {
-			c.DiscardRun(run.ID)
+			c.DiscardRun(run.ID, opts.Message)
 			return err
 		}
 	}
 
 	planID, err := c.getTerraformPlanID(run)
 	if err != nil {
-		c.DiscardRun(run.ID)
+		c.DiscardRun(run.ID, opts.Message)
 		return err
 	}
 
 	plan, err := c.waitForTerraformPlan(planID)
 	if err != nil {
-		c.DiscardRun(run.ID)
+		c.DiscardRun(run.ID, opts.Message)
 		return err
 	}
 
 	if plan.HasChanges {
 		if opts.AutoDiscard {
-			return c.DiscardRun(run.ID)
+			return c.DiscardRun(run.ID, opts.Message)
 		}
 
 		if opts.AutoApprove {
-			return c.ApproveRun(run.ID)
+			return c.ApproveRun(run.ID, opts.Message)
 		}
 
 		if opts.NoPrompt {
@@ -91,20 +92,20 @@ func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error
 		}
 
 		if promptApproveRun() {
-			return c.ApproveRun(run.ID)
+			return c.ApproveRun(run.ID, opts.Message)
 		}
 
-		return c.DiscardRun(run.ID)
+		return c.DiscardRun(run.ID, opts.Message)
 	}
 
 	return nil
 }
 
 // ApproveRun given its ID
-func (c *Client) ApproveRun(runID string) error {
+func (c *Client) ApproveRun(runID, message string) error {
 	log.Infof("Approving run ID: %s", runID)
 	c.TFE.Runs.Apply(c.Context, runID, tfe.RunApplyOptions{
-		Comment: tfe.String("Approved from TFCW"),
+		Comment: &message,
 	})
 
 	// Refresh run object to fetch the Apply.ID
@@ -117,9 +118,11 @@ func (c *Client) ApproveRun(runID string) error {
 }
 
 // DiscardRun given its ID
-func (c *Client) DiscardRun(runID string) error {
+func (c *Client) DiscardRun(runID, message string) error {
 	log.Infof("Discarding run ID: %s", runID)
-	return c.TFE.Runs.Discard(c.Context, runID, tfe.RunDiscardOptions{})
+	return c.TFE.Runs.Discard(c.Context, runID, tfe.RunDiscardOptions{
+		Comment: &message,
+	})
 }
 
 func (c *Client) getWorkspace(organization, workspace string) (*tfe.Workspace, error) {
@@ -166,10 +169,10 @@ func (c *Client) uploadConfigurationVersion(w *tfe.Workspace, configVersion *tfe
 	return nil
 }
 
-func (c *Client) createRun(w *tfe.Workspace, configVersion *tfe.ConfigurationVersion) (*tfe.Run, error) {
+func (c *Client) createRun(w *tfe.Workspace, configVersion *tfe.ConfigurationVersion, message string) (*tfe.Run, error) {
 	log.Debugf("Creating run for workspace '%s' / configuration version '%s'", w.ID, configVersion.ID)
 	run, err := c.TFE.Runs.Create(c.Context, tfe.RunCreateOptions{
-		Message:              tfe.String("Triggered from TFCW"),
+		Message:              &message,
 		ConfigurationVersion: configVersion,
 		Workspace:            w,
 	})
