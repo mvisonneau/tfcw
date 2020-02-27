@@ -7,7 +7,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/mvisonneau/tfcw/badge.svg?branch=master)](https://coveralls.io/github/mvisonneau/tfcw?branch=master)
 
 
-`TFCW` allows you to **dynamically** maintain your **sensitive variables** within your **Terraform Cloud workspace**.
+`TFCW` as its name suggests is a wrapper for the Terraform Cloud API. The main purpose is to provide us with a nice way to **dynamically** maintain our **sensitive variables** within **Terraform Cloud workspaces**.
 
 It is particularily useful when you work with ephemeral secrets which need to be renewed with very short timelines. However, you can also get strong benefit from it if you want to have a declarative way to manage your sensitive data. TFCW allows you to do all that whilst continuing to **only write HCL files**.
 
