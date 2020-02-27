@@ -89,9 +89,9 @@ func TestRenderLocalWithValidConfig(t *testing.T) {
 	assert.Equal(t, exitCode, 0)
 }
 
-func TestTFERunWithDefaultValues(t *testing.T) {
+func TestRunCreateWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
-	exitCode, err := TFERun(ctx)
+	exitCode, err := RunCreate(ctx)
 	assert.Equal(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
 	assert.Equal(t, exitCode, 1)
 }

@@ -11,6 +11,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// TFEVariables gives us an accessible fashion for managing all our
+// variables independently of their kind
+type TFEVariables map[tfe.CategoryType]map[string]*tfe.Variable
+
 // RenderVariablesType defines possible rendering methods
 type RenderVariablesType string
 
@@ -193,7 +197,7 @@ func (c *Client) renderVariableLocally(v *schemas.Variable, envFile, tfFile *os.
 		}
 	case schemas.VariableKindTerraform:
 		s := ""
-		if *v.HCL {
+		if v.HCL != nil && *v.HCL {
 			s = fmt.Sprintf("%s = %s\n", v.Name, v.Value)
 		} else {
 			s = fmt.Sprintf("%s = \"%s\"\n", v.Name, v.Value)

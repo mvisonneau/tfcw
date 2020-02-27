@@ -29,6 +29,17 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 			Value:  "./tfcw.hcl",
 		},
 		cli.StringFlag{
+			Name:   "tfc-address",
+			EnvVar: "TFCW_TFC_ADDRESS",
+			Usage:  "`address` to access Terraform Cloud API",
+			Value:  "https://app.terraform.io",
+		},
+		cli.StringFlag{
+			Name:   "tfc-token,t",
+			EnvVar: "TFCW_TFC_TOKEN",
+			Usage:  "`token` to access Terraform Cloud API",
+		},
+		cli.StringFlag{
 			Name:   "log-level",
 			EnvVar: "TFCW_LOG_LEVEL",
 			Usage:  "log `level` (debug,info,warn,fatal,panic)",
@@ -51,7 +62,7 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Name:   "tfc",
 					Usage:  "update the variables on TFC directly",
 					Action: cmd.ExecWrapper(cmd.Render),
-					Flags:  append(tfc, dryRun),
+					Flags:  []cli.Flag{dryRun},
 				},
 				{
 					Name:   "local",
@@ -61,16 +72,44 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 			},
 		},
 		{
-			Name:   "plan",
-			Usage:  "plans the config",
-			Action: cmd.ExecWrapper(cmd.TFERun),
-			Flags:  append(tfc, tf...),
+			Name:  "run",
+			Usage: "manipulate runs",
+			Subcommands: []cli.Command{
+				{
+					Name:   "create",
+					Usage:  "create a run on TFC",
+					Action: cmd.ExecWrapper(cmd.RunCreate),
+					Flags:  runCreate,
+				},
+				{
+					Name:   "approve",
+					Usage:  "approve a run given its 'ID'",
+					Action: cmd.ExecWrapper(cmd.RunApprove),
+					Flags:  []cli.Flag{currentRun},
+				},
+				{
+					Name:   "discard",
+					Usage:  "discard a run given its 'ID'",
+					Action: cmd.ExecWrapper(cmd.RunDiscard),
+					Flags:  []cli.Flag{currentRun},
+				},
+			},
 		},
 		{
-			Name:   "apply",
-			Usage:  "plans and applies the config",
-			Action: cmd.ExecWrapper(cmd.TFERun),
-			Flags:  append(tfc, tf...),
+			Name:  "workspace",
+			Usage: "manipulate the workspace",
+			Subcommands: []cli.Command{
+				{
+					Name:   "status",
+					Usage:  "return the status of the workspace",
+					Action: cmd.ExecWrapper(cmd.WorkspaceStatus),
+				},
+				{
+					Name:   "current-run-id",
+					Usage:  "return the id of the current run",
+					Action: cmd.ExecWrapper(cmd.WorkspaceCurrentRunID),
+				},
+			},
 		},
 	}
 

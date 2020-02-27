@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 	"time"
@@ -13,10 +14,6 @@ import (
 	"github.com/mvisonneau/tfcw/lib/schemas"
 	log "github.com/sirupsen/logrus"
 )
-
-// TFEVariables gives us an accessible fashion for managing all our
-// variables independently of their kind
-type TFEVariables map[tfe.CategoryType]map[string]*tfe.Variable
 
 // TFERunType defines possible TFC run types
 type TFERunType string
@@ -29,8 +26,17 @@ const (
 	TFERunTypeApply TFERunType = "apply"
 )
 
-// Run triggers a `run` over the TFC API
-func (c *Client) Run(cfg *schemas.Config, uploadPath string, t TFERunType) error {
+// TFECreateRunOptions handles configuration variables for creating a new run on TFE
+type TFECreateRunOptions struct {
+	AutoApprove bool
+	AutoDiscard bool
+	NoPrompt    bool
+	ConfigPath  string
+	OutputPath  string
+}
+
+// CreateRun triggers a `run` over the TFC API
+func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error {
 	log.Info("Preparing plan")
 	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace)
 	if err != nil {
@@ -42,7 +48,7 @@ func (c *Client) Run(cfg *schemas.Config, uploadPath string, t TFERunType) error
 		return err
 	}
 
-	if err := c.uploadConfigurationVersion(w, configVersion, uploadPath); err != nil {
+	if err := c.uploadConfigurationVersion(w, configVersion, opts.ConfigPath); err != nil {
 		return err
 	}
 
@@ -51,44 +57,69 @@ func (c *Client) Run(cfg *schemas.Config, uploadPath string, t TFERunType) error
 		return err
 	}
 
+	if len(opts.OutputPath) > 0 {
+		log.Debugf("saving run ID on disk at '%s'", opts.OutputPath)
+		if err = ioutil.WriteFile(opts.OutputPath, []byte(run.ID), 0644); err != nil {
+			c.DiscardRun(run.ID)
+			return err
+		}
+	}
+
 	planID, err := c.getTerraformPlanID(run)
 	if err != nil {
+		c.DiscardRun(run.ID)
 		return err
 	}
 
 	plan, err := c.waitForTerraformPlan(planID)
 	if err != nil {
+		c.DiscardRun(run.ID)
 		return err
 	}
 
 	if plan.HasChanges {
-		if t == TFERunTypeApply && confirmApply() {
-			log.Infof("Applying plan..")
-			c.TFE.Runs.Apply(c.Context, run.ID, tfe.RunApplyOptions{
-				Comment: tfe.String("Applied from TFCW"),
-			})
-
-			// Refresh run object to fetch the Apply.ID
-			run, err = c.TFE.Runs.Read(c.Context, run.ID)
-			if err != nil {
-				return err
-			}
-
-			return c.waitForTerraformApply(run.Apply.ID)
+		if opts.AutoDiscard {
+			return c.DiscardRun(run.ID)
 		}
 
-		// Discard the run
-		log.Debugf("Discarding run ID: %s", run.ID)
-		if err = c.TFE.Runs.Discard(c.Context, run.ID, tfe.RunDiscardOptions{}); err != nil {
-			return err
+		if opts.AutoApprove {
+			return c.ApproveRun(run.ID)
 		}
-	}
 
-	if t == TFERunTypeApply {
-		return fmt.Errorf("not applying")
+		if opts.NoPrompt {
+			return nil
+		}
+
+		if promptApproveRun() {
+			return c.ApproveRun(run.ID)
+		}
+
+		return c.DiscardRun(run.ID)
 	}
 
 	return nil
+}
+
+// ApproveRun given its ID
+func (c *Client) ApproveRun(runID string) error {
+	log.Infof("Approving run ID: %s", runID)
+	c.TFE.Runs.Apply(c.Context, runID, tfe.RunApplyOptions{
+		Comment: tfe.String("Approved from TFCW"),
+	})
+
+	// Refresh run object to fetch the Apply.ID
+	run, err := c.TFE.Runs.Read(c.Context, runID)
+	if err != nil {
+		return err
+	}
+
+	return c.waitForTerraformApply(run.Apply.ID)
+}
+
+// DiscardRun given its ID
+func (c *Client) DiscardRun(runID string) error {
+	log.Infof("Discarding run ID: %s", runID)
+	return c.TFE.Runs.Discard(c.Context, runID, tfe.RunDiscardOptions{})
 }
 
 func (c *Client) getWorkspace(organization, workspace string) (*tfe.Workspace, error) {
@@ -402,7 +433,7 @@ func readTerraformLogs(l io.Reader) error {
 	return nil
 }
 
-func confirmApply() bool {
+func promptApproveRun() bool {
 	prompt := promptui.Prompt{
 		Label:     "Apply",
 		IsConfirm: true,
@@ -413,4 +444,13 @@ func confirmApply() bool {
 	}
 
 	return true
+}
+
+func saveRunID(runID, outputFile string) {
+	if len(outputFile) > 0 {
+		log.Debugf("Saving run ID '%s' onto file %s.", runID, outputFile)
+
+	} else {
+		log.Debugf("Output file not defined, not saving run ID on disk.")
+	}
 }
