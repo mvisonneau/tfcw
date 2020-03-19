@@ -134,4 +134,3 @@ func (cfg *Config) isVaultClientRequired() bool {
 	}
 	return false
 }
- 
