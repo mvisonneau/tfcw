@@ -264,6 +264,7 @@ func (c *Client) getAndProcessVaultValues(v *schemas.Variable) (string, error) {
 		return "", fmt.Errorf("key '%s' was not found in secret '%s'", *v.Vault.Key, *v.Vault.Path)
 	}
 
+	v.Vault.Values = map[string]string{}
 	for vaultKey, variableName := range *v.Vault.Keys {
 		if value, found := values[vaultKey]; found {
 			v.Vault.Values[variableName] = value
