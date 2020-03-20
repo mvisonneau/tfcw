@@ -65,45 +65,39 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, vars schemas.Variable
 		return fmt.Errorf("terraform cloud: %s", err)
 	}
 
-	ch := make(chan error)
+	variableValues := schemas.VariableValues{}
+	values := make(chan *schemas.VariableValue)
+	errors := make(chan error)
 	wg := sync.WaitGroup{}
 
 	for _, v := range vars {
-		// Specific case for Vault provider multi values
-		p, err := v.GetProvider()
-		if err != nil {
-			return err
-		}
-
-		if *p == schemas.VariableProviderVault && len(v.Vault.Values) > 0 {
-			for _, value := range v.Vault.Values {
-				newVariable := &schemas.Variable{
-					Name:  v.Name,
-					Value: value,
-				}
-
-				wg.Add(1)
-				go func(v *schemas.Variable) {
-					defer wg.Done()
-					ch <- c.renderVariableOnTFC(w, v, e, dryRun)
-				}(newVariable)
-			}
-			continue
-		}
-
 		wg.Add(1)
 		go func(v *schemas.Variable) {
 			defer wg.Done()
-			ch <- c.renderVariableOnTFC(w, v, e, dryRun)
+			fetchedValues, err := c.fetchVariableValues(v)
+			errors <- err
+			for _, value := range fetchedValues {
+				wg.Add(1)
+				values <- value
+			}
 		}(v)
 	}
 
 	go func() {
-		wg.Wait()
-		close(ch)
+		for value := range values {
+			variableValues = append(variableValues, value)
+			errors <- c.renderVariableOnTFC(w, value, e, dryRun)
+			wg.Done()
+		}
 	}()
 
-	for err := range ch {
+	go func() {
+		wg.Wait()
+		close(values)
+		close(errors)
+	}()
+
+	for err := range errors {
 		if err != nil {
 			return err
 		}
@@ -111,7 +105,7 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, vars schemas.Variable
 
 	if cfg.TFC.PurgeUnmanagedVariables != nil && *cfg.TFC.PurgeUnmanagedVariables {
 		log.Debugf("Looking for unmanaged variables to remove")
-		return c.purgeUnmanagedVariables(vars, e, dryRun)
+		return c.purgeUnmanagedVariables(variableValues, e, dryRun)
 	}
 
 	return nil
@@ -130,74 +124,67 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 	}
 	defer tfFile.Close()
 
-	ch := make(chan error)
+	variableValues := schemas.VariableValues{}
+	values := make(chan *schemas.VariableValue)
+	errors := make(chan error)
 	wg := sync.WaitGroup{}
 
 	for _, v := range vars {
-		// Specific case for Vault provider multi values
-		p, err := v.GetProvider()
-		if err != nil {
-			return err
-		}
-
-		if *p == schemas.VariableProviderVault && len(v.Vault.Values) > 0 {
-			for _, value := range v.Vault.Values {
-				newVariable := &schemas.Variable{
-					Name:  v.Name,
-					Value: value,
-				}
-
-				wg.Add(1)
-				go func(v *schemas.Variable) {
-					defer wg.Done()
-					ch <- c.renderVariableLocally(v, envFile, tfFile)
-				}(newVariable)
-			}
-			continue
-		}
-
 		wg.Add(1)
 		go func(v *schemas.Variable) {
 			defer wg.Done()
-			ch <- c.renderVariableLocally(v, envFile, tfFile)
+			fetchedValues, err := c.fetchVariableValues(v)
+			errors <- err
+			for _, value := range fetchedValues {
+				wg.Add(1)
+				values <- value
+			}
 		}(v)
 	}
 
 	go func() {
-		wg.Wait()
-		close(ch)
+		for value := range values {
+			variableValues = append(variableValues, value)
+			errors <- c.renderVariableLocally(value, envFile, tfFile)
+			wg.Done()
+		}
 	}()
 
-	for err := range ch {
+	go func() {
+		wg.Wait()
+		close(values)
+		close(errors)
+	}()
+
+	for err := range errors {
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
-func (c *Client) renderVariableOnTFC(w *tfe.Workspace, v *schemas.Variable, e TFEVariables, dryRun bool) error {
-	c.fetchVariableValue(v)
+func (c *Client) renderVariableOnTFC(w *tfe.Workspace, v *schemas.VariableValue, e TFEVariables, dryRun bool) error {
 	if !dryRun {
 		if _, err := c.setVariableOnTFC(w, v, e); err != nil {
 			return err
 		}
 	}
 
-	logVariable(v, dryRun)
+	logVariableValue(v, dryRun)
 	return nil
 }
 
-func (c *Client) renderVariableLocally(v *schemas.Variable, envFile, tfFile *os.File) error {
-	c.fetchVariableValue(v)
-	switch v.Kind {
+func (c *Client) renderVariableLocally(v *schemas.VariableValue, envFile, tfFile *os.File) error {
+	switch v.Variable.Kind {
 	case schemas.VariableKindEnvironment:
 		if _, err := envFile.WriteString(fmt.Sprintf("export %s=%s\n", v.Name, v.Value)); err != nil {
 			return err
 		}
 	case schemas.VariableKindTerraform:
 		s := ""
-		if v.HCL != nil && *v.HCL {
+		if v.Variable.HCL != nil && *v.Variable.HCL {
 			s = fmt.Sprintf("%s = %s\n", v.Name, v.Value)
 		} else {
 			s = fmt.Sprintf("%s = \"%s\"\n", v.Name, v.Value)
@@ -207,73 +194,92 @@ func (c *Client) renderVariableLocally(v *schemas.Variable, envFile, tfFile *os.
 			return err
 		}
 	default:
-		return fmt.Errorf("unknown kind '%s' for variable %s", v.Kind, v.Name)
+		return fmt.Errorf("unknown kind '%s' for variable %s", v.Variable.Kind, v.Name)
 	}
 
-	logVariable(v, false)
+	logVariableValue(v, false)
 	return nil
 }
 
-func (c *Client) fetchVariableValue(v *schemas.Variable) error {
+func (c *Client) fetchVariableValues(v *schemas.Variable) (schemas.VariableValues, error) {
 	if c.isVariableAlreadyProcessed(v.Name, v.Kind) {
-		return fmt.Errorf("duplicate variable '%s' (%s)", v.Name, v.Kind)
+		return nil, fmt.Errorf("duplicate variable '%s' (%s)", v.Name, v.Kind)
 	}
 
 	provider, err := v.GetProvider()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	switch *provider {
 	case schemas.VariableProviderEnv:
-		v.Value = c.Env.GetValue(v.Env)
+		return schemas.VariableValues{
+			&schemas.VariableValue{
+				Variable: v,
+				Name:     v.Name,
+				Value:    c.Env.GetValue(v.Env),
+			},
+		}, nil
 	case schemas.VariableProviderS5:
-		v.Value, err = c.S5.GetValue(v.S5)
+		value, err := c.S5.GetValue(v.S5)
 		if err != nil {
-			return fmt.Errorf("s5 error: %s", err)
+			return nil, fmt.Errorf("s5 error: %s", err)
 		}
+
+		return schemas.VariableValues{
+			&schemas.VariableValue{
+				Variable: v,
+				Name:     v.Name,
+				Value:    value,
+			},
+		}, nil
 	case schemas.VariableProviderVault:
-		v.Value, err = c.getAndProcessVaultValues(v)
-		if err != nil {
-			return err
-		}
-	default:
-		return fmt.Errorf("unknown provider '%s' for variable '%s'", *provider, v.Name)
+		return c.getVaultValues(v)
 	}
 
-	return nil
+	return nil, fmt.Errorf("unknown provider '%s' for variable '%s'", *provider, v.Name)
 }
 
-// getAndProcessVaultValues will return an empty value if multiple keys are set
-func (c *Client) getAndProcessVaultValues(v *schemas.Variable) (string, error) {
+// getVaultValues will return an empty value if multiple keys are set
+func (c *Client) getVaultValues(v *schemas.Variable) (schemas.VariableValues, error) {
 	values, err := c.Vault.GetValues(v.Vault)
 	if err != nil {
-		return "", fmt.Errorf("error getting values from vault for variable '%s' : %s", v.Name, err)
+		return nil, fmt.Errorf("error getting values from vault for variable '%s' : %s", v.Name, err)
 	}
 
 	// We can map several keys in a single API call
 	if (v.Vault.Key == nil && (v.Vault.Keys == nil || len(*v.Vault.Keys) == 0)) ||
 		(v.Vault.Key != nil && v.Vault.Keys != nil && len(*v.Vault.Keys) > 0) {
-		return "", fmt.Errorf("you either need to set 'key' or 'keys' when using the Vault provider")
+		return nil, fmt.Errorf("you either need to set 'key' or 'keys' when using the Vault provider")
 	}
 
 	if v.Vault.Key != nil {
 		if value, found := values[*v.Vault.Key]; found {
-			return value, nil
+			return schemas.VariableValues{
+				&schemas.VariableValue{
+					Variable: v,
+					Name:     v.Name,
+					Value:    value,
+				},
+			}, nil
 		}
-		return "", fmt.Errorf("key '%s' was not found in secret '%s'", *v.Vault.Key, *v.Vault.Path)
+		return nil, fmt.Errorf("key '%s' was not found in secret '%s'", *v.Vault.Key, *v.Vault.Path)
 	}
 
-	v.Vault.Values = map[string]string{}
+	variableValues := schemas.VariableValues{}
 	for vaultKey, variableName := range *v.Vault.Keys {
 		if value, found := values[vaultKey]; found {
-			v.Vault.Values[variableName] = value
+			variableValues = append(variableValues, &schemas.VariableValue{
+				Variable: v,
+				Name:     variableName,
+				Value:    value,
+			})
 			continue
 		}
-		return "", fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, *v.Vault.Path)
+		return nil, fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, *v.Vault.Path)
 	}
 
-	return "", nil
+	return variableValues, nil
 }
 
 func (c *Client) isVariableAlreadyProcessed(name string, kind schemas.VariableKind) bool {
@@ -289,11 +295,11 @@ func (c *Client) isVariableAlreadyProcessed(name string, kind schemas.VariableKi
 	return false
 }
 
-func logVariable(v *schemas.Variable, dryRun bool) {
+func logVariableValue(v *schemas.VariableValue, dryRun bool) {
 	if dryRun {
-		log.Infof("[DRY-RUN] Set variable '%s' (%s) : %s", v.Name, v.Kind, secureSensitiveString(v.Value))
+		log.Infof("[DRY-RUN] Set variable '%s' (%s) : %s", v.Name, v.Variable.Kind, secureSensitiveString(v.Value))
 	} else {
-		log.Infof("Set variable '%s' (%s)", v.Name, v.Kind)
+		log.Infof("Set variable '%s' (%s)", v.Name, v.Variable.Kind)
 	}
 }
 

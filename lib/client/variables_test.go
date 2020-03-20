@@ -15,7 +15,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func TestGetAndProcessVaultValues(t *testing.T) {
+func TestGetVaultValues(t *testing.T) {
 	ln, client := createTestVault(t)
 	defer ln.Close()
 	c := Client{
@@ -33,9 +33,9 @@ func TestGetAndProcessVaultValues(t *testing.T) {
 		},
 	}
 
-	value, err := c.getAndProcessVaultValues(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, value, "bar")
+	value, err := c.getVaultValues(v)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "bar", value[0].Value)
 }
 
 func TestIsVariableAlreadyProcessed(t *testing.T) {
@@ -44,13 +44,13 @@ func TestIsVariableAlreadyProcessed(t *testing.T) {
 	}
 
 	v1 := "foo"
-	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment), false)
-	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment), true)
-	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform), false)
-	assert.Equal(t, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform), true)
+	assert.Equal(t, false, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment))
+	assert.Equal(t, true, c.isVariableAlreadyProcessed(v1, schemas.VariableKindEnvironment))
+	assert.Equal(t, false, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform))
+	assert.Equal(t, true, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform))
 }
 
-func TestLogVariable(t *testing.T) {
+func TestLogVariableValue(t *testing.T) {
 	// redirect logs to str variable
 	var str bytes.Buffer
 	log.SetOutput(&str)
@@ -61,19 +61,24 @@ func TestLogVariable(t *testing.T) {
 		Kind: schemas.VariableKindEnvironment,
 	}
 
-	logVariable(v, true)
-	assert.Equal(t, str.String()[28:], "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n")
+	vv := &schemas.VariableValue{
+		Variable: v,
+		Name:     "foo",
+		Value:    "bar",
+	}
 
-	// no dry-mode with value set
-	v.Value = "love"
+	logVariableValue(vv, true)
+	assert.Equal(t, "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n", str.String()[28:])
+
+	// no dry-mode
 	str.Reset()
-	logVariable(v, false)
-	assert.Equal(t, str.String()[28:], "level=info msg=\"Set variable 'foo' (environment)\"\n")
+	logVariableValue(vv, false)
+	assert.Equal(t, "level=info msg=\"Set variable 'foo' (environment)\"\n", str.String()[28:])
 }
 
 func TestSecureSensitiveString(t *testing.T) {
-	assert.Equal(t, secureSensitiveString("foo"), "**********")
-	assert.Equal(t, secureSensitiveString("love"), "l********e")
+	assert.Equal(t, "**********", secureSensitiveString("foo"))
+	assert.Equal(t, "l********e", secureSensitiveString("love"))
 }
 
 func createTestVault(t *testing.T) (net.Listener, *api.Client) {

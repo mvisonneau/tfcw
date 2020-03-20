@@ -185,21 +185,21 @@ func (c *Client) createRun(w *tfe.Workspace, configVersion *tfe.ConfigurationVer
 	return run, nil
 }
 
-func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.Variable, e TFEVariables) (*tfe.Variable, error) {
-	if v.Sensitive == nil {
-		v.Sensitive = tfe.Bool(true)
+func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.VariableValue, e TFEVariables) (*tfe.Variable, error) {
+	if v.Variable.Sensitive == nil {
+		v.Variable.Sensitive = tfe.Bool(true)
 	}
 
-	if v.HCL == nil {
-		v.HCL = tfe.Bool(false)
+	if v.Variable.HCL == nil {
+		v.Variable.HCL = tfe.Bool(false)
 	}
 
-	if existingVariable, ok := e[getCategoryType(v.Kind)][v.Name]; ok {
+	if existingVariable, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
 		updatedVariable, err := c.TFE.Variables.Update(c.Context, w.ID, existingVariable.ID, tfe.VariableUpdateOptions{
 			Key:       &v.Name,
 			Value:     &v.Value,
-			Sensitive: v.Sensitive,
-			HCL:       v.HCL,
+			Sensitive: v.Variable.Sensitive,
+			HCL:       v.Variable.HCL,
 		})
 
 		// In case we cannot update the fields, we delete the variable and recreate it
@@ -217,21 +217,21 @@ func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.Variable, e TFEVa
 	return c.TFE.Variables.Create(c.Context, w.ID, tfe.VariableCreateOptions{
 		Key:       &v.Name,
 		Value:     &v.Value,
-		Category:  tfe.Category(getCategoryType(v.Kind)),
-		Sensitive: v.Sensitive,
-		HCL:       v.HCL,
+		Category:  tfe.Category(getCategoryType(v.Variable.Kind)),
+		Sensitive: v.Variable.Sensitive,
+		HCL:       v.Variable.HCL,
 	})
 }
 
-func (c *Client) purgeUnmanagedVariables(vars schemas.Variables, e TFEVariables, dryRun bool) error {
+func (c *Client) purgeUnmanagedVariables(vars schemas.VariableValues, e TFEVariables, dryRun bool) error {
 	for _, v := range vars {
-		if _, ok := e[getCategoryType(v.Kind)][v.Name]; ok {
-			delete(e[getCategoryType(v.Kind)], v.Name)
+		if _, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
+			delete(e[getCategoryType(v.Variable.Kind)], v.Name)
 		}
 	}
 
-	for _, vars := range e {
-		for _, v := range vars {
+	for _, tfeVars := range e {
+		for _, v := range tfeVars {
 			if !dryRun {
 				log.Warnf("Deleting unmanaged variable %s (%s)", v.Key, v.Category)
 				err := c.TFE.Variables.Delete(c.Context, v.Workspace.ID, v.ID)

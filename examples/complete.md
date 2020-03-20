@@ -102,7 +102,7 @@ defaults {
 
 // Terraform variables can be defined using the `tfvar` resource type, eg:
 
-tfvar "foo" {
+var "foo" {
   // Using the environment provider
   env {
     variable = "FOO"
