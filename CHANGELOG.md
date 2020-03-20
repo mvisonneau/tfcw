@@ -11,6 +11,7 @@ and this project adheres to [0ver](https://0ver.org).
 
 - Bumped to go 1.14 / goreleaser 0.129.0
 - Fixed a bug preventing the Vault provider from working properly when using multiple values
+- Fixed a bug preventing errors from being returned on provider deciphering failures
 
 ## [0.0.2] - 2020-02-27
 
