@@ -7,6 +7,10 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- Support for managing some workspace configuration within the tfcw.hcl file
+
 ### Changed
 
 - Bumped to go 1.14 / goreleaser 0.129.0

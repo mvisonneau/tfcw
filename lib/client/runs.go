@@ -39,7 +39,7 @@ type TFECreateRunOptions struct {
 // CreateRun triggers a `run` over the TFC API
 func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error {
 	log.Info("Preparing plan")
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace)
+	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace.Name)
 	if err != nil {
 		return err
 	}
@@ -123,19 +123,6 @@ func (c *Client) DiscardRun(runID, message string) error {
 	return c.TFE.Runs.Discard(c.Context, runID, tfe.RunDiscardOptions{
 		Comment: &message,
 	})
-}
-
-func (c *Client) getWorkspace(organization, workspace string) (*tfe.Workspace, error) {
-	log.Debug("Fetching workspace")
-	w, err := c.TFE.Workspaces.Read(c.Context, organization, workspace)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching TFC workspace: %s", err)
-	}
-
-	log.Debugf("Found workspace id for '%s': %s", w.Name, w.ID)
-	log.Debugf("Configured working directory: %s", w.WorkingDirectory)
-
-	return w, nil
 }
 
 func (c *Client) createConfigurationVersion(w *tfe.Workspace) (*tfe.ConfigurationVersion, error) {

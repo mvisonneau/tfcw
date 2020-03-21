@@ -8,8 +8,27 @@ tfc {
   // Name of your organization on TFC (required)
   organization = "acme"
 
-  // Name of the workspace of your Terraform stack on TFC (required)
-  workspace = "foo"
+  // Workspace related configuration block (required)
+  workspace {
+    // Name of the workspace of your Terraform stack on TFC (required)
+    name = "foo"
+
+    // Whether to run terraform remotely or locally (optional, default: true (remotely))
+    operations = true
+
+    // Configure the workspace with the auto-apply flag (optional, default: <unmanaged>)
+    auto-apply = true
+
+    // Configure the workspace terraform version (optional, default: <unmanaged>)
+    terraform-version = "0.12.10"
+
+    // Configure the workspace working directory (optional, default: <unmanaged>)
+    working-directory = "/foo"
+  }
+
+  // This flag enables the creating of the workspace if TFCW cannot find it under
+  // the organization (optional, default: true)
+  workspace-auto-create = true
 
   // Whether to purge or leave the workspace variables which are
   // not configured within this file (optional, default: false)
@@ -178,7 +197,7 @@ envvar "vault_multi_key" {
     keys = {
       access_key = "AWS_ACCESS_KEY_ID",
       secret_key = "AWS_SECRET_ACCESS_KEY",
-      security_token = "AWS_SECURITY_TOKEN",
+      security_token = "AWS_SESSION_TOKEN",
     }
 
     params = {

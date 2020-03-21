@@ -42,6 +42,10 @@ func (c *Client) RenderVariables(cfg *schemas.Config, t RenderVariablesType, dry
 
 	switch t {
 	case RenderVariablesTypeTFC:
+		log.Info("Checking workspace configuration")
+		if err := c.ConfigureWorkspace(cfg, dryRun); err != nil {
+			return err
+		}
 		log.Info("Processing variables and updating their values on TFC")
 		return c.renderVariablesOnTFC(cfg, variables, dryRun)
 	case RenderVariablesTypeLocal:
@@ -53,7 +57,7 @@ func (c *Client) RenderVariables(cfg *schemas.Config, t RenderVariablesType, dry
 }
 
 func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, vars schemas.Variables, dryRun bool) error {
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace)
+	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace.Name)
 	if err != nil {
 		return fmt.Errorf("terraform cloud: %s", err)
 	}

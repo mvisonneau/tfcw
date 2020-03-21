@@ -78,7 +78,9 @@ You need to add a new file within your Terraform folder (or anywhere you would l
 
 tfc {
   organization = "acme"
-  workspace    = "foo"
+  workspace {
+    name = "foo"
+  }
 }
 
 tfvar "credentials" {

@@ -20,7 +20,10 @@ const (
 	validConfig = `
 tfc {
 	organization = "foo"
-	workspace = "bar"
+
+	workspace {
+		name = "bar"
+	}
 }
 `
 )
