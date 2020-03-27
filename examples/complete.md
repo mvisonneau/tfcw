@@ -20,7 +20,7 @@ tfc {
     auto-apply = false
 
     // Configure the workspace terraform version (optional, default: <unmanaged>)
-    terraform-version = "0.12.10"
+    terraform-version = "0.12.24"
 
     // Configure the workspace working directory (optional, default: <unmanaged>)
     working-directory = "/foo"
