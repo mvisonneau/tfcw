@@ -17,7 +17,7 @@ tfc {
     operations = true
 
     // Configure the workspace with the auto-apply flag (optional, default: <unmanaged>)
-    auto-apply = true
+    auto-apply = false
 
     // Configure the workspace terraform version (optional, default: <unmanaged>)
     terraform-version = "0.12.10"
