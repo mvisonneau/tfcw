@@ -68,12 +68,12 @@ func TestLogVariableValue(t *testing.T) {
 	}
 
 	logVariableValue(vv, true)
-	assert.Equal(t, "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n", str.String()[28:])
+	assert.Equal(t, "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n", str.String()[33:])
 
 	// no dry-mode
 	str.Reset()
 	logVariableValue(vv, false)
-	assert.Equal(t, "level=info msg=\"Set variable 'foo' (environment)\"\n", str.String()[28:])
+	assert.Equal(t, "level=info msg=\"Set variable 'foo' (environment)\"\n", str.String()[33:])
 }
 
 func TestSecureSensitiveString(t *testing.T) {
