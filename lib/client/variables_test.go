@@ -54,6 +54,7 @@ func TestLogVariableValue(t *testing.T) {
 	// redirect logs to str variable
 	var str bytes.Buffer
 	log.SetOutput(&str)
+	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true})
 
 	// dry-run mode with no value
 	v := &schemas.Variable{
@@ -68,12 +69,12 @@ func TestLogVariableValue(t *testing.T) {
 	}
 
 	logVariableValue(vv, true)
-	assert.Equal(t, "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n", str.String()[33:])
+	assert.Equal(t, "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n", str.String())
 
 	// no dry-mode
 	str.Reset()
 	logVariableValue(vv, false)
-	assert.Equal(t, "level=info msg=\"Set variable 'foo' (environment)\"\n", str.String()[33:])
+	assert.Equal(t, "level=info msg=\"Set variable 'foo' (environment)\"\n", str.String())
 }
 
 func TestSecureSensitiveString(t *testing.T) {
