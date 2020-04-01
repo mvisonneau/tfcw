@@ -76,7 +76,10 @@ Initializing Terraform configuration...
 
 ## Why should I use TFCW
 
-It is particularily useful when you work with ephemeral secrets which need to be renewed with very short timelines. However, you can also get strong benefit from it if you want to have a declarative way to manage your sensitive data. TFCW allows you to do all that whilst continuing to **only write HCL files**.
+It is particularily useful when you work with ephemeral secrets which need to be renewed fairly often. However, you can also get massive benefit from it if you want to have a declarative way to manage your workspaces definitions as code.
+
+You will most likely do not need to learn a new configuration syntax as TFCW is configured using HCL files. 
+TFCW allows you to do all that whilst continuing to **only write HCL files**.
 
 ### Without TFCW
 
@@ -222,13 +225,13 @@ INFO[2020-02-18T17:31:36Z] Processing variables and updating their values on TFC
 INFO[2020-02-18T17:31:48Z] [DRY-RUN] Set variable credentials - (terraform) : x********x
 ```
 
-## Examples
-
-Several examples are available in the [examples](examples) folder of this repository.
-
 ## Configuration syntax
 
-A complete example of the whole [configuration syntax is maintained here](examples/complete.md).
+The [configuration syntax is maintained here](docs/configuration_syntax.md).
+
+## Examples
+
+Several examples are available in the [docs/examples](docs/examples) folder of this repository.
 
 ## Supported sources for storing variable values
 
