@@ -44,12 +44,13 @@ func RunCreate(ctx *cli.Context) (int, error) {
 	}
 
 	if err = c.CreateRun(cfg, &client.TFECreateRunOptions{
-		ConfigPath:  ctx.String("tf-config-folder"),
-		AutoApprove: ctx.Bool("auto-approve"),
-		AutoDiscard: ctx.Bool("auto-discard"),
-		NoPrompt:    ctx.Bool("no-prompt"),
-		OutputPath:  ctx.String("output"),
-		Message:     ctx.String("message"),
+		ConfigPath:   ctx.String("tf-config-folder"),
+		AutoApprove:  ctx.Bool("auto-approve"),
+		AutoDiscard:  ctx.Bool("auto-discard"),
+		NoPrompt:     ctx.Bool("no-prompt"),
+		OutputPath:   ctx.String("output"),
+		Message:      ctx.String("message"),
+		StartTimeout: ctx.Duration("start-timeout"),
 	}); err != nil {
 		return 1, err
 	}

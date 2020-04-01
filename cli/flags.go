@@ -31,6 +31,10 @@ var runCreate = []cli.Flag{
 		Name:  "render-local",
 		Usage: "render files locally instead of updating their values in TFC",
 	},
+	cli.DurationFlag{
+		Name:  "start-timeout,t",
+		Usage: "time to wait for the plan to start (set to 0 to disable, it is the default)",
+	},
 	cli.StringFlag{
 		Name:  "output,o",
 		Usage: "file on which to write the run ID",

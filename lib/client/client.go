@@ -61,8 +61,8 @@ func NewClient(cfg *Config) (c *Client, err error) {
 		ProcessedVariables: map[string]schemas.VariableKind{},
 		Backoff: &backoff.Backoff{
 			Min:    1 * time.Second,
-			Max:    15 * time.Second,
-			Factor: 2,
+			Max:    20 * time.Second,
+			Factor: 1.5,
 			Jitter: false,
 		},
 	}

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	tfe "github.com/hashicorp/go-tfe"
+	"github.com/jpillora/backoff"
 	"github.com/manifoldco/promptui"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 	log "github.com/sirupsen/logrus"
@@ -28,12 +29,13 @@ const (
 
 // TFECreateRunOptions handles configuration variables for creating a new run on TFE
 type TFECreateRunOptions struct {
-	AutoApprove bool
-	AutoDiscard bool
-	NoPrompt    bool
-	ConfigPath  string
-	OutputPath  string
-	Message     string
+	AutoApprove  bool
+	AutoDiscard  bool
+	NoPrompt     bool
+	ConfigPath   string
+	OutputPath   string
+	Message      string
+	StartTimeout time.Duration
 }
 
 // CreateRun triggers a `run` over the TFC API
@@ -72,7 +74,7 @@ func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error
 		return err
 	}
 
-	plan, err := c.waitForTerraformPlan(planID)
+	plan, err := c.waitForTerraformPlan(planID, opts.StartTimeout)
 	if err != nil {
 		c.DiscardRun(run.ID, opts.Message)
 		return err
@@ -300,7 +302,7 @@ func (c *Client) getTerraformPlanID(run *tfe.Run) (string, error) {
 	return run.Plan.ID, nil
 }
 
-func (c *Client) waitForTerraformPlan(planID string) (plan *tfe.Plan, err error) {
+func (c *Client) waitForTerraformPlan(planID string, startTimeout time.Duration) (plan *tfe.Plan, err error) {
 	time.Sleep(2 * time.Second)
 	plan, err = c.TFE.Plans.Read(c.Context, planID)
 	c.Backoff.Reset()
@@ -325,6 +327,9 @@ wait:
 			return plan, fmt.Errorf("plan is unreachable from TFC API")
 		default:
 			t := c.Backoff.Duration()
+			if timeoutExhausted(c.Backoff, startTimeout) {
+				return nil, fmt.Errorf("timed out waiting for the plan to start, exiting now")
+			}
 			log.Infof("Waiting for plan to start, current status: %s, sleeping for %s", plan.Status, t.String())
 			time.Sleep(t)
 		}
@@ -443,4 +448,21 @@ func saveRunID(runID, outputFile string) {
 	} else {
 		log.Debugf("Output file not defined, not saving run ID on disk.")
 	}
+}
+
+func timeoutExhausted(b *backoff.Backoff, t time.Duration) bool {
+	if t == 0 {
+		return false
+	}
+
+	var totalDuration time.Duration
+	a := float64(0)
+	for a < b.Attempt() {
+		totalDuration += b.ForAttempt(a)
+		if totalDuration >= t {
+			return true
+		}
+		a++
+	}
+	return false
 }

@@ -10,6 +10,7 @@ and this project adheres to [0ver](https://0ver.org).
 ### Added
 
 - Capability to manage the workspace SSH key
+- Added a timeout flag to automatically exit if the run is too long to start
 
 ## [0.0.3] - 2020-03-21
 
