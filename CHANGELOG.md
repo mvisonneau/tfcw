@@ -12,6 +12,11 @@ and this project adheres to [0ver](https://0ver.org).
 - Capability to manage the workspace SSH key
 - Added a timeout flag to automatically exit if the run is too long to start
 
+### Changed
+
+- Reviewed the examples and configuration syntax documentation
+- Bumped go modules versions
+
 ## [0.0.3] - 2020-03-21
 
 ### Added
