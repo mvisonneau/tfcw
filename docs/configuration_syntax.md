@@ -67,7 +67,7 @@ tfc {
 }
 ```
 
-Here is a contextualized example: [docs/examples/workspace_configuration.md](docs/examples/workspace_configuration.md)
+Here is a contextualized example: [docs/examples/workspace_configuration.md](examples/workspace_configuration.md)
 
 ### defaults
 
@@ -211,8 +211,8 @@ vault {
 
 Here are contextualized examples:
 
-- [docs/examples/provider_vault.md](docs/examples/provider_vault.md)
-- [docs/examples/provider_vault_multi_keys.md](docs/examples/provider_vault_multi_keys.md)
+- [docs/examples/provider_vault.md](examples/provider_vault.md)
+- [docs/examples/provider_vault_multi_keys.md](examples/provider_vault_multi_keys.md)
 
 #### s5
 
@@ -260,11 +260,11 @@ s5 {
 
 Here are contextualized examples:
 
-- [docs/examples/provider_s5_aes.md](docs/examples/provider_s5_aes.md)
-- [docs/examples/provider_s5_aws_kms.md](docs/examples/provider_s5_aws_kms.md)
-- [docs/examples/provider_s5_gcp_kms.md](docs/examples/provider_s5_gcp_kms.md)
-- [docs/examples/provider_s5_pgp.md](docs/examples/provider_s5_pgp.md)
-- [docs/examples/provider_s5_vault.md](docs/examples/provider_s5_vault.md)
+- [docs/examples/provider_s5_aes.md](examples/provider_s5_aes.md)
+- [docs/examples/provider_s5_aws_kms.md](examples/provider_s5_aws_kms.md)
+- [docs/examples/provider_s5_gcp_kms.md](examples/provider_s5_gcp_kms.md)
+- [docs/examples/provider_s5_pgp.md](examples/provider_s5_pgp.md)
+- [docs/examples/provider_s5_vault.md](examples/provider_s5_vault.md)
 
 #### env
 
@@ -276,4 +276,4 @@ env {
 }
 ```
 
-Here is a contextualized example: [docs/examples/provider_env.md](docs/examples/provider_env.md)
+Here is a contextualized example: [docs/examples/provider_env.md](examples/provider_env.md)
