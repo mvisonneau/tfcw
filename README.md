@@ -6,13 +6,79 @@
 [![Build Status](https://cloud.drone.io/api/badges/mvisonneau/tfcw/status.svg)](https://cloud.drone.io/mvisonneau/tfcw)
 [![Coverage Status](https://coveralls.io/repos/github/mvisonneau/tfcw/badge.svg?branch=master)](https://coveralls.io/github/mvisonneau/tfcw?branch=master)
 
+`Terraform Cloud Wrapper (TFCW)` wraps the Terraform Cloud API. It provides an easy way to **dynamically** maintain configuration and particularily **sensitive [variables](https://www.terraform.io/docs/cloud/workspaces/variables.html)** of [Terraform Cloud (TFC) workspaces](https://www.terraform.io/docs/cloud/workspaces/index.html).
 
-`TFCW` as its name suggests is a wrapper for the Terraform Cloud API. The main purpose is to provide us with a nice way to **dynamically** maintain our **sensitive variables** within **Terraform Cloud workspaces**.
+## TL;DR
+
+> **Use case:** You need a token or API key for your terraform provider which is stored in Vault
+
+First, you do not have to change any of your Terraform code, although you can eventually omit the remote backend block if you want to:
+
+```hcl
+// terraform.tf
+
+provider "cloudflare" {
+  version = "~> 2.0"
+  email = "foo@bar.com"
+}
+
+resource "cloudflare_zone" "example" {
+  zone = "example.com"
+}
+```
+
+You need to add a new file within your Terraform folder (or anywhere you would like to store it) which can look like this at a bare minimum:
+
+```hcl
+// tfcw.hcl
+
+tfc {
+  organization = "acme"
+  workspace {
+    name = "foo"
+  }
+}
+
+envvar "CLOUDFLARE_API_TOKEN" {
+   vault {
+     address = "https://vault.acme.local"
+     path    = "secret/cloudflare"
+     key     = "api-token"
+   }
+}
+```
+
+That's it, you now have a declarative way to ensure that your variable is picked up from **Vault** whenever you trigger a Terraform run, even if it is a [remote operation](https://www.terraform.io/docs/cloud/run/index.html#remote-operations)!
+
+```bash
+// Render the variables on the TFC
+~$ tfcw render tfc
+INFO[2020-04-01T13:27:55+01:00] Checking workspace configuration
+INFO[2020-04-01T13:27:56+01:00] Processing variables and updating their values on TFC
+INFO[2020-04-01T13:27:58+01:00] Set variable 'CLOUDFLARE_API_TOKEN' (environment)
+
+// Run terraform
+~$ terraform plan
+...
+
+// Or all-in-one
+~$ tfcw run create
+tfcw run create
+INFO[2020-04-01T16:29:23+01:00] Checking workspace configuration
+INFO[2020-04-01T16:29:23+01:00] Processing variables and updating their values on TFC
+INFO[2020-04-01T16:29:26+01:00] Set variable 'CLOUDFLARE_API_TOKEN' (environment)
+INFO[2020-04-01T16:29:27+01:00] Preparing plan
+Terraform v0.12.24
+Configuring remote state backend...
+Initializing Terraform configuration...
+[...]
+```
+
+## Why should I use TFCW
 
 It is particularily useful when you work with ephemeral secrets which need to be renewed with very short timelines. However, you can also get strong benefit from it if you want to have a declarative way to manage your sensitive data. TFCW allows you to do all that whilst continuing to **only write HCL files**.
 
-
-## Without TFCW
+### Without TFCW
 
 Assuming you are using Terraform Cloud for managing this super simple stack:
 
@@ -100,7 +166,7 @@ INFO[2020-02-18T17:34:55Z] Processing variables and updating their values on TFC
 INFO[2020-02-18T17:34:55Z] Set variable credentials (terraform)
 INFO[2020-02-18T17:34:55Z] Preparing plan
 INFO[2020-02-18T17:34:55Z] Run ID: run-cmSR00CtsP1pRG1o
-Terraform v0.12.20
+Terraform v0.12.24
 Configuring remote state backend...
 Initializing Terraform configuration...
 2020/02/18 17:34:56 [DEBUG] Using modified User-Agent: Terraform/0.12.20 TFC/d310d4ebb1
@@ -159,7 +225,6 @@ INFO[2020-02-18T17:31:48Z] [DRY-RUN] Set variable credentials - (terraform) : x*
 ## Examples
 
 Several examples are available in the [examples](examples) folder of this repository.
-
 
 ## Configuration syntax
 
