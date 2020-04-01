@@ -17,4 +17,5 @@ type Workspace struct {
 	AutoApply        *bool   `hcl:"auto-apply"`
 	TerraformVersion *string `hcl:"terraform-version"`
 	WorkingDirectory *string `hcl:"working-directory"`
+	SSHKey           *string `hcl:"ssh-key"`
 }

@@ -24,6 +24,9 @@ tfc {
 
     // Configure the workspace working directory (optional, default: <unmanaged>)
     working-directory = "/foo"
+
+    // Name of the SSH key to use (optional, default: <unmanaged>)
+    ssh-key = "bar"
   }
 
   // This flag enables the creating of the workspace if TFCW cannot find it under

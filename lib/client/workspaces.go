@@ -97,6 +97,24 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) error {
 		}
 	}
 
+	if cfg.TFC.Workspace.SSHKey != nil {
+		shouldUpdateSSHKey, err := c.shouldUpdateSSHKey(w, *cfg.TFC.Workspace.SSHKey)
+		if err != nil {
+			return err
+		}
+
+		if shouldUpdateSSHKey {
+			if !dryRun {
+				err = c.updateSSHKey(w, *cfg.TFC.Workspace.SSHKey)
+				if err != nil {
+					return fmt.Errorf("error updating TFC workspace ssh key: %s", err)
+				}
+			} else {
+				log.Infof("[DRY-RUN] not actually updating workspace's SSH key configuration as we dry-run mode")
+			}
+		}
+	}
+
 	if workspaceNeedToBeUpdated {
 		if !dryRun {
 			opts := tfe.WorkspaceUpdateOptions{
@@ -107,9 +125,16 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) error {
 				WorkingDirectory: cfg.TFC.Workspace.WorkingDirectory,
 			}
 
-			w, err = c.TFE.Workspaces.UpdateByID(c.Context, w.ID, opts)
+			_, err = c.TFE.Workspaces.UpdateByID(c.Context, w.ID, opts)
 			if err != nil {
 				return fmt.Errorf("error updating TFC workspace: %s", err)
+			}
+
+			if cfg.TFC.Workspace.SSHKey != nil {
+				err = c.updateSSHKey(w, *cfg.TFC.Workspace.SSHKey)
+				if err != nil {
+					return fmt.Errorf("error updating TFC workspace ssh key: %s", err)
+				}
 			}
 		} else {
 			log.Infof("[DRY-RUN] not actually updating workspace configuration as we dry-run mode")
@@ -153,4 +178,55 @@ func (c *Client) GetWorkspaceCurrentRunID(cfg *schemas.Config) (string, error) {
 	}
 
 	return "", fmt.Errorf("workspace %s is currently idle", cfg.TFC.Workspace.Name)
+}
+
+func (c *Client) updateSSHKey(w *tfe.Workspace, sshKeyName string) error {
+	if sshKeyName == "-" {
+		log.Infof("Removing currently configured SSH key")
+		_, err := c.TFE.Workspaces.UnassignSSHKey(c.Context, w.ID)
+		return err
+	}
+
+	sshKeys, err := c.TFE.SSHKeys.List(c.Context, w.Organization.Name, tfe.SSHKeyListOptions{})
+	if err != nil {
+		return err
+	}
+
+	for _, sshKey := range sshKeys.Items {
+		if sshKey.Name == sshKeyName {
+			log.Infof("Updating configured SSH key to '%s'", sshKey.Name)
+			_, err := c.TFE.Workspaces.AssignSSHKey(c.Context, w.ID, tfe.WorkspaceAssignSSHKeyOptions{
+				SSHKeyID: &sshKey.ID,
+			})
+			return err
+		}
+	}
+
+	return fmt.Errorf("could not find ssh key '%s'", sshKeyName)
+}
+
+func (c *Client) shouldUpdateSSHKey(w *tfe.Workspace, sshKeyName string) (bool, error) {
+	var sshKey *tfe.SSHKey
+	var err error
+	if sshKeyName == "-" && w.SSHKey != nil {
+		log.Infof("Workspace ssh key should not be configured, we will remove it")
+		return true, nil
+	}
+
+	if w.SSHKey == nil {
+		log.Infof("Workspace ssh key not configured, wanted '%s', we will update", sshKeyName)
+		return true, nil
+	}
+
+	sshKey, err = c.TFE.SSHKeys.Read(c.Context, w.SSHKey.ID)
+	if err != nil {
+		return false, fmt.Errorf("could not fetch ssh key from API: %v", err)
+	}
+
+	if sshKeyName != sshKey.Name {
+		log.Infof("Workspace ssh key configured with '%s', wanted '%s', we will update", sshKey.Name, sshKeyName)
+		return true, nil
+	}
+
+	return false, nil
 }

@@ -7,6 +7,10 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- Capability to manage the workspace SSH key
+
 ## [0.0.3] - 2020-03-21
 
 ### Added
