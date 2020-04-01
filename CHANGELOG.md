@@ -7,6 +7,8 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [0.0.4] - 2020-04-01
+
 ### Added
 
 - Capability to manage the workspace SSH key
@@ -50,7 +52,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.3...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.4...HEAD
+[0.0.4]: https://github.com/mvisonneau/tfcw/tree/0.0.4
 [0.0.3]: https://github.com/mvisonneau/tfcw/tree/0.0.3
 [0.0.2]: https://github.com/mvisonneau/tfcw/tree/0.0.2
 [0.0.1]: https://github.com/mvisonneau/tfcw/tree/0.0.1
