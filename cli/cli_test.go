@@ -3,15 +3,12 @@ package cli
 import (
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewApp(t *testing.T) {
 	app := NewApp("0.0.0", time.Now())
-	if app.Name != "tfcw" {
-		t.Fatalf("Expected app.Name to be tfcw, got '%s'", app.Name)
-	}
-
-	if app.Version != "0.0.0" {
-		t.Fatalf("Expected app.Version to be 0.0.0, got '%s'", app.Version)
-	}
+	assert.Equal(t, "tfcw", app.Name)
+	assert.Equal(t, "0.0.0", app.Version)
 }
