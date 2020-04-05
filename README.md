@@ -275,13 +275,15 @@ COMMANDS:
    help, h    Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --config-path path, -c path  path to a readable configuration file (.hcl or .json) (default: "./tfcw.hcl") [$TFCW_CONFIG_PATH]
-   --tfc-address address        address to access Terraform Cloud API (default: "https://app.terraform.io") [$TFCW_TFC_ADDRESS]
-   --tfc-token token, -t token  token to access Terraform Cloud API [$TFCW_TFC_TOKEN]
-   --log-level level            log level (debug,info,warn,fatal,panic) (default: "info") [$TFCW_LOG_LEVEL]
-   --log-format format          log format (json,text) (default: "text") [$TFCW_LOG_FORMAT]
-   --help, -h                   show help
-   --version, -v                print the version
+   --working-dir path, -d path                   path of the directory containing your Terraform files (default: ".") [$TFCW_WORKING_DIR]
+   --config-file path, -c path                   path of a readable TFCW configuration file (.hcl or .json) (default: "<working-dir>/tfcw.hcl") [$TFCW_CONFIG_FILE]
+   --address address, -a address                 address to access Terraform Cloud API [$TFCW_ADDRESS]
+   --token token, -t token                       token to access Terraform Cloud API [$TFCW_TOKEN]
+   --organization organization, -o organization  organization to use on Terraform Cloud API [$TFCW_ORGANIZATION]
+   --workspace workspace, -w workspace           workspace to use on Terraform Cloud API [$TFCW_WORKSPACE]
+   --log-level level                             log level (debug,info,warn,fatal,panic) (default: "info") [$TFCW_LOG_LEVEL]
+   --log-format format                           log format (json,text) (default: "text") [$TFCW_LOG_FORMAT]
+   --help, -h                                    show help
 ```
 
 ## Install
