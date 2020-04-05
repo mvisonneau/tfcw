@@ -17,6 +17,17 @@ First, you do not have to change any of your Terraform code, although you can ev
 ```hcl
 // terraform.tf
 
+terraform {
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "acme"
+
+    workspaces {
+      name = "foo"
+    }
+  }
+}
+
 provider "cloudflare" {
   version = "~> 2.0"
   email = "foo@bar.com"
@@ -27,24 +38,17 @@ resource "cloudflare_zone" "example" {
 }
 ```
 
-You need to add a new file within your Terraform folder (or anywhere you would like to store it) which can look like this at a bare minimum:
+You need to add a new file within your Terraform folder (or anywhere you would like to store it) which can look like this:
 
 ```hcl
 // tfcw.hcl
 
-tfc {
-  organization = "acme"
-  workspace {
-    name = "foo"
-  }
-}
-
 envvar "CLOUDFLARE_API_TOKEN" {
-   vault {
-     address = "https://vault.acme.local"
-     path    = "secret/cloudflare"
-     key     = "api-token"
-   }
+  vault {
+    address = "https://vault.acme.local"
+    path    = "secret/cloudflare"
+    key     = "api-token"
+  }
 }
 ```
 
@@ -122,10 +126,21 @@ Once done, you can trigger a `terraform` run, manually, through the Terraform Cl
 
 ## With TFCW
 
-You do not have to change any of your Terraform code, you can eventually omit the remote backend if you want to though:
+You do not have to change any of your Terraform code:
 
 ```hcl
 // terraform.tf
+
+terraform {
+  backend "remote" {
+    hostname     = "app.terraform.io"
+    organization = "acme"
+
+    workspaces {
+      name = "foo"
+    }
+  }
+}
 
 provider "local" {
    version = "~> 1.4.0"
@@ -144,13 +159,6 @@ You need to add a new file within your Terraform folder (or anywhere you would l
 
 ```hcl
 // tfcw.hcl
-
-tfc {
-  organization = "acme"
-  workspace {
-    name = "foo"
-  }
-}
 
 tfvar "credentials" {
    vault {

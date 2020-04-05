@@ -12,7 +12,7 @@ import (
 	providerVault "github.com/mvisonneau/tfcw/lib/providers/vault"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 
-	tfe "github.com/hashicorp/go-tfe"
+	tfc "github.com/hashicorp/go-tfe"
 )
 
 // Client aggregates provider clients
@@ -20,34 +20,21 @@ type Client struct {
 	Vault                   *providerVault.Client
 	S5                      *providerS5.Client
 	Env                     *providerEnv.Client
-	TFE                     *tfe.Client
+	TFC                     *tfc.Client
 	Context                 context.Context
 	ProcessedVariablesMutex sync.Mutex
 	ProcessedVariables      map[string]schemas.VariableKind
 	Backoff                 *backoff.Backoff
 }
 
-// Config is a subset of schemas.Config with a few more runtime
-// related values
-type Config struct {
-	*schemas.Config
-	Runtime struct {
-		TFE struct {
-			Disabled bool
-			Address  string
-			Token    string
-		}
-	}
-}
-
 // NewClient instantiate a Client from a provider Config
-func NewClient(cfg *Config) (c *Client, err error) {
+func NewClient(cfg *schemas.Config) (c *Client, err error) {
 	vaultClient, err := getVaultClient(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("error getting vault client: %s", err)
 	}
 
-	tfeClient, err := getTFEClient(cfg)
+	tfcClient, err := getTFCClient(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("error getting terraform cloud client: %s", err)
 	}
@@ -56,7 +43,7 @@ func NewClient(cfg *Config) (c *Client, err error) {
 		Vault:              vaultClient,
 		S5:                 getS5Client(cfg),
 		Env:                &providerEnv.Client{},
-		TFE:                tfeClient,
+		TFC:                tfcClient,
 		Context:            context.Background(),
 		ProcessedVariables: map[string]schemas.VariableKind{},
 		Backoff: &backoff.Backoff{
@@ -70,8 +57,8 @@ func NewClient(cfg *Config) (c *Client, err error) {
 	return
 }
 
-func getVaultClient(cfg *Config) (c *providerVault.Client, err error) {
-	if cfg.isVaultClientRequired() {
+func getVaultClient(cfg *schemas.Config) (c *providerVault.Client, err error) {
+	if isVaultClientRequired(cfg) {
 		// Initializing Vault client with default values
 		var vaultAddress, vaultToken string
 		if cfg.Defaults != nil {
@@ -91,7 +78,7 @@ func getVaultClient(cfg *Config) (c *providerVault.Client, err error) {
 	return
 }
 
-func getS5Client(cfg *Config) (c *providerS5.Client) {
+func getS5Client(cfg *schemas.Config) (c *providerS5.Client) {
 	c = &providerS5.Client{}
 	if cfg.Defaults != nil && cfg.Defaults.S5 != nil {
 		if cfg.Defaults.S5.CipherEngineType != nil {
@@ -116,17 +103,17 @@ func getS5Client(cfg *Config) (c *providerS5.Client) {
 	return
 }
 
-func getTFEClient(cfg *Config) (c *tfe.Client, err error) {
-	if !cfg.Runtime.TFE.Disabled {
-		c, err = tfe.NewClient(&tfe.Config{
-			Address: cfg.Runtime.TFE.Address,
-			Token:   cfg.Runtime.TFE.Token,
+func getTFCClient(cfg *schemas.Config) (c *tfc.Client, err error) {
+	if !cfg.Runtime.TFC.Disabled {
+		c, err = tfc.NewClient(&tfc.Config{
+			Address: cfg.Runtime.TFC.Address,
+			Token:   cfg.Runtime.TFC.Token,
 		})
 	}
 	return
 }
 
-func (cfg *Config) isVaultClientRequired() bool {
+func isVaultClientRequired(cfg *schemas.Config) bool {
 	for _, v := range append(cfg.TerraformVariables, cfg.EnvironmentVariables...) {
 		if v.Vault != nil {
 			return true

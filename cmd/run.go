@@ -43,8 +43,7 @@ func RunCreate(ctx *cli.Context) (int, error) {
 		}
 	}
 
-	if err = c.CreateRun(cfg, &client.TFECreateRunOptions{
-		ConfigPath:   ctx.String("tf-config-folder"),
+	if err = c.CreateRun(cfg, &client.TFCCreateRunOptions{
 		AutoApprove:  ctx.Bool("auto-approve"),
 		AutoDiscard:  ctx.Bool("auto-discard"),
 		NoPrompt:     ctx.Bool("no-prompt"),

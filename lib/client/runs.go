@@ -9,39 +9,38 @@ import (
 	"strings"
 	"time"
 
-	tfe "github.com/hashicorp/go-tfe"
+	tfc "github.com/hashicorp/go-tfe"
 	"github.com/jpillora/backoff"
 	"github.com/manifoldco/promptui"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 	log "github.com/sirupsen/logrus"
 )
 
-// TFERunType defines possible TFC run types
-type TFERunType string
+// TFCRunType defines possible TFC run types
+type TFCRunType string
 
 const (
-	// TFERunTypePlan refers to a TFC `plan`
-	TFERunTypePlan TFERunType = "plan"
+	// TFCRunTypePlan refers to a TFC `plan`
+	TFCRunTypePlan TFCRunType = "plan"
 
-	// TFERunTypeApply refers to a TFC `apply`
-	TFERunTypeApply TFERunType = "apply"
+	// TFCRunTypeApply refers to a TFC `apply`
+	TFCRunTypeApply TFCRunType = "apply"
 )
 
-// TFECreateRunOptions handles configuration variables for creating a new run on TFE
-type TFECreateRunOptions struct {
+// TFCCreateRunOptions handles configuration variables for creating a new run on TFE
+type TFCCreateRunOptions struct {
 	AutoApprove  bool
 	AutoDiscard  bool
 	NoPrompt     bool
-	ConfigPath   string
 	OutputPath   string
 	Message      string
 	StartTimeout time.Duration
 }
 
 // CreateRun triggers a `run` over the TFC API
-func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error {
+func (c *Client) CreateRun(cfg *schemas.Config, opts *TFCCreateRunOptions) error {
 	log.Info("Preparing plan")
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace.Name)
+	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
 	if err != nil {
 		return err
 	}
@@ -51,7 +50,7 @@ func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error
 		return err
 	}
 
-	if err := c.uploadConfigurationVersion(w, configVersion, opts.ConfigPath); err != nil {
+	if err := c.uploadConfigurationVersion(w, configVersion, cfg.Runtime.WorkingDir); err != nil {
 		return err
 	}
 
@@ -106,12 +105,12 @@ func (c *Client) CreateRun(cfg *schemas.Config, opts *TFECreateRunOptions) error
 // ApproveRun given its ID
 func (c *Client) ApproveRun(runID, message string) error {
 	log.Infof("Approving run ID: %s", runID)
-	c.TFE.Runs.Apply(c.Context, runID, tfe.RunApplyOptions{
+	c.TFC.Runs.Apply(c.Context, runID, tfc.RunApplyOptions{
 		Comment: &message,
 	})
 
 	// Refresh run object to fetch the Apply.ID
-	run, err := c.TFE.Runs.Read(c.Context, runID)
+	run, err := c.TFC.Runs.Read(c.Context, runID)
 	if err != nil {
 		return err
 	}
@@ -122,15 +121,15 @@ func (c *Client) ApproveRun(runID, message string) error {
 // DiscardRun given its ID
 func (c *Client) DiscardRun(runID, message string) error {
 	log.Infof("Discarding run ID: %s", runID)
-	return c.TFE.Runs.Discard(c.Context, runID, tfe.RunDiscardOptions{
+	return c.TFC.Runs.Discard(c.Context, runID, tfc.RunDiscardOptions{
 		Comment: &message,
 	})
 }
 
-func (c *Client) createConfigurationVersion(w *tfe.Workspace) (*tfe.ConfigurationVersion, error) {
+func (c *Client) createConfigurationVersion(w *tfc.Workspace) (*tfc.ConfigurationVersion, error) {
 	log.Debug("Creating configuration version")
-	configVersion, err := c.TFE.ConfigurationVersions.Create(c.Context, w.ID, tfe.ConfigurationVersionCreateOptions{
-		AutoQueueRuns: tfe.Bool(false),
+	configVersion, err := c.TFC.ConfigurationVersions.Create(c.Context, w.ID, tfc.ConfigurationVersionCreateOptions{
+		AutoQueueRuns: tfc.Bool(false),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("error creating TFC configuration version: %s", err)
@@ -140,7 +139,7 @@ func (c *Client) createConfigurationVersion(w *tfe.Workspace) (*tfe.Configuratio
 	return configVersion, nil
 }
 
-func (c *Client) uploadConfigurationVersion(w *tfe.Workspace, configVersion *tfe.ConfigurationVersion, uploadPath string) error {
+func (c *Client) uploadConfigurationVersion(w *tfc.Workspace, configVersion *tfc.ConfigurationVersion, uploadPath string) error {
 	if len(w.WorkingDirectory) > 0 {
 		absolutePath, err := filepath.Abs(uploadPath)
 		if err != nil {
@@ -151,16 +150,16 @@ func (c *Client) uploadConfigurationVersion(w *tfe.Workspace, configVersion *tfe
 	}
 
 	log.Debug("Uploading configuration version..")
-	if err := c.TFE.ConfigurationVersions.Upload(c.Context, configVersion.UploadURL, uploadPath); err != nil {
+	if err := c.TFC.ConfigurationVersions.Upload(c.Context, configVersion.UploadURL, uploadPath); err != nil {
 		return fmt.Errorf("error uploading configuration version: %s", err)
 	}
 	log.Debug("Uploaded configuration version!")
 	return nil
 }
 
-func (c *Client) createRun(w *tfe.Workspace, configVersion *tfe.ConfigurationVersion, message string) (*tfe.Run, error) {
+func (c *Client) createRun(w *tfc.Workspace, configVersion *tfc.ConfigurationVersion, message string) (*tfc.Run, error) {
 	log.Debugf("Creating run for workspace '%s' / configuration version '%s'", w.ID, configVersion.ID)
-	run, err := c.TFE.Runs.Create(c.Context, tfe.RunCreateOptions{
+	run, err := c.TFC.Runs.Create(c.Context, tfc.RunCreateOptions{
 		Message:              &message,
 		ConfigurationVersion: configVersion,
 		Workspace:            w,
@@ -174,17 +173,17 @@ func (c *Client) createRun(w *tfe.Workspace, configVersion *tfe.ConfigurationVer
 	return run, nil
 }
 
-func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.VariableValue, e TFEVariables) (*tfe.Variable, error) {
+func (c *Client) setVariableOnTFC(w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables) (*tfc.Variable, error) {
 	if v.Variable.Sensitive == nil {
-		v.Variable.Sensitive = tfe.Bool(true)
+		v.Variable.Sensitive = tfc.Bool(true)
 	}
 
 	if v.Variable.HCL == nil {
-		v.Variable.HCL = tfe.Bool(false)
+		v.Variable.HCL = tfc.Bool(false)
 	}
 
 	if existingVariable, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
-		updatedVariable, err := c.TFE.Variables.Update(c.Context, w.ID, existingVariable.ID, tfe.VariableUpdateOptions{
+		updatedVariable, err := c.TFC.Variables.Update(c.Context, w.ID, existingVariable.ID, tfc.VariableUpdateOptions{
 			Key:       &v.Name,
 			Value:     &v.Value,
 			Sensitive: v.Variable.Sensitive,
@@ -194,7 +193,7 @@ func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.VariableValue, e 
 		// In case we cannot update the fields, we delete the variable and recreate it
 		if err != nil {
 			log.Debugf("Could not update variable id %s, attempting to recreate it.", existingVariable.ID)
-			err = c.TFE.Variables.Delete(c.Context, w.ID, existingVariable.ID)
+			err = c.TFC.Variables.Delete(c.Context, w.ID, existingVariable.ID)
 			if err != nil {
 				return nil, err
 			}
@@ -203,16 +202,16 @@ func (c *Client) setVariableOnTFC(w *tfe.Workspace, v *schemas.VariableValue, e 
 		}
 	}
 
-	return c.TFE.Variables.Create(c.Context, w.ID, tfe.VariableCreateOptions{
+	return c.TFC.Variables.Create(c.Context, w.ID, tfc.VariableCreateOptions{
 		Key:       &v.Name,
 		Value:     &v.Value,
-		Category:  tfe.Category(getCategoryType(v.Variable.Kind)),
+		Category:  tfc.Category(getCategoryType(v.Variable.Kind)),
 		Sensitive: v.Variable.Sensitive,
 		HCL:       v.Variable.HCL,
 	})
 }
 
-func (c *Client) purgeUnmanagedVariables(vars schemas.VariableValues, e TFEVariables, dryRun bool) error {
+func (c *Client) purgeUnmanagedVariables(vars schemas.VariableValues, e TFCVariables, dryRun bool) error {
 	for _, v := range vars {
 		if _, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
 			delete(e[getCategoryType(v.Variable.Kind)], v.Name)
@@ -223,7 +222,7 @@ func (c *Client) purgeUnmanagedVariables(vars schemas.VariableValues, e TFEVaria
 		for _, v := range tfeVars {
 			if !dryRun {
 				log.Warnf("Deleting unmanaged variable %s (%s)", v.Key, v.Category)
-				err := c.TFE.Variables.Delete(c.Context, v.Workspace.ID, v.ID)
+				err := c.TFC.Variables.Delete(c.Context, v.Workspace.ID, v.ID)
 				if err != nil {
 					return fmt.Errorf("error deleting variable %s (%s) on TFC: %s", v.Key, v.Category, err.Error())
 				}
@@ -236,25 +235,25 @@ func (c *Client) purgeUnmanagedVariables(vars schemas.VariableValues, e TFEVaria
 	return nil
 }
 
-func (c *Client) listVariables(w *tfe.Workspace) (TFEVariables, error) {
-	variables := TFEVariables{}
+func (c *Client) listVariables(w *tfc.Workspace) (TFCVariables, error) {
+	variables := TFCVariables{}
 
-	listOptions := tfe.VariableListOptions{
-		ListOptions: tfe.ListOptions{
+	listOptions := tfc.VariableListOptions{
+		ListOptions: tfc.ListOptions{
 			PageNumber: 1,
 			PageSize:   20,
 		},
 	}
 
 	for {
-		list, err := c.TFE.Variables.List(c.Context, w.ID, listOptions)
+		list, err := c.TFC.Variables.List(c.Context, w.ID, listOptions)
 		if err != nil {
 			return variables, fmt.Errorf("Unable to list variables from the Terraform Cloud API : %v", err.Error())
 		}
 
 		for _, v := range list.Items {
 			if _, ok := variables[v.Category]; !ok {
-				variables[v.Category] = map[string]*tfe.Variable{}
+				variables[v.Category] = map[string]*tfc.Variable{}
 			}
 			variables[v.Category][v.Key] = v
 		}
@@ -268,18 +267,18 @@ func (c *Client) listVariables(w *tfe.Workspace) (TFEVariables, error) {
 	return variables, nil
 }
 
-func getCategoryType(kind schemas.VariableKind) tfe.CategoryType {
+func getCategoryType(kind schemas.VariableKind) tfc.CategoryType {
 	switch kind {
 	case schemas.VariableKindEnvironment:
-		return tfe.CategoryEnv
+		return tfc.CategoryEnv
 	case schemas.VariableKindTerraform:
-		return tfe.CategoryTerraform
+		return tfc.CategoryTerraform
 	}
 
-	return tfe.CategoryType("")
+	return tfc.CategoryType("")
 }
 
-func (c *Client) getTerraformPlanID(run *tfe.Run) (string, error) {
+func (c *Client) getTerraformPlanID(run *tfc.Run) (string, error) {
 	var err error
 
 	// Sometimes the plan ID is not immediately available when the run is created
@@ -292,7 +291,7 @@ func (c *Client) getTerraformPlanID(run *tfe.Run) (string, error) {
 		log.Infof("Waiting %s for plan ID to be generated..", t.String())
 		time.Sleep(t)
 
-		run, err = c.TFE.Runs.Read(c.Context, run.ID)
+		run, err = c.TFC.Runs.Read(c.Context, run.ID)
 		if err != nil {
 			return "", err
 		}
@@ -302,28 +301,28 @@ func (c *Client) getTerraformPlanID(run *tfe.Run) (string, error) {
 	return run.Plan.ID, nil
 }
 
-func (c *Client) waitForTerraformPlan(planID string, startTimeout time.Duration) (plan *tfe.Plan, err error) {
+func (c *Client) waitForTerraformPlan(planID string, startTimeout time.Duration) (plan *tfc.Plan, err error) {
 	time.Sleep(2 * time.Second)
-	plan, err = c.TFE.Plans.Read(c.Context, planID)
+	plan, err = c.TFC.Plans.Read(c.Context, planID)
 	c.Backoff.Reset()
 
 wait:
 	for {
-		plan, err = c.TFE.Plans.Read(c.Context, planID)
+		plan, err = c.TFC.Plans.Read(c.Context, planID)
 		if err != nil {
 			return
 		}
 
 		switch plan.Status {
-		case tfe.PlanCanceled:
+		case tfc.PlanCanceled:
 			return plan, fmt.Errorf("plan has been cancelled")
-		case tfe.PlanErrored:
+		case tfc.PlanErrored:
 			break wait
-		case tfe.PlanFinished:
+		case tfc.PlanFinished:
 			break wait
-		case tfe.PlanRunning:
+		case tfc.PlanRunning:
 			break wait
-		case tfe.PlanUnreachable:
+		case tfc.PlanUnreachable:
 			return plan, fmt.Errorf("plan is unreachable from TFC API")
 		default:
 			t := c.Backoff.Duration()
@@ -335,7 +334,7 @@ wait:
 		}
 	}
 
-	logs, err := c.TFE.Plans.Logs(c.Context, planID)
+	logs, err := c.TFC.Plans.Logs(c.Context, planID)
 	if err != nil {
 		return
 	}
@@ -344,12 +343,12 @@ wait:
 		return
 	}
 
-	plan, err = c.TFE.Plans.Read(c.Context, planID)
+	plan, err = c.TFC.Plans.Read(c.Context, planID)
 	if err != nil {
 		return
 	}
 
-	if plan.Status != tfe.PlanFinished {
+	if plan.Status != tfc.PlanFinished {
 		return plan, fmt.Errorf("plan status: %s", plan.Status)
 	}
 
@@ -357,7 +356,7 @@ wait:
 }
 
 func (c *Client) waitForTerraformApply(applyID string) error {
-	var apply *tfe.Apply
+	var apply *tfc.Apply
 	var err error
 
 	// Reset the backoff in case it got incremented somewhere else beforehand
@@ -368,21 +367,21 @@ func (c *Client) waitForTerraformApply(applyID string) error {
 
 wait:
 	for {
-		apply, err = c.TFE.Applies.Read(c.Context, applyID)
+		apply, err = c.TFC.Applies.Read(c.Context, applyID)
 		if err != nil {
 			return err
 		}
 
 		switch apply.Status {
-		case tfe.ApplyCanceled:
+		case tfc.ApplyCanceled:
 			return fmt.Errorf("apply has been cancelled")
-		case tfe.ApplyErrored:
+		case tfc.ApplyErrored:
 			break wait
-		case tfe.ApplyFinished:
+		case tfc.ApplyFinished:
 			break wait
-		case tfe.ApplyRunning:
+		case tfc.ApplyRunning:
 			break wait
-		case tfe.ApplyUnreachable:
+		case tfc.ApplyUnreachable:
 			return fmt.Errorf("apply is unreachable from TFC API")
 		default:
 			t := c.Backoff.Duration()
@@ -391,7 +390,7 @@ wait:
 		}
 	}
 
-	logs, err := c.TFE.Applies.Logs(c.Context, applyID)
+	logs, err := c.TFC.Applies.Logs(c.Context, applyID)
 	if err != nil {
 		return err
 	}
@@ -400,12 +399,12 @@ wait:
 		return err
 	}
 
-	apply, err = c.TFE.Applies.Read(c.Context, applyID)
+	apply, err = c.TFC.Applies.Read(c.Context, applyID)
 	if err != nil {
 		return err
 	}
 
-	if apply.Status != tfe.ApplyFinished {
+	if apply.Status != tfc.ApplyFinished {
 		return fmt.Errorf("apply status: %s", apply.Status)
 	}
 

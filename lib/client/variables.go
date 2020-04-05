@@ -5,15 +5,15 @@ import (
 	"os"
 	"sync"
 
-	"github.com/hashicorp/go-tfe"
+	tfc "github.com/hashicorp/go-tfe"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 
 	log "github.com/sirupsen/logrus"
 )
 
-// TFEVariables gives us an accessible fashion for managing all our
+// TFCVariables gives us an accessible fashion for managing all our
 // variables independently of their kind
-type TFEVariables map[tfe.CategoryType]map[string]*tfe.Variable
+type TFCVariables map[tfc.CategoryType]map[string]*tfc.Variable
 
 // RenderVariablesType defines possible rendering methods
 type RenderVariablesType string
@@ -57,7 +57,7 @@ func (c *Client) RenderVariables(cfg *schemas.Config, t RenderVariablesType, dry
 }
 
 func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, vars schemas.Variables, dryRun bool) error {
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace.Name)
+	w, err := c.getWorkspace(*cfg.TFC.Organization, *cfg.TFC.Workspace.Name)
 	if err != nil {
 		return fmt.Errorf("terraform cloud: %s", err)
 	}
@@ -169,7 +169,7 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 	return nil
 }
 
-func (c *Client) renderVariableOnTFC(w *tfe.Workspace, v *schemas.VariableValue, e TFEVariables, dryRun bool) error {
+func (c *Client) renderVariableOnTFC(w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables, dryRun bool) error {
 	if !dryRun {
 		if _, err := c.setVariableOnTFC(w, v, e); err != nil {
 			return err

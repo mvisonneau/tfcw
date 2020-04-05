@@ -20,7 +20,7 @@ There are **4 block types** supported by TFCW:
 
 |**name**|**description**|**required**|**unique**|
 |---|---|---|---|
-|[tfc](#tfc)|configuration related to TFC and the workspace|`yes`|`yes`|
+|[tfc](#tfc)|configuration related to TFC and the workspace|`no`|`yes`|
 |[defaults](#defaults)|a block containing some default configuration for the variable providers|`no`|`yes`|
 |[tfvar](#tfvar)|defines a [Terraform](https://www.terraform.io/docs/cloud/workspaces/variables.html#terraform-variables) variable in TFC|`no`|`no`|
 |[envvar](#envvar)|defines an [Environment](https://www.terraform.io/docs/cloud/workspaces/variables.html#environment-variables) variable in TFC|`no`|`no`|
@@ -29,16 +29,34 @@ There are **4 block types** supported by TFCW:
 
 ### tfc
 
-`tfc` is a required block that defines the configuration of your workspace
+`tfc` is an optional block that defines the configuration of your workspace. If not set, some values must be defined either through CLI flags or as [Terraform Remote backend configuration](https://www.terraform.io/docs/backends/types/remote.html#example-configurations-and-references)
 
 ```hcl
 tfc {
-  // Name of your organization on TFC (required)
+  // Address of the TFC API (required), it can also be defined through:
+  // the `--address` flag
+  // the `TFCW_ADDRESS` environment variable
+  // the `hostname` value of the Terraform remote backend configuration
+  address = "https://app.terraform.io"
+
+  // Token to authenticate against the TFC API (required), it can also be defined through:
+  // the `--token` flag
+  // the `TFCW_TOKEN` environment variable
+  // the `token` value of the Terraform remote backend configuration
+  token = "<your_token>"
+
+  // Name of your organization on TFC (required), it can also be defined through:
+  // the `--organization` flag
+  // the `TFCW_ORGANIZATION` environment variable
+  // the `organization` value of the Terraform remote backend configuration
   organization = "acme"
 
-  // Workspace related configuration block (required)
+  // Workspace related configuration block (optional)
   workspace {
-    // Name of the workspace of your Terraform stack on TFC (required)
+    // Name of the workspace of your Terraform stack on TFC (required), it can also be defined through:
+    // the `--workspace` flag
+    // the `TFCW_WORKSPACE` environment variable
+    // the `workspace.name` value of the Terraform remote backend configuration
     name = "foo"
 
     // Whether to run terraform remotely or locally (optional, default: true (remotely))

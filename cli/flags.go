@@ -5,12 +5,6 @@ import (
 )
 
 var runCreate = []cli.Flag{
-	cli.StringFlag{
-		Name:   "tf-config-folder,f",
-		EnvVar: "TFCW_TF_CONFIG_FOLDER",
-		Usage:  "`path` to the Terraform configuration folder",
-		Value:  ".",
-	},
 	cli.BoolFlag{
 		Name:  "auto-discard",
 		Usage: "will automatically discard the run once planned",

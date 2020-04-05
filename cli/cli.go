@@ -23,21 +23,36 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name:   "config-path,c",
-			EnvVar: "TFCW_CONFIG_PATH",
-			Usage:  "`path` to a readable configuration file (.hcl or .json)",
-			Value:  "./tfcw.hcl",
+			Name:   "working-dir,d",
+			EnvVar: "TFCW_WORKING_DIR",
+			Usage:  "`path` of the directory containing your Terraform files",
+			Value:  ".",
 		},
 		cli.StringFlag{
-			Name:   "tfc-address",
-			EnvVar: "TFCW_TFC_ADDRESS",
+			Name:   "config-file,c",
+			EnvVar: "TFCW_CONFIG_FILE",
+			Usage:  "`path` of a readable TFCW configuration file (.hcl or .json)",
+			Value:  "<working-dir>/tfcw.hcl",
+		},
+		cli.StringFlag{
+			Name:   "address,a",
+			EnvVar: "TFCW_ADDRESS",
 			Usage:  "`address` to access Terraform Cloud API",
-			Value:  "https://app.terraform.io",
 		},
 		cli.StringFlag{
-			Name:   "tfc-token,t",
-			EnvVar: "TFCW_TFC_TOKEN",
+			Name:   "token,t",
+			EnvVar: "TFCW_TOKEN",
 			Usage:  "`token` to access Terraform Cloud API",
+		},
+		cli.StringFlag{
+			Name:   "organization,o",
+			EnvVar: "TFCW_ORGANIZATION",
+			Usage:  "`organization` to use on Terraform Cloud API",
+		},
+		cli.StringFlag{
+			Name:   "workspace,w",
+			EnvVar: "TFCW_WORKSPACE",
+			Usage:  "`workspace` to use on Terraform Cloud API",
 		},
 		cli.StringFlag{
 			Name:   "log-level",

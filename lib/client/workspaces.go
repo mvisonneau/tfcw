@@ -3,20 +3,20 @@ package client
 import (
 	"fmt"
 
-	tfe "github.com/hashicorp/go-tfe"
+	tfc "github.com/hashicorp/go-tfe"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 	log "github.com/sirupsen/logrus"
 )
 
-func (c *Client) createWorkspace(cfg *schemas.Config) (*tfe.Workspace, error) {
+func (c *Client) createWorkspace(cfg *schemas.Config) (*tfc.Workspace, error) {
 	log.Debug("Creating workspace")
-	opts := tfe.WorkspaceCreateOptions{
+	opts := tfc.WorkspaceCreateOptions{
+		Name:             &cfg.Runtime.TFC.Workspace,
 		AutoApply:        cfg.TFC.Workspace.AutoApply,
-		Name:             &cfg.TFC.Workspace.Name,
 		TerraformVersion: cfg.TFC.Workspace.TerraformVersion,
 		WorkingDirectory: cfg.TFC.Workspace.WorkingDirectory,
 	}
-	w, err := c.TFE.Workspaces.Create(c.Context, cfg.TFC.Organization, opts)
+	w, err := c.TFC.Workspaces.Create(c.Context, cfg.Runtime.TFC.Organization, opts)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching TFC workspace: %s", err)
 	}
@@ -26,9 +26,9 @@ func (c *Client) createWorkspace(cfg *schemas.Config) (*tfe.Workspace, error) {
 	return w, nil
 }
 
-func (c *Client) getWorkspace(organization, workspace string) (*tfe.Workspace, error) {
+func (c *Client) getWorkspace(organization, workspace string) (*tfc.Workspace, error) {
 	log.Debug("Fetching workspace")
-	w, err := c.TFE.Workspaces.Read(c.Context, organization, workspace)
+	w, err := c.TFC.Workspaces.Read(c.Context, organization, workspace)
 	if err != nil {
 		return nil, fmt.Errorf("error fetching TFC workspace: %s", err)
 	}
@@ -40,7 +40,7 @@ func (c *Client) getWorkspace(organization, workspace string) (*tfe.Workspace, e
 
 // ConfigureWorkspace ensures the configuration of the workspace
 func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) error {
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace.Name)
+	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
 	if err != nil {
 		if (cfg.TFC.WorkspaceAutoCreate == nil ||
 			*cfg.TFC.WorkspaceAutoCreate) &&
@@ -117,15 +117,15 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) error {
 
 	if workspaceNeedToBeUpdated {
 		if !dryRun {
-			opts := tfe.WorkspaceUpdateOptions{
-				Name:             &cfg.TFC.Workspace.Name,
+			opts := tfc.WorkspaceUpdateOptions{
+				Name:             cfg.TFC.Workspace.Name,
 				Operations:       cfg.TFC.Workspace.Operations,
 				AutoApply:        cfg.TFC.Workspace.AutoApply,
 				TerraformVersion: cfg.TFC.Workspace.TerraformVersion,
 				WorkingDirectory: cfg.TFC.Workspace.WorkingDirectory,
 			}
 
-			_, err = c.TFE.Workspaces.UpdateByID(c.Context, w.ID, opts)
+			_, err = c.TFC.Workspaces.UpdateByID(c.Context, w.ID, opts)
 			if err != nil {
 				return fmt.Errorf("error updating TFC workspace: %s", err)
 			}
@@ -146,20 +146,20 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) error {
 
 // GetWorkspaceStatus returns the status of the configured workspace
 func (c *Client) GetWorkspaceStatus(cfg *schemas.Config) error {
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace.Name)
+	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
 	if err != nil {
 		return err
 	}
 
 	if w.Locked {
-		fmt.Printf("Workspace %s is currently locked by run ID '%s'\n", cfg.TFC.Workspace.Name, w.CurrentRun.ID)
-		currentRun, err := c.TFE.Runs.Read(c.Context, w.CurrentRun.ID)
+		fmt.Printf("Workspace %s is currently locked by run ID '%s'\n", cfg.Runtime.TFC.Workspace, w.CurrentRun.ID)
+		currentRun, err := c.TFC.Runs.Read(c.Context, w.CurrentRun.ID)
 		if err != nil {
 			return err
 		}
 		fmt.Printf("Status: %v\n", currentRun.Status)
 	} else {
-		fmt.Printf("Workspace %s is idle\n", cfg.TFC.Workspace.Name)
+		fmt.Printf("Workspace %s is idle\n", cfg.Runtime.TFC.Workspace)
 	}
 
 	return nil
@@ -167,27 +167,27 @@ func (c *Client) GetWorkspaceStatus(cfg *schemas.Config) error {
 
 // GetWorkspaceCurrentRunID returns the status of the configured workspace
 func (c *Client) GetWorkspaceCurrentRunID(cfg *schemas.Config) (string, error) {
-	w, err := c.getWorkspace(cfg.TFC.Organization, cfg.TFC.Workspace.Name)
+	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
 	if err != nil {
 		return "", err
 	}
 
 	if w.Locked {
-		log.Debugf("Workspace %s is currently locked by run ID '%s'\n", cfg.TFC.Workspace.Name, w.CurrentRun.ID)
+		log.Debugf("Workspace %s is currently locked by run ID '%s'\n", cfg.Runtime.TFC.Workspace, w.CurrentRun.ID)
 		return w.CurrentRun.ID, nil
 	}
 
-	return "", fmt.Errorf("workspace %s is currently idle", cfg.TFC.Workspace.Name)
+	return "", fmt.Errorf("workspace %s is currently idle", cfg.Runtime.TFC.Workspace)
 }
 
-func (c *Client) updateSSHKey(w *tfe.Workspace, sshKeyName string) error {
+func (c *Client) updateSSHKey(w *tfc.Workspace, sshKeyName string) error {
 	if sshKeyName == "-" {
 		log.Infof("Removing currently configured SSH key")
-		_, err := c.TFE.Workspaces.UnassignSSHKey(c.Context, w.ID)
+		_, err := c.TFC.Workspaces.UnassignSSHKey(c.Context, w.ID)
 		return err
 	}
 
-	sshKeys, err := c.TFE.SSHKeys.List(c.Context, w.Organization.Name, tfe.SSHKeyListOptions{})
+	sshKeys, err := c.TFC.SSHKeys.List(c.Context, w.Organization.Name, tfc.SSHKeyListOptions{})
 	if err != nil {
 		return err
 	}
@@ -195,7 +195,7 @@ func (c *Client) updateSSHKey(w *tfe.Workspace, sshKeyName string) error {
 	for _, sshKey := range sshKeys.Items {
 		if sshKey.Name == sshKeyName {
 			log.Infof("Updating configured SSH key to '%s'", sshKey.Name)
-			_, err := c.TFE.Workspaces.AssignSSHKey(c.Context, w.ID, tfe.WorkspaceAssignSSHKeyOptions{
+			_, err := c.TFC.Workspaces.AssignSSHKey(c.Context, w.ID, tfc.WorkspaceAssignSSHKeyOptions{
 				SSHKeyID: &sshKey.ID,
 			})
 			return err
@@ -205,8 +205,8 @@ func (c *Client) updateSSHKey(w *tfe.Workspace, sshKeyName string) error {
 	return fmt.Errorf("could not find ssh key '%s'", sshKeyName)
 }
 
-func (c *Client) shouldUpdateSSHKey(w *tfe.Workspace, sshKeyName string) (bool, error) {
-	var sshKey *tfe.SSHKey
+func (c *Client) shouldUpdateSSHKey(w *tfc.Workspace, sshKeyName string) (bool, error) {
+	var sshKey *tfc.SSHKey
 	var err error
 	if sshKeyName == "-" && w.SSHKey != nil {
 		log.Infof("Workspace ssh key should not be configured, we will remove it")
@@ -218,7 +218,7 @@ func (c *Client) shouldUpdateSSHKey(w *tfe.Workspace, sshKeyName string) (bool, 
 		return true, nil
 	}
 
-	sshKey, err = c.TFE.SSHKeys.Read(c.Context, w.SSHKey.ID)
+	sshKey, err = c.TFC.SSHKeys.Read(c.Context, w.SSHKey.ID)
 	if err != nil {
 		return false, fmt.Errorf("could not fetch ssh key from API: %v", err)
 	}

@@ -12,11 +12,9 @@ import (
 
 func TestIsVaultClientRequired(t *testing.T) {
 	// Validate Vault client is not required if config is empty
-	cfg := &Config{
-		Config: &schemas.Config{},
-	}
+	cfg := &schemas.Config{}
 
-	assert.Equal(t, cfg.isVaultClientRequired(), false)
+	assert.Equal(t, isVaultClientRequired(cfg), false)
 
 	// Validate Vault client is not required if config contains other variables with
 	// different providers is empty
@@ -28,7 +26,7 @@ func TestIsVaultClientRequired(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, cfg.isVaultClientRequired(), false)
+	assert.Equal(t, isVaultClientRequired(cfg), false)
 
 	path := "foo"
 	cfg.EnvironmentVariables = schemas.Variables{
@@ -38,16 +36,14 @@ func TestIsVaultClientRequired(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, cfg.isVaultClientRequired(), true)
+	assert.Equal(t, isVaultClientRequired(cfg), true)
 }
 
 func TestNewClient(t *testing.T) {
-	cfg := &Config{
-		Config: &schemas.Config{},
-	}
+	cfg := &schemas.Config{}
 
 	// We will have to figure out how to test TFE init but for now lets disable it
-	cfg.Runtime.TFE.Disabled = true
+	cfg.Runtime.TFC.Disabled = true
 
 	c, err := NewClient(cfg)
 	assert.Equal(t, err, nil)
@@ -58,19 +54,17 @@ func TestNewClient(t *testing.T) {
 
 func TestGetVaultClient(t *testing.T) {
 	fooString := "foo"
-	cfg := &Config{
-		Config: &schemas.Config{
-			Defaults: &schemas.Defaults{
-				Vault: &schemas.Vault{
-					Address: &fooString,
-					Token:   &fooString,
-				},
+	cfg := &schemas.Config{
+		Defaults: &schemas.Defaults{
+			Vault: &schemas.Vault{
+				Address: &fooString,
+				Token:   &fooString,
 			},
-			EnvironmentVariables: schemas.Variables{
-				&schemas.Variable{
-					Vault: &schemas.Vault{
-						Path: &fooString,
-					},
+		},
+		EnvironmentVariables: schemas.Variables{
+			&schemas.Variable{
+				Vault: &schemas.Vault{
+					Path: &fooString,
 				},
 			},
 		},
@@ -90,17 +84,15 @@ func TestGetS5Client(t *testing.T) {
 	cipherEnginePGP := schemas.S5CipherEnginePGP{}
 	cipherEngineVault := schemas.S5CipherEngineVault{}
 
-	cfg := &Config{
-		Config: &schemas.Config{
-			Defaults: &schemas.Defaults{
-				S5: &schemas.S5{
-					CipherEngineType:  &cipherEngineType,
-					CipherEngineAES:   &cipherEngineAES,
-					CipherEngineAWS:   &cipherEngineAWS,
-					CipherEngineGCP:   &cipherEngineGCP,
-					CipherEnginePGP:   &cipherEnginePGP,
-					CipherEngineVault: &cipherEngineVault,
-				},
+	cfg := &schemas.Config{
+		Defaults: &schemas.Defaults{
+			S5: &schemas.S5{
+				CipherEngineType:  &cipherEngineType,
+				CipherEngineAES:   &cipherEngineAES,
+				CipherEngineAWS:   &cipherEngineAWS,
+				CipherEngineGCP:   &cipherEngineGCP,
+				CipherEnginePGP:   &cipherEnginePGP,
+				CipherEngineVault: &cipherEngineVault,
 			},
 		},
 	}
