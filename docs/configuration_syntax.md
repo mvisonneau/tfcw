@@ -93,7 +93,7 @@ Here is a contextualized example: [docs/examples/workspace_configuration.md](exa
 
 ```hcl
 defaults {
-  
+
   // You can define as many provider blocks as you want
   // Default Vault configuration
   vault {
@@ -104,7 +104,7 @@ defaults {
   s5 {
     ...
   }
-  
+
   // There is no default configuration support for the env provider though
 }
 ```
@@ -295,3 +295,11 @@ env {
 ```
 
 Here is a contextualized example: [docs/examples/provider_env.md](examples/provider_env.md)
+
+## Functions
+
+The following functions are supported in HCL by TFCW:
+
+|**name**|**description**|**parameters**|**example**|
+|---|---|---|---|
+|env()|Fetches value from environment variable|`envvar`|`workspace = "my_app-${env("REGION")}"`|

@@ -16,4 +16,5 @@ require (
 	github.com/sirupsen/logrus v1.5.0
 	github.com/stretchr/testify v1.5.1
 	github.com/urfave/cli v1.22.3
+	github.com/zclconf/go-cty v1.2.1
 )
