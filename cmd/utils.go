@@ -6,11 +6,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsimple"
 	"github.com/mvisonneau/go-helpers/logger"
 	"github.com/urfave/cli"
+	"github.com/zclconf/go-cty/cty/function"
 
 	tfcw "github.com/mvisonneau/tfcw/lib/client"
+	"github.com/mvisonneau/tfcw/lib/functions"
 	"github.com/mvisonneau/tfcw/lib/schemas"
 	"github.com/mvisonneau/tfcw/lib/terraform"
 
@@ -39,7 +42,15 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 
 	tfcwConfigFile := computeConfigFilePath(cfg.Runtime.WorkingDir, ctx.GlobalString("config-file"))
 	log.Debugf("Using config file at %s", tfcwConfigFile)
-	err = hclsimple.DecodeFile(tfcwConfigFile, nil, cfg)
+
+	// Create and EvalContext to define functions that we can use within the HCL for interpolation
+	evalCtx := &hcl.EvalContext{
+		Functions: map[string]function.Function{
+			"env": functions.EnvFunction,
+		},
+	}
+
+	err = hclsimple.DecodeFile(tfcwConfigFile, evalCtx, cfg)
 	if err != nil {
 		return c, cfg, fmt.Errorf("tfcw config/hcl: %s", err.Error())
 	}
