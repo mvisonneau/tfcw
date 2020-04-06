@@ -7,6 +7,8 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [0.0.5] - 2020-04-06
+
 ## Added
 
 - Organization and workspace configuration can now either be set directly through respective flags `--organization` / `--workspace`
@@ -60,7 +62,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.4...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.5...HEAD
+[0.0.5]: https://github.com/mvisonneau/tfcw/tree/0.0.5
 [0.0.4]: https://github.com/mvisonneau/tfcw/tree/0.0.4
 [0.0.3]: https://github.com/mvisonneau/tfcw/tree/0.0.3
 [0.0.2]: https://github.com/mvisonneau/tfcw/tree/0.0.2
