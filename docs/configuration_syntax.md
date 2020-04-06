@@ -145,6 +145,12 @@ tfvar "<name>" {
   // More information: https://www.terraform.io/docs/cloud/workspaces/variables.html#hcl-values
   hcl = false
 
+  // TFCW will update the variable once this duration has been exceeded since the
+  // last update (optional, default: <unset> -> always refresh value)
+  // Format must comply with golang time.ParseDuration() function:
+  // https://golang.org/pkg/time/#ParseDuration
+  ttl = "1h"
+  
   // You have to define exactly ONE provider between vault{}, s5{} or env{}
   vault {
     ...
@@ -180,6 +186,12 @@ envvar "<name>" {
   // Whether to interprete this variable content as HCL in TFC (optional, default: false)
   // More information: https://www.terraform.io/docs/cloud/workspaces/variables.html#hcl-values
   hcl = false
+
+  // TFCW will update the variable once this duration has been exceeded since the
+  // last update (optional, default: <unset> -> always refresh value)
+  // Format must comply with golang time.ParseDuration() function:
+  // https://golang.org/pkg/time/#ParseDuration
+  ttl = "1h"
 
   // You have to define exactly ONE provider between vault{}, s5{} or env{}
   vault {

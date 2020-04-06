@@ -161,11 +161,15 @@ You need to add a new file within your Terraform folder (or anywhere you would l
 // tfcw.hcl
 
 tfvar "credentials" {
-   vault {
-     address = "https://vault.acme.local"
-     path    = "secret/very_sensitive"
-     key     = "data"
-   }
+  // If you do not want to update the value on each run, you can optionally set a TTL
+  // to let TFCW aware that it should still be valid.
+  ttl = "1h"
+
+  vault {
+    address = "https://vault.acme.local"
+    path    = "secret/very_sensitive"
+    key     = "data"
+  }
 }
 ```
 
@@ -173,14 +177,13 @@ That's it, you now have a declarative way to ensure that your variable is picked
 
 ```shell
 ~$ tfcw run create
-INFO[2020-02-18T17:34:55Z] Processing variables and updating their values on TFC
-INFO[2020-02-18T17:34:55Z] Set variable credentials (terraform)
-INFO[2020-02-18T17:34:55Z] Preparing plan
-INFO[2020-02-18T17:34:55Z] Run ID: run-cmSR00CtsP1pRG1o
+INFO[2020-04-06T17:23:09+01:00] Checking workspace configuration
+INFO[2020-04-06T17:23:09+01:00] Processing variables and updating their values on TFC
+INFO[2020-04-06T17:23:09+01:00] Preparing plan
 Terraform v0.12.24
 Configuring remote state backend...
 Initializing Terraform configuration...
-2020/02/18 17:34:56 [DEBUG] Using modified User-Agent: Terraform/0.12.20 TFC/d310d4ebb1
+2020/04/06 17:23:13 [DEBUG] Using modified User-Agent: Terraform/0.12.24 TFC/d310d4ebb1
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
