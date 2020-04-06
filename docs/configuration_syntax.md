@@ -1,5 +1,19 @@
 # TFCW - Configuration syntax
 
+## Synopsis
+
+- [Minimal configuration](#minimal-configuration)
+- [Block types](#block-types)
+  - [tfc](#tfc)
+  - [defaults](#defaults)
+  - [tfvar](#tfvar)
+  - [envvar](#envvar)
+- [Provider specific block types](#provider-block-types)
+  - [vault](#vault)
+  - [s5](#s5)
+  - [env](#env)
+- [Functions](#functions)
+
 ## Minimal configuration
 
 ```hcl
@@ -25,7 +39,7 @@ There are **4 block types** supported by TFCW:
 |[tfvar](#tfvar)|defines a [Terraform](https://www.terraform.io/docs/cloud/workspaces/variables.html#terraform-variables) variable in TFC|`no`|`no`|
 |[envvar](#envvar)|defines an [Environment](https://www.terraform.io/docs/cloud/workspaces/variables.html#environment-variables) variable in TFC|`no`|`no`|
 
-`tfvar` and `envvar` share exactly the same capabilities. They only differ in the sense of types of variables they provider on the TFC API.
+[tfvar](#tfvar) and [envvar](#envvar) share exactly the same capabilities. They only differ in the sense of types of variables they provider on the TFC API.
 
 ### tfc
 
@@ -210,9 +224,9 @@ envvar "<name>" {
 }
 ```
 
-### Provider block types (or subblocks 🤷‍♂️)
+## Provider block types
 
-Provider blocks can be used under either `defaults`, `tfvar` or `envvar` blocks. They represent the necessary configuration to access the data from the provider. There is currently 3 kind of provider blocks:
+Provider block types (or subblocks 🤷‍♂️) can be used under either `defaults`, `tfvar` or `envvar` blocks. They represent the necessary configuration to access the data from the provider. There is currently 3 kind of provider blocks:
 
 - [vault](#vault) to fetch values from [Vault](https://www.vaultproject.io/)
 - [s5](#s5) to fetch values through [s5](https://github.com/mvisonneau/s5)
@@ -329,6 +343,24 @@ Here is a contextualized example: [docs/examples/provider_env.md](examples/provi
 
 The following functions are supported in HCL by TFCW:
 
-|**name**|**description**|**parameters**|**example**|
-|---|---|---|---|
-|env()|Fetches value from environment variable|`envvar`|`workspace = "my_app-${env("REGION")}"`|
+|**name**|**description**|
+|---|---|
+|[env](#env)|Fetches a value from an environment variable|
+
+### env
+
+The `env` function interpolates an environment variable within a configuration file.
+
+Usage: `env("<ENVIRONMENT_VARIABLE>")`
+
+
+eg:
+```hcl
+tfc {
+  organization = ${env("ORGANIZATION")}
+
+  workspace {
+    name = ${env("WORKSPACE")}
+  }
+}
+```
