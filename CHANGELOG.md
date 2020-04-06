@@ -11,6 +11,7 @@ and this project adheres to [0ver](https://0ver.org).
 
 - Organization and workspace configuration can now either be set directly through respective flags `--organization` / `--workspace`
 - TFC configuration (address, token, organization & workspace)will default to what is configured as a remote backend in the Terraform configuration
+- Defaults configuration capabilities for variable `sensitive` & `hcl` fields
 
 ## [0.0.4] - 2020-04-01
 

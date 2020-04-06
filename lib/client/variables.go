@@ -90,7 +90,7 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, vars schemas.Variable
 	go func() {
 		for value := range values {
 			variableValues = append(variableValues, value)
-			errors <- c.renderVariableOnTFC(w, value, e, dryRun)
+			errors <- c.renderVariableOnTFC(cfg, w, value, e, dryRun)
 			wg.Done()
 		}
 	}()
@@ -169,9 +169,9 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 	return nil
 }
 
-func (c *Client) renderVariableOnTFC(w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables, dryRun bool) error {
+func (c *Client) renderVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables, dryRun bool) error {
 	if !dryRun {
-		if _, err := c.setVariableOnTFC(w, v, e); err != nil {
+		if _, err := c.setVariableOnTFC(cfg, w, v, e); err != nil {
 			return err
 		}
 	}

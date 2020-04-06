@@ -1,6 +1,8 @@
 package schemas
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // VariableKind represents the kind of variable we want to
 // provision

@@ -94,6 +94,17 @@ Here is a contextualized example: [docs/examples/workspace_configuration.md](exa
 ```hcl
 defaults {
 
+  // Set some default values for variables
+  var {
+    // Whether to declare this variable sensitive in TFC (optional, default: true)
+    // More information: https://www.terraform.io/docs/cloud/workspaces/variables.html#sensitive-values
+    sensitive = true
+
+    // Whether to interprete this variable content as HCL in TFC (optional, default: false)
+    // More information: https://www.terraform.io/docs/cloud/workspaces/variables.html#hcl-values
+    hcl = false
+  }
+
   // You can define as many provider blocks as you want
   // Default Vault configuration
   vault {

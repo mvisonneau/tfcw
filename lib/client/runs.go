@@ -173,13 +173,21 @@ func (c *Client) createRun(w *tfc.Workspace, configVersion *tfc.ConfigurationVer
 	return run, nil
 }
 
-func (c *Client) setVariableOnTFC(w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables) (*tfc.Variable, error) {
+func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables) (*tfc.Variable, error) {
 	if v.Variable.Sensitive == nil {
-		v.Variable.Sensitive = tfc.Bool(true)
+		if cfg.Defaults.Variable.Sensitive == nil {
+			v.Variable.Sensitive = tfc.Bool(true)
+		} else {
+			v.Variable.Sensitive = cfg.Defaults.Variable.Sensitive
+		}
 	}
 
 	if v.Variable.HCL == nil {
-		v.Variable.HCL = tfc.Bool(false)
+		if cfg.Defaults.Variable.Sensitive == nil {
+			v.Variable.HCL = tfc.Bool(false)
+		} else {
+			v.Variable.HCL = cfg.Defaults.Variable.HCL
+		}
 	}
 
 	if existingVariable, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
