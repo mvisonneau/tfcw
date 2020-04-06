@@ -50,3 +50,8 @@ var message = cli.StringFlag{
 	Usage: "custom message for the action",
 	Value: "from TFCW",
 }
+
+var forceUpdate = cli.BoolFlag{
+	Name:  "force-update",
+	Usage: "update all variables, unconditionnaly of their current expirations or configured TTLs",
+}

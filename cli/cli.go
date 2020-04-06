@@ -77,7 +77,7 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Name:   "tfc",
 					Usage:  "update the variables on TFC directly",
 					Action: cmd.ExecWrapper(cmd.Render),
-					Flags:  []cli.Flag{dryRun},
+					Flags:  []cli.Flag{dryRun, forceUpdate},
 				},
 				{
 					Name:   "local",
@@ -94,7 +94,7 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Name:   "create",
 					Usage:  "create a run on TFC",
 					Action: cmd.ExecWrapper(cmd.RunCreate),
-					Flags:  append(runCreate, message),
+					Flags:  append(runCreate, message, forceUpdate),
 				},
 				{
 					Name:   "approve",

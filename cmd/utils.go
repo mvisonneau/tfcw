@@ -137,7 +137,7 @@ func computeRuntimeTFCAddress(workingDir, flagValue string, tfcwValue *string) (
 		return "", err
 	}
 
-	if rbc.Hostname != "" {
+	if rbc != nil && rbc.Hostname != "" {
 		log.Debugf("Using TFC address '%s' from Terraform remote backend configuration", returnHTTPSPrefixedURL(rbc.Hostname))
 		return returnHTTPSPrefixedURL(rbc.Hostname), nil
 	}
@@ -162,7 +162,7 @@ func computeRuntimeTFCToken(workingDir, flagValue string, tfcwValue *string) (st
 		return "", err
 	}
 
-	if rbc.Token != "" {
+	if rbc != nil && rbc.Token != "" {
 		log.Debug("Using TFC token '***' from Terraform remote backend configuration")
 		return rbc.Token, nil
 	}
@@ -186,7 +186,7 @@ func computeRuntimeTFCOrganization(workingDir, flagValue string, tfcwValue *stri
 		return "", err
 	}
 
-	if rbc.Organization != "" {
+	if rbc != nil && rbc.Organization != "" {
 		log.Debugf("Using TFC organization '%s' from Terraform remote backend configuration", rbc.Organization)
 		return rbc.Organization, nil
 	}
@@ -210,7 +210,7 @@ func computeRuntimeTFCWorkspace(workingDir, flagValue string, tfcwValue *string)
 		return "", err
 	}
 
-	if rbc.Workspace != "" {
+	if rbc != nil && rbc.Workspace != "" {
 		log.Debugf("Using TFC workspace '%s' from Terraform remote backend configuration", rbc.Workspace)
 		return rbc.Workspace, nil
 	}

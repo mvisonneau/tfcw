@@ -5,6 +5,8 @@ import (
 
 	hcl "github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/terraform/configs"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // RemoteBackendConfig represents partial set of values
@@ -25,6 +27,11 @@ func GetRemoteBackendConfig(workingDir string) (*RemoteBackendConfig, error) {
 	c, err := p.LoadConfigDir(workingDir)
 	if err != nil {
 		return nil, err
+	}
+
+	if c.Backend == nil {
+		log.Debug("terraform remote backend not configured, skipping this evaluation..")
+		return nil, nil
 	}
 
 	if c.Backend.Type != "remote" {

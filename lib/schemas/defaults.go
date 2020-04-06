@@ -9,6 +9,7 @@ type Defaults struct {
 
 // VariableDefaults can handle default values for variables
 type VariableDefaults struct {
-	Sensitive *bool `hcl:"sensitive"`
-	HCL       *bool `hcl:"hcl"`
+	Sensitive *bool   `hcl:"sensitive"`
+	HCL       *bool   `hcl:"hcl"`
+	TTL       *string `hcl:"ttl"`
 }

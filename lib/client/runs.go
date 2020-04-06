@@ -38,13 +38,8 @@ type TFCCreateRunOptions struct {
 }
 
 // CreateRun triggers a `run` over the TFC API
-func (c *Client) CreateRun(cfg *schemas.Config, opts *TFCCreateRunOptions) error {
+func (c *Client) CreateRun(cfg *schemas.Config, w *tfc.Workspace, opts *TFCCreateRunOptions) error {
 	log.Info("Preparing plan")
-	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
-	if err != nil {
-		return err
-	}
-
 	configVersion, err := c.createConfigurationVersion(w)
 	if err != nil {
 		return err
@@ -171,119 +166,6 @@ func (c *Client) createRun(w *tfc.Workspace, configVersion *tfc.ConfigurationVer
 
 	log.Debugf("Run ID: %s", run.ID)
 	return run, nil
-}
-
-func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables) (*tfc.Variable, error) {
-	if v.Variable.Sensitive == nil {
-		if cfg.Defaults.Variable.Sensitive == nil {
-			v.Variable.Sensitive = tfc.Bool(true)
-		} else {
-			v.Variable.Sensitive = cfg.Defaults.Variable.Sensitive
-		}
-	}
-
-	if v.Variable.HCL == nil {
-		if cfg.Defaults.Variable.Sensitive == nil {
-			v.Variable.HCL = tfc.Bool(false)
-		} else {
-			v.Variable.HCL = cfg.Defaults.Variable.HCL
-		}
-	}
-
-	if existingVariable, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
-		updatedVariable, err := c.TFC.Variables.Update(c.Context, w.ID, existingVariable.ID, tfc.VariableUpdateOptions{
-			Key:       &v.Name,
-			Value:     &v.Value,
-			Sensitive: v.Variable.Sensitive,
-			HCL:       v.Variable.HCL,
-		})
-
-		// In case we cannot update the fields, we delete the variable and recreate it
-		if err != nil {
-			log.Debugf("Could not update variable id %s, attempting to recreate it.", existingVariable.ID)
-			err = c.TFC.Variables.Delete(c.Context, w.ID, existingVariable.ID)
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return updatedVariable, nil
-		}
-	}
-
-	return c.TFC.Variables.Create(c.Context, w.ID, tfc.VariableCreateOptions{
-		Key:       &v.Name,
-		Value:     &v.Value,
-		Category:  tfc.Category(getCategoryType(v.Variable.Kind)),
-		Sensitive: v.Variable.Sensitive,
-		HCL:       v.Variable.HCL,
-	})
-}
-
-func (c *Client) purgeUnmanagedVariables(vars schemas.VariableValues, e TFCVariables, dryRun bool) error {
-	for _, v := range vars {
-		if _, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
-			delete(e[getCategoryType(v.Variable.Kind)], v.Name)
-		}
-	}
-
-	for _, tfeVars := range e {
-		for _, v := range tfeVars {
-			if !dryRun {
-				log.Warnf("Deleting unmanaged variable %s (%s)", v.Key, v.Category)
-				err := c.TFC.Variables.Delete(c.Context, v.Workspace.ID, v.ID)
-				if err != nil {
-					return fmt.Errorf("error deleting variable %s (%s) on TFC: %s", v.Key, v.Category, err.Error())
-				}
-			} else {
-				log.Warnf("[DRY-RUN] Deleting unmanaged variable %s (%s)", v.Key, v.Category)
-			}
-		}
-	}
-
-	return nil
-}
-
-func (c *Client) listVariables(w *tfc.Workspace) (TFCVariables, error) {
-	variables := TFCVariables{}
-
-	listOptions := tfc.VariableListOptions{
-		ListOptions: tfc.ListOptions{
-			PageNumber: 1,
-			PageSize:   20,
-		},
-	}
-
-	for {
-		list, err := c.TFC.Variables.List(c.Context, w.ID, listOptions)
-		if err != nil {
-			return variables, fmt.Errorf("Unable to list variables from the Terraform Cloud API : %v", err.Error())
-		}
-
-		for _, v := range list.Items {
-			if _, ok := variables[v.Category]; !ok {
-				variables[v.Category] = map[string]*tfc.Variable{}
-			}
-			variables[v.Category][v.Key] = v
-		}
-
-		if list.Pagination.CurrentPage >= list.Pagination.TotalPages {
-			break
-		}
-
-		listOptions.PageNumber = list.Pagination.NextPage
-	}
-	return variables, nil
-}
-
-func getCategoryType(kind schemas.VariableKind) tfc.CategoryType {
-	switch kind {
-	case schemas.VariableKindEnvironment:
-		return tfc.CategoryEnv
-	case schemas.VariableKindTerraform:
-		return tfc.CategoryTerraform
-	}
-
-	return tfc.CategoryType("")
 }
 
 func (c *Client) getTerraformPlanID(run *tfc.Run) (string, error) {

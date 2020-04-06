@@ -12,6 +12,8 @@ and this project adheres to [0ver](https://0ver.org).
 - Organization and workspace configuration can now either be set directly through respective flags `--organization` / `--workspace`
 - TFC configuration (address, token, organization & workspace)will default to what is configured as a remote backend in the Terraform configuration
 - Defaults configuration capabilities for variable `sensitive` & `hcl` fields
+- A `ttl` field on variables which makes TFCW only update some variables when their Time To Live has been exceeded. This results in much faster syncs
+- Speed improvements by reducing the amount of calls to fetch the workspace ID. Combined with the TTL option, when nothing is needed the overhead is now only about a second
 
 ## [0.0.4] - 2020-04-01
 

@@ -8,6 +8,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// GetWorkspace returns a workspace given its name and organization
+func (c *Client) GetWorkspace(organization, workspace string) (*tfc.Workspace, error) {
+	log.Debug("Fetching workspace")
+	w, err := c.TFC.Workspaces.Read(c.Context, organization, workspace)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching TFC workspace: %s", err)
+	}
+
+	log.Debugf("Found workspace id for '%s': %s", w.Name, w.ID)
+
+	return w, nil
+}
+
 func (c *Client) createWorkspace(cfg *schemas.Config) (*tfc.Workspace, error) {
 	log.Debug("Creating workspace")
 	opts := tfc.WorkspaceCreateOptions{
@@ -26,39 +39,24 @@ func (c *Client) createWorkspace(cfg *schemas.Config) (*tfc.Workspace, error) {
 	return w, nil
 }
 
-func (c *Client) getWorkspace(organization, workspace string) (*tfc.Workspace, error) {
-	log.Debug("Fetching workspace")
-	w, err := c.TFC.Workspaces.Read(c.Context, organization, workspace)
-	if err != nil {
-		return nil, fmt.Errorf("error fetching TFC workspace: %s", err)
-	}
-
-	log.Debugf("Found workspace id for '%s': %s", w.Name, w.ID)
-
-	return w, nil
-}
-
 // ConfigureWorkspace ensures the configuration of the workspace
-func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) error {
-	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
-	if err != nil {
-		if (cfg.TFC.WorkspaceAutoCreate == nil ||
-			*cfg.TFC.WorkspaceAutoCreate) &&
-			err.Error() == "error fetching TFC workspace: resource not found" {
+func (c *Client) ConfigureWorkspace(cfg *schemas.Config, w *tfc.Workspace, dryRun bool) (err error) {
+	if (cfg.TFC.WorkspaceAutoCreate == nil ||
+		*cfg.TFC.WorkspaceAutoCreate) &&
+		(err != nil && err.Error() == "error fetching TFC workspace: resource not found") {
 
-			if !dryRun {
-				// Create the workspace
-				w, err = c.createWorkspace(cfg)
-				if err != nil {
-					return err
-				}
-			} else {
-				log.Warnf("[DRY-RUN] - would have created the workspace as it does not currently exists")
-				return fmt.Errorf("exiting as workspace does not exist so we won't be able to simulate the dry run further")
+		if !dryRun {
+			// Create the workspace
+			w, err = c.createWorkspace(cfg)
+			if err != nil {
+				return
 			}
 		} else {
-			return err
+			log.Warnf("[DRY-RUN] - would have created the workspace as it does not currently exists")
+			return fmt.Errorf("exiting as workspace does not exist so we won't be able to simulate the dry run further")
 		}
+	} else {
+		return
 	}
 
 	workspaceNeedToBeUpdated := false
@@ -141,12 +139,12 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) error {
 		}
 	}
 
-	return nil
+	return
 }
 
 // GetWorkspaceStatus returns the status of the configured workspace
 func (c *Client) GetWorkspaceStatus(cfg *schemas.Config) error {
-	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
+	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
 	if err != nil {
 		return err
 	}
@@ -167,7 +165,7 @@ func (c *Client) GetWorkspaceStatus(cfg *schemas.Config) error {
 
 // GetWorkspaceCurrentRunID returns the status of the configured workspace
 func (c *Client) GetWorkspaceCurrentRunID(cfg *schemas.Config) (string, error) {
-	w, err := c.getWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
+	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
 	if err != nil {
 		return "", err
 	}

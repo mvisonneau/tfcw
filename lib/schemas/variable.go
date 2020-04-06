@@ -2,6 +2,7 @@ package schemas
 
 import (
 	"fmt"
+	"time"
 )
 
 // VariableKind represents the kind of variable we want to
@@ -33,12 +34,13 @@ const (
 
 // Variable is a generic handler of variable characteristics
 type Variable struct {
-	Name      string `hcl:"name,label"`
-	Vault     *Vault `hcl:"vault,block"`
-	S5        *S5    `hcl:"s5,block"`
-	Env       *Env   `hcl:"env,block"`
-	Sensitive *bool  `hcl:"sensitive"`
-	HCL       *bool  `hcl:"hcl"`
+	Name      string  `hcl:"name,label"`
+	Vault     *Vault  `hcl:"vault,block"`
+	S5        *S5     `hcl:"s5,block"`
+	Env       *Env    `hcl:"env,block"`
+	Sensitive *bool   `hcl:"sensitive"`
+	HCL       *bool   `hcl:"hcl"`
+	TTL       *string `hcl:"ttl"`
 
 	Kind  VariableKind
 	Value string
@@ -85,4 +87,11 @@ func (v *Variable) GetProvider() (*VariableProvider, error) {
 	}
 
 	return provider, nil
+}
+
+// VariableExpirations can hold the expiration times of variables, stored within TFC as
+// a jsonmap within an __TFCW_VARIABLES_EXPIRATIONS environment variable (quite hacky..)
+type VariableExpirations struct {
+	TFCVariableID string
+	Values        map[VariableKind]map[string]time.Time
 }
