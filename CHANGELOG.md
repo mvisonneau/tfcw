@@ -7,9 +7,13 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Changed
+
+- Fixed a bug on the default vault token validation
+
 ## [0.0.5] - 2020-04-06
 
-## Added
+### Added
 
 - Organization and workspace configuration can now either be set directly through respective flags `--organization` / `--workspace`
 - TFC configuration (address, token, organization & workspace)will default to what is configured as a remote backend in the Terraform configuration
