@@ -85,8 +85,17 @@ func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err err
 			return results, fmt.Errorf("no results/keys returned for secret : %s", *v.Path)
 		}
 
-		for k, v := range secret.Data {
-			results[k] = v.(string)
+		// kv-v2 backend returns a slightly differnet response than others
+		_, hasDataField := secret.Data["data"]
+		_, hasMetaDataField := secret.Data["metadata"]
+		if hasDataField && hasMetaDataField {
+			for k, v := range secret.Data["data"].(map[string]interface{}) {
+				results[k] = v.(string)
+			}
+		} else {
+			for k, v := range secret.Data {
+				results[k] = v.(string)
+			}
 		}
 
 		return
