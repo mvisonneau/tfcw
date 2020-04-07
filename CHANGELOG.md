@@ -11,6 +11,7 @@ and this project adheres to [0ver](https://0ver.org).
 
 - **provider/vault** - added support for kv-v2 secret engine
 - return an error on run creation if remote runs are not enabled on the workspace
+- do not prompt for approval and follow the apply logs if the workspace is configured with AutoApply
 
 ### Changed
 

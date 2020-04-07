@@ -81,6 +81,18 @@ func (c *Client) CreateRun(cfg *schemas.Config, w *tfc.Workspace, opts *TFCCreat
 	}
 
 	if plan.HasChanges {
+		// If the workspace is configured with AutoApply=true, we skip the approval
+		// part and automatically follow the apply logs
+		if w.AutoApply {
+			// Refresh run object to fetch the Apply.ID
+			run, err := c.TFC.Runs.Read(c.Context, run.ID)
+			if err != nil {
+				return err
+			}
+
+			return c.waitForTerraformApply(run.Apply.ID)
+		}
+
 		if opts.AutoDiscard {
 			return c.DiscardRun(run.ID, opts.Message)
 		}
