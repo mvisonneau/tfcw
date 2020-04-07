@@ -95,7 +95,7 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Name:   "discard",
 					Usage:  "discard a run given its 'ID'",
 					Action: cmd.ExecWrapper(cmd.RunDiscard),
-					Flags:  []cli.Flag{currentRun, message},
+					Flags:  []cli.Flag{currentRun, message, discardAllPendingRuns},
 				},
 			},
 		},

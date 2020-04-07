@@ -82,16 +82,30 @@ func RunDiscard(ctx *cli.Context) (int, error) {
 		return 1, err
 	}
 
-	runID := ctx.Args().Get(0)
-	if ctx.Bool("current") {
-		runID, err = c.GetWorkspaceCurrentRunID(cfg)
+	if !ctx.Bool("all") {
+		var runID string
+		if ctx.Bool("current") {
+			runID, err = c.GetWorkspaceCurrentRunID(cfg)
+			if err != nil {
+				return 1, err
+			}
+		} else {
+			runID = ctx.Args().Get(0)
+		}
+
+		if err := c.DiscardRun(runID, ctx.String("message")); err != nil {
+			return 1, err
+		}
+	} else {
+		runIDs, err := c.GetWorkspacePendingRunIDs()
 		if err != nil {
 			return 1, err
 		}
-	}
-
-	if err := c.DiscardRun(runID, ctx.String("message")); err != nil {
-		return 1, err
+		for _, runID := range runIDs {
+			if err := c.DiscardRun(runID, ctx.String("message")); err != nil {
+				return 1, err
+			}
+		}
 	}
 
 	return 0, nil

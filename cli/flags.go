@@ -53,3 +53,8 @@ var renderType = cli.StringFlag{
 	Usage: "where to render to values - options are : tfc, local or disabled",
 	Value: "tfc",
 }
+
+var discardAllPendingRuns = cli.BoolFlag{
+	Name:  "all,a",
+	Usage: "discard all pending runs",
+}
