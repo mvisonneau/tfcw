@@ -21,6 +21,17 @@ func RunCreate(ctx *cli.Context) (int, error) {
 		return 1, err
 	}
 
+	if !ctx.Bool("ignore-pending-runs") {
+		runID, err := c.GetWorkspaceCurrentRunID(w)
+		if err != nil {
+			return 1, err
+		}
+
+		if runID != "" {
+			return 1, fmt.Errorf("there is already a run (%s) pending on your workspace (%s), exiting", runID, w.ID)
+		}
+	}
+
 	switch ctx.String("render-type") {
 	case "tfc":
 		err = c.RenderVariablesOnTFC(cfg, w, false, ctx.Bool("ignore-ttls"))
@@ -60,9 +71,14 @@ func RunApprove(ctx *cli.Context) (int, error) {
 		return 1, err
 	}
 
+	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
+	if err != nil {
+		return 1, err
+	}
+
 	runID := ctx.Args().Get(0)
 	if ctx.Bool("current") {
-		runID, err = c.GetWorkspaceCurrentRunID(cfg)
+		runID, err = c.GetWorkspaceCurrentRunID(w)
 		if err != nil {
 			return 1, err
 		}
@@ -82,9 +98,14 @@ func RunDiscard(ctx *cli.Context) (int, error) {
 		return 1, err
 	}
 
+	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
+	if err != nil {
+		return 1, err
+	}
+
 	runID := ctx.Args().Get(0)
 	if ctx.Bool("current") {
-		runID, err = c.GetWorkspaceCurrentRunID(cfg)
+		runID, err = c.GetWorkspaceCurrentRunID(w)
 		if err != nil {
 			return 1, err
 		}

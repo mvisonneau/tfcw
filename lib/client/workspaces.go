@@ -168,18 +168,13 @@ func (c *Client) GetWorkspaceStatus(cfg *schemas.Config) error {
 }
 
 // GetWorkspaceCurrentRunID returns the status of the configured workspace
-func (c *Client) GetWorkspaceCurrentRunID(cfg *schemas.Config) (string, error) {
-	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
-	if err != nil {
-		return "", err
-	}
-
+func (c *Client) GetWorkspaceCurrentRunID(w *tfc.Workspace) (string, error) {
 	if w.Locked {
-		log.Debugf("Workspace %s is currently locked by run ID '%s'\n", cfg.Runtime.TFC.Workspace, w.CurrentRun.ID)
+		log.Debugf("Workspace %s is currently locked by run ID '%s'\n", w.ID, w.CurrentRun.ID)
 		return w.CurrentRun.ID, nil
 	}
 
-	return "", fmt.Errorf("workspace %s is currently idle", cfg.Runtime.TFC.Workspace)
+	return "", fmt.Errorf("workspace %s is currently idle", w.ID)
 }
 
 func (c *Client) updateSSHKey(w *tfc.Workspace, sshKeyName string) error {

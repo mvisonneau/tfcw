@@ -27,7 +27,12 @@ func WorkspaceCurrentRunID(ctx *cli.Context) (int, error) {
 		return 1, err
 	}
 
-	runID, err := c.GetWorkspaceCurrentRunID(cfg)
+	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
+	if err != nil {
+		return 1, err
+	}
+
+	runID, err := c.GetWorkspaceCurrentRunID(w)
 	if err != nil {
 		return 1, err
 	}

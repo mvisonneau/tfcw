@@ -14,16 +14,20 @@ var runCreate = []cli.Flag{
 		Usage: "automatically approve the run once planned",
 	},
 	cli.BoolFlag{
+		Name:  "ignore-pending-runs",
+		Usage: "it will create the run even if there is already one or more run(s) in the workspace queue",
+	},
+	cli.BoolFlag{
 		Name:  "no-prompt",
 		Usage: "will not prompt for approval once planned",
-	},
-	cli.DurationFlag{
-		Name:  "start-timeout,t",
-		Usage: "time to wait for the plan to start (set to 0 to disable, it is the default)",
 	},
 	cli.StringFlag{
 		Name:  "output,o",
 		Usage: "file on which to write the run ID",
+	},
+	cli.DurationFlag{
+		Name:  "start-timeout,t",
+		Usage: "time to wait for the plan to start (set to 0 to disable, it is the default)",
 	},
 }
 

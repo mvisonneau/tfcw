@@ -9,15 +9,16 @@ and this project adheres to [0ver](https://0ver.org).
 
 ### Added
 
-- **provider/vault** - added support for kv-v2 secret engine
-- return an error on run creation if remote runs are not enabled on the workspace
-- do not prompt for approval and follow the apply logs if the workspace is configured with AutoApply
+- **provider/vault** - Added support for kv-v2 secret engine
+- Return an error on run creation if remote runs are not enabled on the workspace
+- Do not prompt for approval and follow the apply logs if the workspace is configured with AutoApply
+- Validate there is no pending run on the workspace before attempting to create a new one
 
 ### Changed
 
-- **provider/vault** - fixed a bug on the default vault token validation method
-- refactored part of the CLI around the render function
-- corrected the expected/actual variables ordering in tests
+- **provider/vault** - Fixed a bug on the default vault token validation method
+- Refactored part of the CLI around the render function
+- Corrected the expected/actual variables ordering in tests
 
 ## [0.0.5] - 2020-04-06
 
