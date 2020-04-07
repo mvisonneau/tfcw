@@ -7,9 +7,13 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- **provider/vault** - added support for kv-v2 secret engine
+
 ### Changed
 
-- Fixed a bug on the default vault token validation
+- **provider/vault** - fixed a bug on the default vault token validation method
 
 ## [0.0.5] - 2020-04-06
 

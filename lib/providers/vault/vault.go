@@ -85,7 +85,7 @@ func (c *Client) GetValues(v *schemas.Vault) (results map[string]string, err err
 			return results, fmt.Errorf("no results/keys returned for secret : %s", *v.Path)
 		}
 
-		// kv-v2 backend returns a slightly differnet response than others
+		// kv-v2 backend returns a slightly different response than others
 		_, hasDataField := secret.Data["data"]
 		_, hasMetaDataField := secret.Data["metadata"]
 		if hasDataField && hasMetaDataField {
