@@ -3,8 +3,9 @@ package client
 import (
 	"fmt"
 
-	tfc "github.com/hashicorp/go-tfe"
 	"testing"
+
+	tfc "github.com/hashicorp/go-tfe"
 
 	"github.com/stretchr/testify/assert"
 )
