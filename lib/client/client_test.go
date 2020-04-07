@@ -10,6 +10,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func getTestConfig() (cfg *schemas.Config) {
+	cfg = &schemas.Config{
+		Runtime: schemas.Runtime{},
+	}
+
+	// We need to set the TFC token otherwise the client won't initiate correctly
+	cfg.Runtime.TFC.Token = "_"
+
+	return
+}
+
+func TestNewClient(t *testing.T) {
+	c, err := NewClient(getTestConfig())
+	assert.Equal(t, nil, err)
+	assert.IsType(t, &providerVault.Client{}, c.Vault)
+	assert.IsType(t, &providerS5.Client{}, c.S5)
+	assert.IsType(t, &providerEnv.Client{}, c.Env)
+}
+
 func TestIsVaultClientRequired(t *testing.T) {
 	// Validate Vault client is not required if config is empty
 	cfg := &schemas.Config{}
@@ -37,21 +56,6 @@ func TestIsVaultClientRequired(t *testing.T) {
 		},
 	}
 	assert.Equal(t, true, isVaultClientRequired(cfg))
-}
-
-func TestNewClient(t *testing.T) {
-	cfg := &schemas.Config{
-		Runtime: schemas.Runtime{},
-	}
-
-	// We need to set the TFC token otherwise the client won't initiate correctly
-	cfg.Runtime.TFC.Token = "_"
-
-	c, err := NewClient(cfg)
-	assert.Equal(t, nil, err)
-	assert.IsType(t, &providerVault.Client{}, c.Vault)
-	assert.IsType(t, &providerS5.Client{}, c.S5)
-	assert.IsType(t, &providerEnv.Client{}, c.Env)
 }
 
 func TestGetVaultClient(t *testing.T) {

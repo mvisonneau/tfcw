@@ -10,6 +10,7 @@ and this project adheres to [0ver](https://0ver.org).
 ### Added
 
 - **provider/vault** - added support for kv-v2 secret engine
+- return an error on run creation if remote runs are not enabled on the workspace
 
 ### Changed
 

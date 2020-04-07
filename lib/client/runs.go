@@ -40,6 +40,12 @@ type TFCCreateRunOptions struct {
 // CreateRun triggers a `run` over the TFC API
 func (c *Client) CreateRun(cfg *schemas.Config, w *tfc.Workspace, opts *TFCCreateRunOptions) error {
 	log.Info("Preparing plan")
+
+	// If the workspace is not configured with remote runs enabled we return an error
+	if !w.Operations {
+		return fmt.Errorf("remote operations must be enabled on the workspace")
+	}
+
 	configVersion, err := c.createConfigurationVersion(w)
 	if err != nil {
 		return err
