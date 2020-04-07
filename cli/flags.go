@@ -4,7 +4,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-var runCreate = []cli.Flag{
+var runCreate = cli.FlagsByName{
 	cli.BoolFlag{
 		Name:  "auto-discard",
 		Usage: "will automatically discard the run once planned",

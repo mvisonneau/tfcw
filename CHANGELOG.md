@@ -19,6 +19,7 @@ and this project adheres to [0ver](https://0ver.org).
 - **provider/vault** - Fixed a bug on the default vault token validation method
 - Refactored part of the CLI around the render function
 - Corrected the expected/actual variables ordering in tests
+- Ordered commands, subcommands and flags alphabetically in the CLI helpers
 
 ## [0.0.5] - 2020-04-06
 
