@@ -7,6 +7,8 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [0.0.6] - 2020-04-07
+
 ### Added
 
 - **provider/vault** - Added support for kv-v2 secret engine
@@ -77,7 +79,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.5...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.6...HEAD
+[0.0.6]: https://github.com/mvisonneau/tfcw/tree/0.0.6
 [0.0.5]: https://github.com/mvisonneau/tfcw/tree/0.0.5
 [0.0.4]: https://github.com/mvisonneau/tfcw/tree/0.0.4
 [0.0.3]: https://github.com/mvisonneau/tfcw/tree/0.0.3
