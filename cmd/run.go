@@ -22,12 +22,7 @@ func RunCreate(ctx *cli.Context) (int, error) {
 	}
 
 	if !ctx.Bool("ignore-pending-runs") {
-		runID, err := c.GetWorkspaceCurrentRunID(w)
-		if err != nil {
-			return 1, err
-		}
-
-		if runID != "" {
+		if runID, _ := c.GetWorkspaceCurrentRunID(w); runID != "" {
 			return 1, fmt.Errorf("there is already a run (%s) pending on your workspace (%s), exiting", runID, w.ID)
 		}
 	}
