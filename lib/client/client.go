@@ -67,7 +67,7 @@ func getVaultClient(cfg *schemas.Config) (c *providerVault.Client, err error) {
 					vaultAddress = *cfg.Defaults.Vault.Address
 				}
 
-				if cfg.Defaults.Vault.Token != nil {
+				if cfg.Defaults.Vault.Address != nil {
 					vaultToken = *cfg.Defaults.Vault.Token
 				}
 			}
@@ -104,12 +104,10 @@ func getS5Client(cfg *schemas.Config) (c *providerS5.Client) {
 }
 
 func getTFCClient(cfg *schemas.Config) (c *tfc.Client, err error) {
-	if !cfg.Runtime.TFC.Disabled {
-		c, err = tfc.NewClient(&tfc.Config{
-			Address: cfg.Runtime.TFC.Address,
-			Token:   cfg.Runtime.TFC.Token,
-		})
-	}
+	c, err = tfc.NewClient(&tfc.Config{
+		Address: cfg.Runtime.TFC.Address,
+		Token:   cfg.Runtime.TFC.Token,
+	})
 	return
 }
 

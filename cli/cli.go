@@ -70,21 +70,10 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 
 	app.Commands = []cli.Command{
 		{
-			Name:  "render",
-			Usage: "render the variables",
-			Subcommands: []cli.Command{
-				{
-					Name:   "tfc",
-					Usage:  "update the variables on TFC directly",
-					Action: cmd.ExecWrapper(cmd.Render),
-					Flags:  []cli.Flag{dryRun, forceUpdate},
-				},
-				{
-					Name:   "local",
-					Usage:  "render the variables locally, on disk",
-					Action: cmd.ExecWrapper(cmd.Render),
-				},
-			},
+			Name:   "render",
+			Usage:  "render the variables",
+			Action: cmd.ExecWrapper(cmd.Render),
+			Flags:  []cli.Flag{renderType, ignoreTTLs, dryRun},
 		},
 		{
 			Name:  "run",
@@ -94,7 +83,7 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Name:   "create",
 					Usage:  "create a run on TFC",
 					Action: cmd.ExecWrapper(cmd.RunCreate),
-					Flags:  append(runCreate, message, forceUpdate),
+					Flags:  append(runCreate, message, renderType, ignoreTTLs),
 				},
 				{
 					Name:   "approve",

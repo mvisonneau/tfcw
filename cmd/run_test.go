@@ -1,15 +1,12 @@
 package cmd
 
 import (
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli"
 )
 
 var (
@@ -28,43 +25,24 @@ tfc {
 `
 )
 
-func NewTestContext() (ctx *cli.Context, flags, globalFlags *flag.FlagSet) {
-	app := cli.NewApp()
-	app.Name = "tfcw"
-
-	app.Metadata = map[string]interface{}{
-		"startTime": time.Now(),
-	}
-
-	globalFlags = flag.NewFlagSet("test", flag.ContinueOnError)
-	globalCtx := cli.NewContext(app, globalFlags, nil)
-
-	flags = flag.NewFlagSet("test", flag.ContinueOnError)
-	ctx = cli.NewContext(app, flags, globalCtx)
-
-	globalFlags.String("log-level", "fatal", "")
-	globalFlags.String("log-format", "text", "")
-
-	return
-}
-
-func createTestConfigFile(config string) (string, error) {
-	tmpFile, err := ioutil.TempFile(os.TempDir(), "tfcw-test-cfg-")
+func createTestConfigFile(config string) (string, string, error) {
+	tmpDir := os.TempDir()
+	tmpFile, err := ioutil.TempFile(tmpDir, "tfcw-test-cfg-")
 
 	if _, err = tmpFile.Write([]byte(config)); err != nil {
-		return "", fmt.Errorf("Failed to write to temporary file : %s", err.Error())
+		return "", "", fmt.Errorf("Failed to write to temporary file : %s", err.Error())
 	}
 
 	if err = tmpFile.Close(); err != nil {
-		return "", fmt.Errorf("Failed to close temporary file : %s", err.Error())
+		return "", "", fmt.Errorf("Failed to close temporary file : %s", err.Error())
 	}
 
 	configPath := fmt.Sprint(tmpFile.Name(), ".hcl")
 	if err = os.Rename(tmpFile.Name(), fmt.Sprint(tmpFile.Name(), ".hcl")); err != nil {
-		return "", fmt.Errorf("Failed to rename temporary file with file extension : %s", err.Error())
+		return "", "", fmt.Errorf("Failed to rename temporary file with file extension : %s", err.Error())
 	}
 
-	return configPath, nil
+	return tmpDir, configPath, nil
 }
 
 func TestRenderWithDefaultValues(t *testing.T) {
@@ -75,21 +53,22 @@ func TestRenderWithDefaultValues(t *testing.T) {
 }
 
 func TestRenderLocalWithValidConfig(t *testing.T) {
-	tmpFilePath, err := createTestConfigFile(validConfig)
+	tmpDir, tmpFilePath, err := createTestConfigFile(validConfig)
 	if err != nil {
 		t.Fatalf(fmt.Sprintf("error whilst creating temporary config file : %s", err.Error()))
 	}
 	defer os.Remove(tmpFilePath)
 
-	ctx, _, globalFlags := NewTestContext()
-	ctx.Command.Name = "local"
+	ctx, flags, globalFlags := NewTestContext()
+	flags.String("render-type", "local", "")
+	globalFlags.String("working-dir", tmpDir, "")
 	globalFlags.String("config-file", tmpFilePath, "")
 
 	defer os.Remove(fmt.Sprint(wd, "/tfcw.auth.tfvars"))
 	defer os.Remove(fmt.Sprint(wd, "/tfcw.env"))
 	exitCode, err := Render(ctx)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, exitCode, 0)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 0, exitCode)
 }
 
 func TestRunCreateWithDefaultValues(t *testing.T) {

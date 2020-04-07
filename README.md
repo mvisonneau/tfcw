@@ -213,25 +213,23 @@ Plan: 1 to add, 0 to change, 0 to destroy.
 If you would prefer to keep your current way of triggering the Terraform runs, you can also simply use the `render` command which will _only_ update the variables in Terraform Cloud or even locally:
 
 ```shell
-~$ tfcw render
+~$ tfcw render --help
 NAME:
    tfcw render - render the variables
 
 USAGE:
-   tfcw render command [command options] [arguments...]
-
-COMMANDS:
-   tfc    update the variables on TFC directly
-   local  render the variables locally, on disk
+   tfcw render [command options] [arguments...]
 
 OPTIONS:
-   --help, -h  show help
+   --render-type value, -r value  where to render to values - options are : tfc, local or disabled (default: "tfc")
+   --ignore-ttls                  render all variables, unconditionnaly of their current expirations or configured TTLs
+   --dry-run                      simulate what TFCW would do onto the TFC API
 ```
 
 You can also do [dry runs](https://en.wikipedia.org/wiki/Dry_run_(testing)) if you want to get insights about what tfcw would actually do.
 
 ```shell
-~$ tfcw render tfc --dry-run
+~$ tfcw render --dry-run
 INFO[2020-02-18T17:31:36Z] Processing variables and updating their values on TFC
 INFO[2020-02-18T17:31:48Z] [DRY-RUN] Set variable credentials - (terraform) : x********x
 ```

@@ -25,7 +25,7 @@ func GetRemoteBackendConfig(workingDir string) (*RemoteBackendConfig, error) {
 	p := configs.NewParser(nil)
 
 	c, err := p.LoadConfigDir(workingDir)
-	if err != nil {
+	if err.HasErrors() {
 		return nil, err
 	}
 

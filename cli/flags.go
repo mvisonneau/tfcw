@@ -17,14 +17,6 @@ var runCreate = []cli.Flag{
 		Name:  "no-prompt",
 		Usage: "will not prompt for approval once planned",
 	},
-	cli.BoolFlag{
-		Name:  "no-render",
-		Usage: "do not attempt to render variables before applying",
-	},
-	cli.BoolFlag{
-		Name:  "render-local",
-		Usage: "render files locally instead of updating their values in TFC",
-	},
 	cli.DurationFlag{
 		Name:  "start-timeout,t",
 		Usage: "time to wait for the plan to start (set to 0 to disable, it is the default)",
@@ -51,7 +43,13 @@ var message = cli.StringFlag{
 	Value: "from TFCW",
 }
 
-var forceUpdate = cli.BoolFlag{
-	Name:  "force-update",
-	Usage: "update all variables, unconditionnaly of their current expirations or configured TTLs",
+var ignoreTTLs = cli.BoolFlag{
+	Name:  "ignore-ttls",
+	Usage: "render all variables, unconditionnaly of their current expirations or configured TTLs",
+}
+
+var renderType = cli.StringFlag{
+	Name:  "render-type,r",
+	Usage: "where to render to values - options are : tfc, local or disabled",
+	Value: "tfc",
 }

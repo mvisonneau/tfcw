@@ -40,10 +40,12 @@ func TestIsVaultClientRequired(t *testing.T) {
 }
 
 func TestNewClient(t *testing.T) {
-	cfg := &schemas.Config{}
+	cfg := &schemas.Config{
+		Runtime: schemas.Runtime{},
+	}
 
-	// We will have to figure out how to test TFE init but for now lets disable it
-	cfg.Runtime.TFC.Disabled = true
+	// We need to set the TFC token otherwise the client won't initiate correctly
+	cfg.Runtime.TFC.Token = "_"
 
 	c, err := NewClient(cfg)
 	assert.Equal(t, err, nil)

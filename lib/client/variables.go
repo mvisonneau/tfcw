@@ -31,34 +31,16 @@ const (
 	VariableExpirationsName string = "__TFCW_VARIABLES_EXPIRATIONS"
 )
 
-// RenderVariables issues a rendering of all variables defined in a schemas.Config object
-func (c *Client) RenderVariables(cfg *schemas.Config, w *tfc.Workspace, t RenderVariablesType, dryRun, forceUpdate bool) error {
-	variables := schemas.Variables{}
+// RenderVariablesOnTFC issues a rendering of all variables defined in a schemas.Config object on TFC
+func (c *Client) RenderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, dryRun, forceUpdate bool) error {
+	log.Info("Processing variables and updating their values on TFC")
+	return c.renderVariablesOnTFC(cfg, w, cfg.GetVariables(), dryRun, forceUpdate)
+}
 
-	for _, variable := range cfg.TerraformVariables {
-		variable.Kind = schemas.VariableKindTerraform
-		variables = append(variables, variable)
-	}
-
-	for _, variable := range cfg.EnvironmentVariables {
-		variable.Kind = schemas.VariableKindEnvironment
-		variables = append(variables, variable)
-	}
-
-	switch t {
-	case RenderVariablesTypeTFC:
-		log.Info("Checking workspace configuration")
-		if err := c.ConfigureWorkspace(cfg, w, dryRun); err != nil {
-			return err
-		}
-		log.Info("Processing variables and updating their values on TFC")
-		return c.renderVariablesOnTFC(cfg, w, variables, dryRun, forceUpdate)
-	case RenderVariablesTypeLocal:
-		log.Info("Processing variables and updating their values locally")
-		return c.renderVariablesLocally(variables)
-	default:
-		return fmt.Errorf("undefined ProcessVaribleType '%s'", t)
-	}
+// RenderVariablesLocally issues a rendering of all variables defined in a schemas.Config object on TFC
+func (c *Client) RenderVariablesLocally(cfg *schemas.Config) error {
+	log.Info("Processing variables and updating their values locally")
+	return c.renderVariablesLocally(cfg.GetVariables())
 }
 
 func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables) (*tfc.Variable, error) {

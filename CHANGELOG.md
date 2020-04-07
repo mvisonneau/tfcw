@@ -14,6 +14,7 @@ and this project adheres to [0ver](https://0ver.org).
 ### Changed
 
 - **provider/vault** - fixed a bug on the default vault token validation method
+- refactored part of the CLI around the render function
 
 ## [0.0.5] - 2020-04-06
 

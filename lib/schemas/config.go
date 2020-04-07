@@ -16,10 +16,24 @@ type Config struct {
 type Runtime struct {
 	WorkingDir string
 	TFC        struct {
-		Disabled     bool
 		Address      string
 		Token        string
 		Organization string
 		Workspace    string
 	}
+}
+
+// GetVariables returns a Variables containing the configured variables
+func (cfg *Config) GetVariables() (variables Variables) {
+	for _, variable := range cfg.TerraformVariables {
+		variable.Kind = VariableKindTerraform
+		variables = append(variables, variable)
+	}
+
+	for _, variable := range cfg.EnvironmentVariables {
+		variable.Kind = VariableKindEnvironment
+		variables = append(variables, variable)
+	}
+
+	return
 }

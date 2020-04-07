@@ -55,14 +55,8 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 		return c, cfg, fmt.Errorf("tfcw config/hcl: %s", err.Error())
 	}
 
-	// We do not need TFC access to render variables locally
-	switch ctx.Command.Name {
-	case "local":
-		cfg.Runtime.TFC.Disabled = true
-	default:
-		if err = computeRuntimeConfigurationForTFC(cfg, ctx); err != nil {
-			return
-		}
+	if err = computeRuntimeConfigurationForTFC(cfg, ctx); err != nil {
+		return
 	}
 
 	c, err = tfcw.NewClient(cfg)
@@ -167,7 +161,8 @@ func computeRuntimeTFCToken(workingDir, flagValue string, tfcwValue *string) (st
 		return rbc.Token, nil
 	}
 
-	return "", nil
+	// By not returning an empty string, we allow the TFCW to be initiated, yay!
+	return "_", nil
 }
 
 func computeRuntimeTFCOrganization(workingDir, flagValue string, tfcwValue *string) (string, error) {

@@ -39,8 +39,11 @@ func (c *Client) createWorkspace(cfg *schemas.Config) (*tfc.Workspace, error) {
 	return w, nil
 }
 
-// ConfigureWorkspace ensures the configuration of the workspace
-func (c *Client) ConfigureWorkspace(cfg *schemas.Config, w *tfc.Workspace, dryRun bool) (err error) {
+// ConfigureWorkspace check and remediate the configuration of the configured workspace
+func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) (w *tfc.Workspace, err error) {
+	log.Info("Checking workspace configuration")
+	w, err = c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
+
 	if (cfg.TFC.WorkspaceAutoCreate == nil ||
 		*cfg.TFC.WorkspaceAutoCreate) &&
 		(err != nil && err.Error() == "error fetching TFC workspace: resource not found") {
@@ -53,7 +56,7 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, w *tfc.Workspace, dryRu
 			}
 		} else {
 			log.Warnf("[DRY-RUN] - would have created the workspace as it does not currently exists")
-			return fmt.Errorf("exiting as workspace does not exist so we won't be able to simulate the dry run further")
+			return w, fmt.Errorf("exiting as workspace does not exist so we won't be able to simulate the dry run further")
 		}
 	} else {
 		return
@@ -96,16 +99,17 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, w *tfc.Workspace, dryRu
 	}
 
 	if cfg.TFC.Workspace.SSHKey != nil {
-		shouldUpdateSSHKey, err := c.shouldUpdateSSHKey(w, *cfg.TFC.Workspace.SSHKey)
+		var shouldUpdateSSHKey bool
+		shouldUpdateSSHKey, err = c.shouldUpdateSSHKey(w, *cfg.TFC.Workspace.SSHKey)
 		if err != nil {
-			return err
+			return
 		}
 
 		if shouldUpdateSSHKey {
 			if !dryRun {
 				err = c.updateSSHKey(w, *cfg.TFC.Workspace.SSHKey)
 				if err != nil {
-					return fmt.Errorf("error updating TFC workspace ssh key: %s", err)
+					return w, fmt.Errorf("error updating TFC workspace ssh key: %s", err)
 				}
 			} else {
 				log.Infof("[DRY-RUN] not actually updating workspace's SSH key configuration as we dry-run mode")
@@ -123,15 +127,15 @@ func (c *Client) ConfigureWorkspace(cfg *schemas.Config, w *tfc.Workspace, dryRu
 				WorkingDirectory: cfg.TFC.Workspace.WorkingDirectory,
 			}
 
-			_, err = c.TFC.Workspaces.UpdateByID(c.Context, w.ID, opts)
+			w, err = c.TFC.Workspaces.UpdateByID(c.Context, w.ID, opts)
 			if err != nil {
-				return fmt.Errorf("error updating TFC workspace: %s", err)
+				return w, fmt.Errorf("error updating TFC workspace: %s", err)
 			}
 
 			if cfg.TFC.Workspace.SSHKey != nil {
 				err = c.updateSSHKey(w, *cfg.TFC.Workspace.SSHKey)
 				if err != nil {
-					return fmt.Errorf("error updating TFC workspace ssh key: %s", err)
+					return w, fmt.Errorf("error updating TFC workspace ssh key: %s", err)
 				}
 			}
 		} else {
