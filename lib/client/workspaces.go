@@ -41,26 +41,29 @@ func (c *Client) createWorkspace(cfg *schemas.Config) (*tfc.Workspace, error) {
 
 // ConfigureWorkspace check and remediate the configuration of the configured workspace
 func (c *Client) ConfigureWorkspace(cfg *schemas.Config, dryRun bool) (w *tfc.Workspace, err error) {
-	log.Info("Checking workspace configuration")
 	w, err = c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
-
-	if (cfg.TFC.WorkspaceAutoCreate == nil ||
-		*cfg.TFC.WorkspaceAutoCreate) &&
-		(err != nil && err.Error() == "error fetching TFC workspace: resource not found") {
-
-		if !dryRun {
-			// Create the workspace
-			w, err = c.createWorkspace(cfg)
-			if err != nil {
-				return
+	if err != nil {
+		if err.Error() == "error fetching TFC workspace: resource not found" {
+			if cfg.TFC.WorkspaceAutoCreate == nil || *cfg.TFC.WorkspaceAutoCreate {
+				if !dryRun {
+					log.Infof("workspace '%s' does not exist on organization '%s', creating it..", cfg.Runtime.TFC.Workspace, cfg.Runtime.TFC.Organization)
+					w, err = c.createWorkspace(cfg)
+					if err != nil {
+						return
+					}
+				} else {
+					log.Warnf("[DRY-RUN] - would have created the workspace as it does not currently exists")
+					return nil, fmt.Errorf("exiting as workspace does not exist so we won't be able to simulate the dry run further")
+				}
+			} else {
+				return nil, fmt.Errorf("workspace does not exist and auto-create is set to false")
 			}
 		} else {
-			log.Warnf("[DRY-RUN] - would have created the workspace as it does not currently exists")
-			return w, fmt.Errorf("exiting as workspace does not exist so we won't be able to simulate the dry run further")
+			return
 		}
-	} else {
-		return
 	}
+
+	log.Info("Checking workspace configuration")
 
 	workspaceNeedToBeUpdated := false
 	trueVar := true

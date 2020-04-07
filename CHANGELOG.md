@@ -20,6 +20,7 @@ and this project adheres to [0ver](https://0ver.org).
 - Refactored part of the CLI around the render function
 - Corrected the expected/actual variables ordering in tests
 - Ordered commands, subcommands and flags alphabetically in the CLI helpers
+- Fixed some regression/bug introduced on the ConfigureWorkspace function in `0.0.5` preventing it from working properly
 
 ## [0.0.5] - 2020-04-06
 
