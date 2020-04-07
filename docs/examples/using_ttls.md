@@ -23,6 +23,6 @@ envvar "my_other_variable" {
 }
 ```
 
-With this configuration, TFCW will only update `my_variable` every 15m and `my_other_variable` every hour.
+With this configuration, TFCW will only update `my_variable` **after 15 minutes** and `my_other_variable` **after an hour**.
 
 As a rule of thumb, be cautious and use values lower than the actual expiration of the values in order to leave enough time to your Terraform run to execute successfully.
