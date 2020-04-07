@@ -131,7 +131,7 @@ func TestGetCipherEnginePGP(t *testing.T) {
 
 	// expected engine
 	expectedEngine, err := cipher.NewPGPClient(publicKeyPath, privateKeyPath)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	// all defined in client, empty variable config (default settings)
 	v := &schemas.S5{}
@@ -144,9 +144,9 @@ func TestGetCipherEnginePGP(t *testing.T) {
 	}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
-	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
+	assert.Nil(t, err)
+	assert.Equal(t, *expectedEngine.Entity.PrimaryKey, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey)
+	assert.Equal(t, *expectedEngine.Entity.PrivateKey, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey)
 
 	// all defined in variable, empty client config
 	c = &Client{}
@@ -159,9 +159,9 @@ func TestGetCipherEnginePGP(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
-	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
+	assert.Nil(t, err)
+	assert.Equal(t, *expectedEngine.Entity.PrimaryKey, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey)
+	assert.Equal(t, *expectedEngine.Entity.PrivateKey, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey)
 
 	// key defined in environment variable
 	os.Setenv("S5_PGP_PUBLIC_KEY_PATH", publicKeyPath)
@@ -172,7 +172,7 @@ func TestGetCipherEnginePGP(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey, *expectedEngine.Entity.PrimaryKey)
-	assert.Equal(t, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey, *expectedEngine.Entity.PrivateKey)
+	assert.Nil(t, err)
+	assert.Equal(t, *expectedEngine.Entity.PrimaryKey, *cipherEngine.(*cipherPGP.Client).Entity.PrimaryKey)
+	assert.Equal(t, *expectedEngine.Entity.PrivateKey, *cipherEngine.(*cipherPGP.Client).Entity.PrivateKey)
 }

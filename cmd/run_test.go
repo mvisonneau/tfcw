@@ -48,8 +48,8 @@ func createTestConfigFile(config string) (string, string, error) {
 func TestRenderWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
 	exitCode, err := Render(ctx)
-	assert.Equal(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
-	assert.Equal(t, exitCode, 1)
+	assert.Equal(t, "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.", err.Error())
+	assert.Equal(t, 1, exitCode)
 }
 
 func TestRenderLocalWithValidConfig(t *testing.T) {
@@ -74,6 +74,6 @@ func TestRenderLocalWithValidConfig(t *testing.T) {
 func TestRunCreateWithDefaultValues(t *testing.T) {
 	ctx, _, _ := NewTestContext()
 	exitCode, err := RunCreate(ctx)
-	assert.Equal(t, err.Error(), "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.")
-	assert.Equal(t, exitCode, 1)
+	assert.Equal(t, "tfcw config/hcl: <nil>: Configuration file not found; The configuration file  does not exist.", err.Error())
+	assert.Equal(t, 1, exitCode)
 }

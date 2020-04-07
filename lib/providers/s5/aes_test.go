@@ -19,7 +19,7 @@ func TestGetCipherEngineAES(t *testing.T) {
 
 	// expected engine
 	expectedEngine, err := cipher.NewAESClient(testAESKey)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	// all defined in client, empty variable config (default settings)
 	v := &schemas.S5{}
@@ -31,8 +31,8 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine, expectedEngine)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine, cipherEngine)
 
 	// all defined in variable, empty client config
 	c = &Client{}
@@ -44,8 +44,8 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine, expectedEngine)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine, cipherEngine)
 
 	// key defined in environment variable
 	os.Setenv("S5_AES_KEY", testAESKey)
@@ -55,8 +55,8 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine, expectedEngine)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine, cipherEngine)
 
 	// other engine & key defined in client, overridden in variable
 	otherCipherEngineType := schemas.S5CipherEngineTypeVault
@@ -76,6 +76,6 @@ func TestGetCipherEngineAES(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine, expectedEngine)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine, cipherEngine)
 }

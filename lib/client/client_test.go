@@ -14,7 +14,7 @@ func TestIsVaultClientRequired(t *testing.T) {
 	// Validate Vault client is not required if config is empty
 	cfg := &schemas.Config{}
 
-	assert.Equal(t, isVaultClientRequired(cfg), false)
+	assert.Equal(t, false, isVaultClientRequired(cfg))
 
 	// Validate Vault client is not required if config contains other variables with
 	// different providers is empty
@@ -26,7 +26,7 @@ func TestIsVaultClientRequired(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, isVaultClientRequired(cfg), false)
+	assert.Equal(t, false, isVaultClientRequired(cfg))
 
 	path := "foo"
 	cfg.EnvironmentVariables = schemas.Variables{
@@ -36,7 +36,7 @@ func TestIsVaultClientRequired(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, isVaultClientRequired(cfg), true)
+	assert.Equal(t, true, isVaultClientRequired(cfg))
 }
 
 func TestNewClient(t *testing.T) {
@@ -48,10 +48,10 @@ func TestNewClient(t *testing.T) {
 	cfg.Runtime.TFC.Token = "_"
 
 	c, err := NewClient(cfg)
-	assert.Equal(t, err, nil)
-	assert.IsType(t, c.Vault, &providerVault.Client{})
-	assert.IsType(t, c.S5, &providerS5.Client{})
-	assert.IsType(t, c.Env, &providerEnv.Client{})
+	assert.Equal(t, nil, err)
+	assert.IsType(t, &providerVault.Client{}, c.Vault)
+	assert.IsType(t, &providerS5.Client{}, c.S5)
+	assert.IsType(t, &providerEnv.Client{}, c.Env)
 }
 
 func TestGetVaultClient(t *testing.T) {
@@ -73,9 +73,9 @@ func TestGetVaultClient(t *testing.T) {
 	}
 
 	c, err := getVaultClient(cfg)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, c.Address(), fooString)
-	assert.Equal(t, c.Token(), fooString)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, fooString, c.Address())
+	assert.Equal(t, fooString, c.Token())
 }
 
 func TestGetS5Client(t *testing.T) {
@@ -100,10 +100,10 @@ func TestGetS5Client(t *testing.T) {
 	}
 
 	c := getS5Client(cfg)
-	assert.Equal(t, *c.CipherEngineType, cipherEngineType)
-	assert.Equal(t, *c.CipherEngineAES, cipherEngineAES)
-	assert.Equal(t, *c.CipherEngineAWS, cipherEngineAWS)
-	assert.Equal(t, *c.CipherEngineGCP, cipherEngineGCP)
-	assert.Equal(t, *c.CipherEnginePGP, cipherEnginePGP)
-	assert.Equal(t, *c.CipherEngineVault, cipherEngineVault)
+	assert.Equal(t, cipherEngineType, *c.CipherEngineType)
+	assert.Equal(t, cipherEngineAES, *c.CipherEngineAES)
+	assert.Equal(t, cipherEngineAWS, *c.CipherEngineAWS)
+	assert.Equal(t, cipherEngineGCP, *c.CipherEngineGCP)
+	assert.Equal(t, cipherEnginePGP, *c.CipherEnginePGP)
+	assert.Equal(t, cipherEngineVault, *c.CipherEngineVault)
 }

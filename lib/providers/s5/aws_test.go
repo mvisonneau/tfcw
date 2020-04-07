@@ -20,7 +20,7 @@ func TestGetCipherEngineAWS(t *testing.T) {
 
 	// expected engine
 	expectedEngine, err := cipher.NewAWSClient(kmsKeyArn)
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	// all defined in client, empty variable config (default settings)
 	v := &schemas.S5{}
@@ -32,8 +32,8 @@ func TestGetCipherEngineAWS(t *testing.T) {
 	}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine.(*cipherAWS.Client).Config, expectedEngine.Config)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine.Config, cipherEngine.(*cipherAWS.Client).Config)
 
 	// all defined in variable, empty client config
 	c = &Client{}
@@ -45,8 +45,8 @@ func TestGetCipherEngineAWS(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine.(*cipherAWS.Client).Config, expectedEngine.Config)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine.Config, cipherEngine.(*cipherAWS.Client).Config)
 
 	// key defined in environment variable
 	os.Setenv("S5_AWS_KMS_KEY_ARN", testAWSKMSKeyArn)
@@ -56,8 +56,8 @@ func TestGetCipherEngineAWS(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine.(*cipherAWS.Client).Config, expectedEngine.Config)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine.Config, cipherEngine.(*cipherAWS.Client).Config)
 
 	// other engine & key defined in client, overridden in variable
 	otherCipherEngineType := schemas.S5CipherEngineTypeVault
@@ -77,6 +77,6 @@ func TestGetCipherEngineAWS(t *testing.T) {
 	}
 
 	cipherEngine, err = c.getCipherEngine(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, cipherEngine.(*cipherAWS.Client).Config, expectedEngine.Config)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedEngine.Config, cipherEngine.(*cipherAWS.Client).Config)
 }

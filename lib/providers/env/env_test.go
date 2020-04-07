@@ -16,5 +16,5 @@ func TestGetValue(t *testing.T) {
 		Variable: "TEST_ENV",
 	}
 
-	assert.Equal(t, c.GetValue(e), "foo")
+	assert.Equal(t, "foo", c.GetValue(e))
 }

@@ -23,8 +23,8 @@ func TestGetValueValid(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, value, "foo")
+	assert.Nil(t, err)
+	assert.Equal(t, "foo", value)
 }
 
 func TestGetValueInvalidCipherEngine(t *testing.T) {
@@ -35,7 +35,7 @@ func TestGetValueInvalidCipherEngine(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	assert.Equal(t, err, fmt.Errorf("s5 error whilst getting cipher engine: engine 'foo' is not implemented yet"))
+	assert.Equal(t, fmt.Errorf("s5 error whilst getting cipher engine: engine 'foo' is not implemented yet"), err)
 	assert.Equal(t, value, "")
 }
 
@@ -54,7 +54,7 @@ func TestGetValueInvalidInput(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	assert.Equal(t, err, fmt.Errorf("s5 error whilst parsing input: Invalid string format, should be '{{s5:*}}'"))
+	assert.Equal(t, fmt.Errorf("s5 error whilst parsing input: Invalid string format, should be '{{s5:*}}'"), err)
 	assert.Equal(t, value, "")
 }
 
@@ -73,7 +73,7 @@ func TestGetValueInvalidDecipher(t *testing.T) {
 	}
 
 	value, err := c.GetValue(v)
-	assert.Equal(t, err, fmt.Errorf("s5 error whilst deciphering: base64decode error : illegal base64 data at input byte 0 - value : foo"))
+	assert.Equal(t, fmt.Errorf("s5 error whilst deciphering: base64decode error : illegal base64 data at input byte 0 - value : foo"), err)
 	assert.Equal(t, value, "")
 }
 
@@ -82,7 +82,7 @@ func TestGetCipherEngineUndefined(t *testing.T) {
 	v := &schemas.S5{}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	assert.Equal(t, err, fmt.Errorf("you need to specify a S5 cipher engine"))
+	assert.Equal(t, fmt.Errorf("you need to specify a S5 cipher engine"), err)
 	assert.Equal(t, cipherEngine, nil)
 }
 
@@ -94,6 +94,6 @@ func TestGetCipherEngineInvalid(t *testing.T) {
 	}
 
 	cipherEngine, err := c.getCipherEngine(v)
-	assert.Equal(t, err, fmt.Errorf("engine 'foo' is not implemented yet"))
-	assert.Equal(t, cipherEngine, nil)
+	assert.Equal(t, fmt.Errorf("engine 'foo' is not implemented yet"), err)
+	assert.Nil(t, cipherEngine)
 }

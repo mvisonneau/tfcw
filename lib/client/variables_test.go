@@ -98,9 +98,7 @@ func createTestVault(t *testing.T) (net.Listener, *api.Client) {
 	conf.Address = addr
 
 	client, err := api.NewClient(conf)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 	client.SetToken(rootToken)
 
 	// Setup required secrets, policies, etc.
@@ -108,9 +106,7 @@ func createTestVault(t *testing.T) (net.Listener, *api.Client) {
 		"foo": "bar",
 		"baz": "baz",
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	return ln, client
 }

@@ -13,8 +13,8 @@ func TestVariableGetProviderEnv(t *testing.T) {
 	}
 
 	p, err := v.GetProvider()
-	assert.Equal(t, err, nil)
-	assert.Equal(t, *p, VariableProviderEnv)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, VariableProviderEnv, *p)
 }
 
 func TestVariableGetProviderS5(t *testing.T) {
@@ -23,8 +23,8 @@ func TestVariableGetProviderS5(t *testing.T) {
 	}
 
 	p, err := v.GetProvider()
-	assert.Equal(t, err, nil)
-	assert.Equal(t, *p, VariableProviderS5)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, VariableProviderS5, *p)
 }
 
 func TestVariableGetProviderVault(t *testing.T) {
@@ -33,8 +33,8 @@ func TestVariableGetProviderVault(t *testing.T) {
 	}
 
 	p, err := v.GetProvider()
-	assert.Equal(t, err, nil)
-	assert.Equal(t, *p, VariableProviderVault)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, VariableProviderVault, *p)
 }
 
 func TestVariableGetProviderInvalid(t *testing.T) {
@@ -43,6 +43,6 @@ func TestVariableGetProviderInvalid(t *testing.T) {
 	}
 	p, err := v.GetProvider()
 	var emptyProvider *VariableProvider
-	assert.Equal(t, err, fmt.Errorf("you can't have more or less than one provider configured per variable. Found 0 for 'foo'"))
-	assert.Equal(t, p, emptyProvider)
+	assert.Equal(t, fmt.Errorf("you can't have more or less than one provider configured per variable. Found 0 for 'foo'"), err)
+	assert.Equal(t, emptyProvider, p)
 }

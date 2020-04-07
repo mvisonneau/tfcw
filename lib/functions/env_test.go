@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/zclconf/go-cty/cty"
 )
 
@@ -23,10 +24,8 @@ func TestFunctionEnv(t *testing.T) {
 		t.Run(fmt.Sprintf("env(%#v)", test.Variable.AsString()), func(t *testing.T) {
 			os.Setenv(test.Variable.AsString(), test.Value.AsString())
 
-			got, _ := Env(test.Variable)
-			if !got.RawEquals(test.Value) {
-				t.Errorf("wrong result\ngot:  %#v\nwant: %#v", got, test.Value)
-			}
+			v, _ := Env(test.Variable)
+			assert.Equal(t, test.Value, v)
 		})
 	}
 }

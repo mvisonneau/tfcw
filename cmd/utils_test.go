@@ -32,8 +32,8 @@ func NewTestContext() (ctx *cli.Context, flags, globalFlags *flag.FlagSet) {
 
 func TestExit(t *testing.T) {
 	err := exit(20, fmt.Errorf("test"))
-	assert.Equal(t, err.Error(), "")
-	assert.Equal(t, err.ExitCode(), 20)
+	assert.Equal(t, "", err.Error())
+	assert.Equal(t, 20, err.ExitCode())
 }
 
 func TestComputeConfigFilePath(t *testing.T) {

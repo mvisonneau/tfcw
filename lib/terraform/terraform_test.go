@@ -32,9 +32,7 @@ terraform {
 
 func TestGetRemoteBackendConfig(t *testing.T) {
 	tmpDir, err := ioutil.TempDir("", "tfcw-test")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 	defer os.RemoveAll(tmpDir)
 
 	tests := []struct {
@@ -60,14 +58,12 @@ func TestGetRemoteBackendConfig(t *testing.T) {
 
 	for _, test := range tests {
 		f, err := os.Create(tmpDir + "/terraform.tf")
-		if err != nil {
-			t.Fatal(err)
-		}
+		assert.Nil(t, err)
 		f.WriteString(test.config)
 		f.Close()
 
 		rbc, err := GetRemoteBackendConfig(tmpDir)
-		assert.NoError(t, err)
+		assert.Nil(t, err)
 		assert.NotNil(t, rbc)
 		assert.Equal(t, test.expected, *rbc)
 	}

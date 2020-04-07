@@ -24,18 +24,18 @@ func TestGetClient(t *testing.T) {
 	os.Unsetenv("VAULT_TOKEN")
 
 	_, err := GetClient("", "")
-	assert.Equal(t, err, fmt.Errorf("Vault address is not defined"))
+	assert.Equal(t, fmt.Errorf("Vault address is not defined"), err)
 
 	_, err = GetClient("foo", "")
-	assert.Equal(t, err, fmt.Errorf("Vault token is not defined (VAULT_TOKEN or ~/.vault-token)"))
+	assert.Equal(t, fmt.Errorf("Vault token is not defined (VAULT_TOKEN or ~/.vault-token)"), err)
 
 	_, err = GetClient("foo", "bar")
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 
 	os.Setenv("VAULT_ADDR", "foo")
 	os.Setenv("VAULT_TOKEN", "bar")
 	_, err = GetClient("", "")
-	assert.Equal(t, err, nil)
+	assert.Nil(t, err)
 }
 
 func TestGetValues(t *testing.T) {
@@ -46,31 +46,31 @@ func TestGetValues(t *testing.T) {
 	// Undefined path
 	v := &schemas.Vault{}
 	r, err := c.GetValues(v)
-	assert.Equal(t, err, fmt.Errorf("no path defined for retrieving vault secret"))
-	assert.Equal(t, r, map[string]string{})
+	assert.Equal(t, fmt.Errorf("no path defined for retrieving vault secret"), err)
+	assert.Equal(t, map[string]string{}, r)
 
 	// Valid secret
 	validPath := "secret/foo"
 	v.Path = &validPath
 
 	r, err = c.GetValues(v)
-	assert.Equal(t, err, nil)
-	assert.Equal(t, r, map[string]string{"secret": "bar"})
+	assert.Nil(t, err)
+	assert.Equal(t, map[string]string{"secret": "bar"}, r)
 
 	// Unexistent secret
 	invalidPath := "secret/baz"
 	v.Path = &invalidPath
 
 	r, err = c.GetValues(v)
-	assert.Equal(t, err, fmt.Errorf("no results/keys returned for secret : secret/baz"))
-	assert.Equal(t, r, map[string]string{})
+	assert.Equal(t, fmt.Errorf("no results/keys returned for secret : secret/baz"), err)
+	assert.Equal(t, map[string]string{}, r)
 
 	// Invalid method
 	invalidMethod := "foo"
 	v.Method = &invalidMethod
 	r, err = c.GetValues(v)
-	assert.Equal(t, err, fmt.Errorf("unsupported method 'foo'"))
-	assert.Equal(t, r, map[string]string{})
+	assert.Equal(t, fmt.Errorf("unsupported method 'foo'"), err)
+	assert.Equal(t, map[string]string{}, r)
 
 	// Write method
 	writeMethod := "write"
@@ -80,8 +80,8 @@ func TestGetValues(t *testing.T) {
 	v.Params = &params
 
 	r, err = c.GetValues(v)
-	assert.Equal(t, err, fmt.Errorf("no results/keys returned for secret : secret/foo"))
-	assert.Equal(t, r, map[string]string{})
+	assert.Equal(t, fmt.Errorf("no results/keys returned for secret : secret/foo"), err)
+	assert.Equal(t, map[string]string{}, r)
 }
 
 func createTestVault(t *testing.T) (net.Listener, *api.Client) {
@@ -100,18 +100,14 @@ func createTestVault(t *testing.T) (net.Listener, *api.Client) {
 	conf.Address = addr
 
 	client, err := api.NewClient(conf)
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 	client.SetToken(rootToken)
 
 	// Setup required secrets, policies, etc.
 	_, err = client.Logical().Write("secret/foo", map[string]interface{}{
 		"secret": "bar",
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.Nil(t, err)
 
 	return ln, client
 }
