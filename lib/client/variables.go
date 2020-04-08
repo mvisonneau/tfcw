@@ -45,7 +45,7 @@ func (c *Client) RenderVariablesLocally(cfg *schemas.Config) error {
 
 func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables) (*tfc.Variable, error) {
 	if v.Variable.Sensitive == nil {
-		if cfg.Defaults.Variable.Sensitive == nil {
+		if cfg.Defaults == nil || cfg.Defaults.Variable == nil || cfg.Defaults.Variable.Sensitive == nil {
 			v.Variable.Sensitive = tfc.Bool(true)
 		} else {
 			v.Variable.Sensitive = cfg.Defaults.Variable.Sensitive
@@ -53,7 +53,7 @@ func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *sche
 	}
 
 	if v.Variable.HCL == nil {
-		if cfg.Defaults.Variable.Sensitive == nil {
+		if cfg.Defaults == nil || cfg.Defaults.Variable == nil || cfg.Defaults.Variable.HCL == nil {
 			v.Variable.HCL = tfc.Bool(false)
 		} else {
 			v.Variable.HCL = cfg.Defaults.Variable.HCL
