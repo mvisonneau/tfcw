@@ -89,10 +89,10 @@ func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *sche
 	})
 }
 
-func (c *Client) purgeUnmanagedVariables(vars schemas.VariableValues, e TFCVariables, dryRun bool) error {
+func (c *Client) purgeUnmanagedVariables(vars schemas.Variables, e TFCVariables, dryRun bool) error {
 	for _, v := range vars {
-		if _, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
-			delete(e[getCategoryType(v.Variable.Kind)], v.Name)
+		if _, ok := e[getCategoryType(v.Kind)][v.Name]; ok {
+			delete(e[getCategoryType(v.Kind)], v.Name)
 		}
 	}
 
@@ -165,7 +165,7 @@ func getCategoryType(kind schemas.VariableKind) tfc.CategoryType {
 	return tfc.CategoryType("")
 }
 
-func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, vars schemas.Variables, dryRun, forceUpdate bool) error {
+func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, variables schemas.Variables, dryRun, forceUpdate bool) error {
 	// Find existing variables on TFC
 	existingVariables, variableExpirations, err := c.listVariables(w)
 	if err != nil {
@@ -177,9 +177,9 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 	errors := make(chan error)
 	wg := sync.WaitGroup{}
 
-	variablesToUpdate := vars
+	variablesToUpdate := variables
 	if !forceUpdate {
-		variablesToUpdate = c.getVariablesToUpdate(vars, variableExpirations)
+		variablesToUpdate = c.getVariablesToUpdate(variables, variableExpirations)
 	}
 
 	for _, v := range variablesToUpdate {
@@ -229,7 +229,7 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 
 	if cfg.TFC.PurgeUnmanagedVariables != nil && *cfg.TFC.PurgeUnmanagedVariables {
 		log.Debugf("Looking for unmanaged variables to remove")
-		return c.purgeUnmanagedVariables(variableValues, existingVariables, dryRun)
+		return c.purgeUnmanagedVariables(variables, existingVariables, dryRun)
 	}
 
 	return nil
