@@ -10,6 +10,8 @@ and this project adheres to [0ver](https://0ver.org).
 ### Changed
 
 - **provider/vault** - **Actually** fixed a bug on the default vault token validation method
+- fixed a panic occurring when defaults.var block was not defined
+- fixed a bug on the default definition of the HCL flag for the variable
 
 ## [0.0.6] - 2020-04-07
 
