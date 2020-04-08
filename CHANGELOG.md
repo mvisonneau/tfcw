@@ -7,6 +7,10 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Changed
+
+- **provider/vault** - **Actually** fixed a bug on the default vault token validation method
+
 ## [0.0.6] - 2020-04-07
 
 ### Added
