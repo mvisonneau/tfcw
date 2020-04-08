@@ -67,7 +67,7 @@ func getVaultClient(cfg *schemas.Config) (c *providerVault.Client, err error) {
 					vaultAddress = *cfg.Defaults.Vault.Address
 				}
 
-				if cfg.Defaults.Vault.Address != nil {
+				if cfg.Defaults.Vault.Token != nil {
 					vaultToken = *cfg.Defaults.Vault.Token
 				}
 			}
