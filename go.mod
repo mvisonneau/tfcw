@@ -13,6 +13,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mvisonneau/go-helpers v0.0.0-20200224131125-cb5cc4e6def9
 	github.com/mvisonneau/s5 v0.0.0-20200327151052-eceb3ecf2fdc
+	github.com/openlyinc/pointy v1.1.2
 	github.com/sirupsen/logrus v1.5.0
 	github.com/stretchr/testify v1.5.1
 	github.com/urfave/cli v1.22.3

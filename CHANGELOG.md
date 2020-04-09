@@ -7,13 +7,18 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- Automated the variable refresh when their TTL is modified
+
 ### Changed
 
 - **provider/vault** - **Actually** fixed a bug on the default vault token validation method
-- fixed a panic occurring when defaults.var block was not defined
-- fixed a bug on the default definition of the HCL flag for the variable
-- prevent variables from being removed whilst using var.ttl field and tfc.purge-unmanaged-variables at the same time
-- prevent variables from being removed when using tfc.purge-unmanaged-variables with a Vault multi-key variable
+- Fixed a panic occurring when defaults.var block was not defined
+- Fixed a bug on the default definition of the HCL flag for the variable
+- Prevent variables from being removed whilst using var.ttl field and tfc.purge-unmanaged-variables at the same time
+- Prevent variables from being removed when using tfc.purge-unmanaged-variables with a Vault multi-key variable
+- Better testing for the variable ttl management and couple bugfixes
 
 ## [0.0.6] - 2020-04-07
 

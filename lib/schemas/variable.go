@@ -58,6 +58,17 @@ type Variables []*Variable
 // VariablesWithValues is a slice of *ComputedVariable
 type VariablesWithValues []*VariableWithValue
 
+// VariableExpirations holds the expiration times of variables, stored within TFC as
+// a jsonmap within an __TFCW_VARIABLES_EXPIRATIONS environment variable (quite hacky..)
+type VariableExpirations map[VariableKind]map[string]*VariableExpiration
+
+// VariableExpiration contains the Time To Live (TTL) and when the value of a variable
+// to expire is going to expire
+type VariableExpiration struct {
+	TTL      time.Duration `json:"ttl"`
+	ExpireAt time.Time     `json:"expire_at"`
+}
+
 // GetProvider returns the VariableProvider that can be used for processing the variable
 func (v *Variable) GetProvider() (*VariableProvider, error) {
 	configuredProviders := 0
@@ -86,11 +97,4 @@ func (v *Variable) GetProvider() (*VariableProvider, error) {
 	}
 
 	return provider, nil
-}
-
-// VariableExpirations can hold the expiration times of variables, stored within TFC as
-// a jsonmap within an __TFCW_VARIABLES_EXPIRATIONS environment variable (quite hacky..)
-type VariableExpirations struct {
-	TFCVariableID string
-	Values        map[VariableKind]map[string]time.Time
 }

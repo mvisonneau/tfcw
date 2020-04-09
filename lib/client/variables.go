@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"time"
 
 	tfc "github.com/hashicorp/go-tfe"
 	"github.com/mvisonneau/tfcw/lib/schemas"
@@ -34,7 +33,7 @@ const (
 // RenderVariablesOnTFC issues a rendering of all variables defined in a schemas.Config object on TFC
 func (c *Client) RenderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, dryRun, forceUpdate bool) error {
 	log.Info("Processing variables and updating their values on TFC")
-	return c.renderVariablesOnTFC(cfg, w, cfg.GetVariables(), dryRun, forceUpdate)
+	return c.renderVariablesOnTFC(cfg, w, dryRun, forceUpdate)
 }
 
 // RenderVariablesLocally issues a rendering of all variables defined in a schemas.Config object on TFC
@@ -124,9 +123,8 @@ func (c *Client) purgeUnmanagedVariables(vars schemas.Variables, e TFCVariables,
 	return nil
 }
 
-func (c *Client) listVariables(w *tfc.Workspace) (TFCVariables, schemas.VariableExpirations, error) {
-	variables := TFCVariables{}
-	variableExpirations := schemas.VariableExpirations{}
+func (c *Client) listVariables(w *tfc.Workspace) (variables TFCVariables, variableExpirations schemas.VariableExpirations, variablesExpirationsTFCVariableID string, err error) {
+	variables = make(TFCVariables)
 
 	listOptions := tfc.VariableListOptions{
 		ListOptions: tfc.ListOptions{
@@ -136,16 +134,20 @@ func (c *Client) listVariables(w *tfc.Workspace) (TFCVariables, schemas.Variable
 	}
 
 	for {
-		list, err := c.TFC.Variables.List(c.Context, w.ID, listOptions)
+		var list *tfc.VariableList
+		list, err = c.TFC.Variables.List(c.Context, w.ID, listOptions)
 		if err != nil {
-			return variables, variableExpirations, fmt.Errorf("unable to list variables from the Terraform Cloud API : %s", err.Error())
+			err = fmt.Errorf("unable to list variables from the Terraform Cloud API : %s", err.Error())
+			return
 		}
 
 		for _, v := range list.Items {
 			if v.Key == VariableExpirationsName {
-				variableExpirations.TFCVariableID = v.ID
-				if err = json.Unmarshal([]byte(v.Value), &variableExpirations.Values); err != nil {
-					return variables, variableExpirations, fmt.Errorf("unable to parse the variable ttls currently set on TFC (TFCW_TTLS) : %s", err.Error())
+				variablesExpirationsTFCVariableID = v.ID
+				if err = json.Unmarshal([]byte(v.Value), &variableExpirations); err != nil {
+					err = fmt.Errorf("unable to parse the variable ttls currently set on TFC (%s) : %s", VariableExpirationsName, err.Error())
+					// TODO: Remove the existing variable automatically?
+					return
 				}
 				continue
 			}
@@ -162,7 +164,8 @@ func (c *Client) listVariables(w *tfc.Workspace) (TFCVariables, schemas.Variable
 
 		listOptions.PageNumber = list.Pagination.NextPage
 	}
-	return variables, variableExpirations, nil
+
+	return
 }
 
 func getCategoryType(kind schemas.VariableKind) tfc.CategoryType {
@@ -176,9 +179,9 @@ func getCategoryType(kind schemas.VariableKind) tfc.CategoryType {
 	return tfc.CategoryType("")
 }
 
-func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, variables schemas.Variables, dryRun, forceUpdate bool) error {
+func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, dryRun, forceUpdate bool) error {
 	// Find existing variables on TFC
-	existingVariables, variableExpirations, err := c.listVariables(w)
+	existingVariables, variableExpirations, variableExpirationsTFCVariableID, err := c.listVariables(w)
 	if err != nil {
 		return fmt.Errorf("terraform cloud: %s", err)
 	}
@@ -188,9 +191,12 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 	errors := make(chan error)
 	wg := sync.WaitGroup{}
 
-	variablesToUpdate := variables
+	variablesToUpdate := cfg.GetVariables()
 	if !forceUpdate {
-		variablesToUpdate = c.getVariablesToUpdate(variables, variableExpirations)
+		variablesToUpdate, err = cfg.GetVariablesToUpdate(variableExpirations)
+		if err != nil {
+			return err
+		}
 	}
 
 	for _, v := range variablesToUpdate {
@@ -227,20 +233,20 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 	}
 
 	// Update variable expirations on TFC
-	newVariableExpirations, updateVariableExpirations, err := computeNewVariableExpirations(cfg, variablesToUpdate, variableExpirations)
+	newVariableExpirations, updateVariableExpirations, err := cfg.ComputeNewVariableExpirations(variablesToUpdate, variableExpirations)
 	if err != nil {
 		return err
 	}
 
 	if updateVariableExpirations {
-		if err = c.updateVariableExpirations(w, newVariableExpirations); err != nil {
+		if err = c.updateVariableExpirations(w, newVariableExpirations, variableExpirationsTFCVariableID); err != nil {
 			return err
 		}
 	}
 
 	if cfg.TFC.PurgeUnmanagedVariables != nil && *cfg.TFC.PurgeUnmanagedVariables {
 		log.Debugf("Looking for unmanaged variables to remove")
-		return c.purgeUnmanagedVariables(variables, existingVariables, dryRun)
+		return c.purgeUnmanagedVariables(cfg.GetVariables(), existingVariables, dryRun)
 	}
 
 	return nil
@@ -298,22 +304,6 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 	}
 
 	return nil
-}
-
-func (c *Client) getVariablesToUpdate(allVariables schemas.Variables, ttls schemas.VariableExpirations) (variables schemas.Variables) {
-	for _, v := range allVariables {
-		// Check if there is a TTL flag set for this variable
-		if variableExpirationTime, ok := ttls.Values[v.Kind][v.Name]; ok {
-			// If the expiration date is still in the future we do not update it
-			if variableExpirationTime.After(time.Now()) {
-				log.Debugf("variable %s (%s) is still valid for %s, not updating", v.Name, v.Kind, variableExpirationTime.Sub(time.Now()).String())
-				continue
-			}
-		}
-
-		variables = append(variables, v)
-	}
-	return
 }
 
 func (c *Client) renderVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableWithValue, e TFCVariables, dryRun bool) (err error) {
@@ -459,57 +449,15 @@ func secureSensitiveString(sensitive string) string {
 	return fmt.Sprintf("%s********%s", string(sensitive[0]), string(sensitive[len(sensitive)-1]))
 }
 
-func computeNewVariableExpirations(cfg *schemas.Config, updatedVariables schemas.Variables, existingVariableExpirations schemas.VariableExpirations) (variableExpirations schemas.VariableExpirations, hasChanges bool, err error) {
-	variableExpirations = existingVariableExpirations
-	if len(updatedVariables) > 0 {
-		hasChanges = true
-	}
-
-	for _, v := range updatedVariables {
-		if variableExpirations.Values == nil {
-			variableExpirations.Values = map[schemas.VariableKind]map[string]time.Time{}
-		}
-
-		if _, ok := variableExpirations.Values[v.Kind]; !ok {
-			variableExpirations.Values[v.Kind] = map[string]time.Time{}
-		}
-
-		var ttl time.Duration
-
-		if v.TTL != nil {
-			ttl, err = time.ParseDuration(*v.TTL)
-		} else if cfg.Defaults != nil && cfg.Defaults.Variable != nil && cfg.Defaults.Variable.TTL != nil {
-			ttl, err = time.ParseDuration(*cfg.Defaults.Variable.TTL)
-		}
-
-		if err != nil {
-			return
-		}
-
-		// If there is no TTL defined, we omit this variable from the expirations list
-		if ttl == 0 {
-			if _, ok := variableExpirations.Values[v.Kind][v.Name]; ok {
-				delete(variableExpirations.Values[v.Kind], v.Name)
-			}
-
-			continue
-		}
-
-		variableExpirations.Values[v.Kind][v.Name] = time.Now().Add(ttl)
-	}
-
-	return
-}
-
-func (c *Client) updateVariableExpirations(w *tfc.Workspace, variableExpirations schemas.VariableExpirations) error {
-	variableExpirationsByte, err := json.Marshal(variableExpirations.Values)
+func (c *Client) updateVariableExpirations(w *tfc.Workspace, variableExpirations schemas.VariableExpirations, tfcVariableID string) error {
+	variableExpirationsByte, err := json.Marshal(variableExpirations)
 	if err != nil {
 		return err
 	}
 
-	if variableExpirations.TFCVariableID != "" {
+	if tfcVariableID != "" {
 		log.Debug("updating variable expirations on TFC")
-		_, err = c.TFC.Variables.Update(c.Context, w.ID, variableExpirations.TFCVariableID, tfc.VariableUpdateOptions{
+		_, err = c.TFC.Variables.Update(c.Context, w.ID, tfcVariableID, tfc.VariableUpdateOptions{
 			Value: tfc.String(string(variableExpirationsByte)),
 		})
 		return err
