@@ -54,7 +54,7 @@ func TestConfigGetVariableTTL(t *testing.T) {
 	assert.Equal(t, thirtyMinuteDuration, ttl)
 
 	// With an incorrect value in the variable definition
-	ttl, err = testConfig.GetVariableTTL(&Variable{TTL: pointy.String("foo")})
+	_, err = testConfig.GetVariableTTL(&Variable{TTL: pointy.String("foo")})
 	assert.Error(t, err)
 
 	// Using the default configuration value
@@ -71,7 +71,7 @@ func TestConfigGetVariableTTL(t *testing.T) {
 		},
 	}
 
-	ttl, err = incorrectDefaultConfig.GetVariableTTL(&Variable{})
+	_, err = incorrectDefaultConfig.GetVariableTTL(&Variable{})
 	assert.Error(t, err)
 
 	// Without any configuration

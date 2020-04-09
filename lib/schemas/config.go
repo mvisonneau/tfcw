@@ -94,7 +94,7 @@ func (cfg *Config) ComputeNewVariableExpirations(updatedVariables Variables, exi
 	}
 
 	// Cleanup maps which could turn out to be empty
-	for k, _ := range variableExpirations {
+	for k := range variableExpirations {
 		if len(variableExpirations[k]) == 0 {
 			delete(variableExpirations, k)
 		}
