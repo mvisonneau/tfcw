@@ -8,8 +8,8 @@ WORKDIR /build
 
 COPY . .
 RUN \
-apk add --no-cache make ca-certificates ;\
-make build-linux-amd64
+  apk add --no-cache make ca-certificates ;\
+  make build-linux-amd64
 
 ##
 # RELEASE CONTAINER
