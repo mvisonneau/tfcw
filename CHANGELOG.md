@@ -7,9 +7,7 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
-### Added
-
-- Automated the variable refresh when their TTL is modified
+## [0.0.7] - 2020-04-09
 
 ### Changed
 
@@ -19,6 +17,7 @@ and this project adheres to [0ver](https://0ver.org).
 - Prevent variables from being removed whilst using var.ttl field and tfc.purge-unmanaged-variables at the same time
 - Prevent variables from being removed when using tfc.purge-unmanaged-variables with a Vault multi-key variable
 - Better testing for the variable ttl management and couple bugfixes
+- Automated the variable refresh (& removal if empty) when their TTL is modified
 
 ## [0.0.6] - 2020-04-07
 
@@ -92,7 +91,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.6...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.7...HEAD
+[0.0.7]: https://github.com/mvisonneau/tfcw/tree/0.0.7
 [0.0.6]: https://github.com/mvisonneau/tfcw/tree/0.0.6
 [0.0.5]: https://github.com/mvisonneau/tfcw/tree/0.0.5
 [0.0.4]: https://github.com/mvisonneau/tfcw/tree/0.0.4
