@@ -50,30 +50,26 @@ func TestIsVariableAlreadyProcessed(t *testing.T) {
 	assert.Equal(t, true, c.isVariableAlreadyProcessed(v1, schemas.VariableKindTerraform))
 }
 
-func TestLogVariableValue(t *testing.T) {
+func TestLogVariableWithValue(t *testing.T) {
 	// redirect logs to str variable
 	var str bytes.Buffer
 	log.SetOutput(&str)
 	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true})
 
-	// dry-run mode with no value
-	v := &schemas.Variable{
-		Name: "foo",
-		Kind: schemas.VariableKindEnvironment,
+	v := &schemas.VariableWithValue{
+		Variable: schemas.Variable{
+			Name: "foo",
+			Kind: schemas.VariableKindEnvironment,
+		},
+		Value: "bar",
 	}
 
-	vv := &schemas.VariableValue{
-		Variable: v,
-		Name:     "foo",
-		Value:    "bar",
-	}
-
-	logVariableValue(vv, true)
+	logVariableWithValue(v, true)
 	assert.Equal(t, "level=info msg=\"[DRY-RUN] Set variable 'foo' (environment) : **********\"\n", str.String())
 
 	// no dry-mode
 	str.Reset()
-	logVariableValue(vv, false)
+	logVariableWithValue(v, false)
 	assert.Equal(t, "level=info msg=\"Set variable 'foo' (environment)\"\n", str.String())
 }
 

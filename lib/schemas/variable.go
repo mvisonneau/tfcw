@@ -46,18 +46,17 @@ type Variable struct {
 	Value string
 }
 
-// VariableValue is a generic handler for found variable values
-type VariableValue struct {
-	Variable *Variable
-	Name     string
-	Value    string
+// VariableWithValue is a generic handler for found variable values
+type VariableWithValue struct {
+	Variable
+	Value string
 }
 
 // Variables is a slice of *Variable
 type Variables []*Variable
 
-// VariableValues is a slice of *ComputedVariable
-type VariableValues []*VariableValue
+// VariablesWithValues is a slice of *ComputedVariable
+type VariablesWithValues []*VariableWithValue
 
 // GetProvider returns the VariableProvider that can be used for processing the variable
 func (v *Variable) GetProvider() (*VariableProvider, error) {

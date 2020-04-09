@@ -43,29 +43,29 @@ func (c *Client) RenderVariablesLocally(cfg *schemas.Config) error {
 	return c.renderVariablesLocally(cfg.GetVariables())
 }
 
-func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables) (*tfc.Variable, error) {
-	if v.Variable.Sensitive == nil {
+func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableWithValue, e TFCVariables) (*tfc.Variable, error) {
+	if v.Sensitive == nil {
 		if cfg.Defaults == nil || cfg.Defaults.Variable == nil || cfg.Defaults.Variable.Sensitive == nil {
-			v.Variable.Sensitive = tfc.Bool(true)
+			v.Sensitive = tfc.Bool(true)
 		} else {
-			v.Variable.Sensitive = cfg.Defaults.Variable.Sensitive
+			v.Sensitive = cfg.Defaults.Variable.Sensitive
 		}
 	}
 
-	if v.Variable.HCL == nil {
+	if v.HCL == nil {
 		if cfg.Defaults == nil || cfg.Defaults.Variable == nil || cfg.Defaults.Variable.HCL == nil {
-			v.Variable.HCL = tfc.Bool(false)
+			v.HCL = tfc.Bool(false)
 		} else {
-			v.Variable.HCL = cfg.Defaults.Variable.HCL
+			v.HCL = cfg.Defaults.Variable.HCL
 		}
 	}
 
-	if existingVariable, ok := e[getCategoryType(v.Variable.Kind)][v.Name]; ok {
+	if existingVariable, ok := e[getCategoryType(v.Kind)][v.Name]; ok {
 		updatedVariable, err := c.TFC.Variables.Update(c.Context, w.ID, existingVariable.ID, tfc.VariableUpdateOptions{
 			Key:       &v.Name,
 			Value:     &v.Value,
-			Sensitive: v.Variable.Sensitive,
-			HCL:       v.Variable.HCL,
+			Sensitive: v.Sensitive,
+			HCL:       v.HCL,
 		})
 
 		// In case we cannot update the fields, we delete the variable and recreate it
@@ -83,9 +83,9 @@ func (c *Client) setVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *sche
 	return c.TFC.Variables.Create(c.Context, w.ID, tfc.VariableCreateOptions{
 		Key:       &v.Name,
 		Value:     &v.Value,
-		Category:  tfc.Category(getCategoryType(v.Variable.Kind)),
-		Sensitive: v.Variable.Sensitive,
-		HCL:       v.Variable.HCL,
+		Category:  tfc.Category(getCategoryType(v.Kind)),
+		Sensitive: v.Sensitive,
+		HCL:       v.HCL,
 	})
 }
 
@@ -172,8 +172,8 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 		return fmt.Errorf("terraform cloud: %s", err)
 	}
 
-	variableValues := schemas.VariableValues{}
-	values := make(chan *schemas.VariableValue)
+	variablesWithValues := schemas.VariablesWithValues{}
+	values := make(chan *schemas.VariableWithValue)
 	errors := make(chan error)
 	wg := sync.WaitGroup{}
 
@@ -186,7 +186,7 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 		wg.Add(1)
 		go func(v *schemas.Variable) {
 			defer wg.Done()
-			fetchedValues, err := c.fetchVariableValues(v)
+			fetchedValues, err := c.fetchVariablesWithValues(v)
 			errors <- err
 			for _, value := range fetchedValues {
 				wg.Add(1)
@@ -197,7 +197,7 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 
 	go func() {
 		for value := range values {
-			variableValues = append(variableValues, value)
+			variablesWithValues = append(variablesWithValues, value)
 			errors <- c.renderVariableOnTFC(cfg, w, value, existingVariables, dryRun)
 			wg.Done()
 		}
@@ -216,7 +216,7 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 	}
 
 	// Update variable expirations on TFC
-	newVariableExpirations, updateVariableExpirations, err := computeNewVariableExpirations(cfg, variablesToUpdate, variableExpirations)
+	newVariableExpirations, updateVariableExpirations, err := computeNewVariableExpirations(cfg, variablesWithValues, variableExpirations)
 	if err != nil {
 		return err
 	}
@@ -248,8 +248,8 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 	}
 	defer tfFile.Close()
 
-	variableValues := schemas.VariableValues{}
-	values := make(chan *schemas.VariableValue)
+	variablesWithValues := schemas.VariablesWithValues{}
+	values := make(chan *schemas.VariableWithValue)
 	errors := make(chan error)
 	wg := sync.WaitGroup{}
 
@@ -257,7 +257,7 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 		wg.Add(1)
 		go func(v *schemas.Variable) {
 			defer wg.Done()
-			fetchedValues, err := c.fetchVariableValues(v)
+			fetchedValues, err := c.fetchVariablesWithValues(v)
 			errors <- err
 			for _, value := range fetchedValues {
 				wg.Add(1)
@@ -268,7 +268,7 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 
 	go func() {
 		for value := range values {
-			variableValues = append(variableValues, value)
+			variablesWithValues = append(variablesWithValues, value)
 			errors <- c.renderVariableLocally(value, envFile, tfFile)
 			wg.Done()
 		}
@@ -305,26 +305,26 @@ func (c *Client) getVariablesToUpdate(allVariables schemas.Variables, ttls schem
 	return
 }
 
-func (c *Client) renderVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableValue, e TFCVariables, dryRun bool) (err error) {
+func (c *Client) renderVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableWithValue, e TFCVariables, dryRun bool) (err error) {
 	if !dryRun {
 		if _, err = c.setVariableOnTFC(cfg, w, v, e); err != nil {
 			return
 		}
 	}
 
-	logVariableValue(v, dryRun)
+	logVariableWithValue(v, dryRun)
 	return
 }
 
-func (c *Client) renderVariableLocally(v *schemas.VariableValue, envFile, tfFile *os.File) error {
-	switch v.Variable.Kind {
+func (c *Client) renderVariableLocally(v *schemas.VariableWithValue, envFile, tfFile *os.File) error {
+	switch v.Kind {
 	case schemas.VariableKindEnvironment:
 		if _, err := envFile.WriteString(fmt.Sprintf("export %s=%s\n", v.Name, v.Value)); err != nil {
 			return err
 		}
 	case schemas.VariableKindTerraform:
 		s := ""
-		if v.Variable.HCL != nil && *v.Variable.HCL {
+		if v.HCL != nil && *v.HCL {
 			s = fmt.Sprintf("%s = %s\n", v.Name, v.Value)
 		} else {
 			s = fmt.Sprintf("%s = \"%s\"\n", v.Name, v.Value)
@@ -334,14 +334,14 @@ func (c *Client) renderVariableLocally(v *schemas.VariableValue, envFile, tfFile
 			return err
 		}
 	default:
-		return fmt.Errorf("unknown kind '%s' for variable %s", v.Variable.Kind, v.Name)
+		return fmt.Errorf("unknown kind '%s' for variable %s", v.Kind, v.Name)
 	}
 
-	logVariableValue(v, false)
+	logVariableWithValue(v, false)
 	return nil
 }
 
-func (c *Client) fetchVariableValues(v *schemas.Variable) (schemas.VariableValues, error) {
+func (c *Client) fetchVariablesWithValues(v *schemas.Variable) (schemas.VariablesWithValues, error) {
 	if c.isVariableAlreadyProcessed(v.Name, v.Kind) {
 		return nil, fmt.Errorf("duplicate variable '%s' (%s)", v.Name, v.Kind)
 	}
@@ -353,10 +353,9 @@ func (c *Client) fetchVariableValues(v *schemas.Variable) (schemas.VariableValue
 
 	switch *provider {
 	case schemas.VariableProviderEnv:
-		return schemas.VariableValues{
-			&schemas.VariableValue{
-				Variable: v,
-				Name:     v.Name,
+		return schemas.VariablesWithValues{
+			&schemas.VariableWithValue{
+				Variable: *v,
 				Value:    c.Env.GetValue(v.Env),
 			},
 		}, nil
@@ -366,10 +365,9 @@ func (c *Client) fetchVariableValues(v *schemas.Variable) (schemas.VariableValue
 			return nil, fmt.Errorf("s5 error: %s", err)
 		}
 
-		return schemas.VariableValues{
-			&schemas.VariableValue{
-				Variable: v,
-				Name:     v.Name,
+		return schemas.VariablesWithValues{
+			&schemas.VariableWithValue{
+				Variable: *v,
 				Value:    value,
 			},
 		}, nil
@@ -381,7 +379,7 @@ func (c *Client) fetchVariableValues(v *schemas.Variable) (schemas.VariableValue
 }
 
 // getVaultValues will return an empty value if multiple keys are set
-func (c *Client) getVaultValues(v *schemas.Variable) (schemas.VariableValues, error) {
+func (c *Client) getVaultValues(v *schemas.Variable) (schemas.VariablesWithValues, error) {
 	values, err := c.Vault.GetValues(v.Vault)
 	if err != nil {
 		return nil, fmt.Errorf("error getting values from vault for variable '%s' : %s", v.Name, err)
@@ -395,10 +393,9 @@ func (c *Client) getVaultValues(v *schemas.Variable) (schemas.VariableValues, er
 
 	if v.Vault.Key != nil {
 		if value, found := values[*v.Vault.Key]; found {
-			return schemas.VariableValues{
-				&schemas.VariableValue{
-					Variable: v,
-					Name:     v.Name,
+			return schemas.VariablesWithValues{
+				&schemas.VariableWithValue{
+					Variable: *v,
 					Value:    value,
 				},
 			}, nil
@@ -406,20 +403,21 @@ func (c *Client) getVaultValues(v *schemas.Variable) (schemas.VariableValues, er
 		return nil, fmt.Errorf("key '%s' was not found in secret '%s'", *v.Vault.Key, *v.Vault.Path)
 	}
 
-	variableValues := schemas.VariableValues{}
+	variablesWithValues := schemas.VariablesWithValues{}
 	for vaultKey, variableName := range *v.Vault.Keys {
 		if value, found := values[vaultKey]; found {
-			variableValues = append(variableValues, &schemas.VariableValue{
-				Variable: v,
-				Name:     variableName,
+			vv := &schemas.VariableWithValue{
+				Variable: *v,
 				Value:    value,
-			})
+			}
+			vv.Name = variableName
+			variablesWithValues = append(variablesWithValues, vv)
 			continue
 		}
 		return nil, fmt.Errorf("key '%s' was not found in secret '%s'", vaultKey, *v.Vault.Path)
 	}
 
-	return variableValues, nil
+	return variablesWithValues, nil
 }
 
 func (c *Client) isVariableAlreadyProcessed(name string, kind schemas.VariableKind) bool {
@@ -435,11 +433,11 @@ func (c *Client) isVariableAlreadyProcessed(name string, kind schemas.VariableKi
 	return false
 }
 
-func logVariableValue(v *schemas.VariableValue, dryRun bool) {
+func logVariableWithValue(v *schemas.VariableWithValue, dryRun bool) {
 	if dryRun {
-		log.Infof("[DRY-RUN] Set variable '%s' (%s) : %s", v.Name, v.Variable.Kind, secureSensitiveString(v.Value))
+		log.Infof("[DRY-RUN] Set variable '%s' (%s) : %s", v.Name, v.Kind, secureSensitiveString(v.Value))
 	} else {
-		log.Infof("Set variable '%s' (%s)", v.Name, v.Variable.Kind)
+		log.Infof("Set variable '%s' (%s)", v.Name, v.Kind)
 	}
 }
 
@@ -450,7 +448,7 @@ func secureSensitiveString(sensitive string) string {
 	return fmt.Sprintf("%s********%s", string(sensitive[0]), string(sensitive[len(sensitive)-1]))
 }
 
-func computeNewVariableExpirations(cfg *schemas.Config, updatedVariables schemas.Variables, existingVariableExpirations schemas.VariableExpirations) (variableExpirations schemas.VariableExpirations, hasChanges bool, err error) {
+func computeNewVariableExpirations(cfg *schemas.Config, updatedVariables schemas.VariablesWithValues, existingVariableExpirations schemas.VariableExpirations) (variableExpirations schemas.VariableExpirations, hasChanges bool, err error) {
 	variableExpirations = existingVariableExpirations
 	if len(updatedVariables) > 0 {
 		hasChanges = true
