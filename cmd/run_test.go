@@ -64,7 +64,7 @@ func TestRenderLocalWithValidConfig(t *testing.T) {
 	globalFlags.String("working-dir", tmpDir, "")
 	globalFlags.String("config-file", tmpFilePath, "")
 
-	defer os.Remove(fmt.Sprint(wd, "/tfcw.auth.tfvars"))
+	defer os.Remove(fmt.Sprint(wd, "/tfcw.auto.tfvars"))
 	defer os.Remove(fmt.Sprint(wd, "/tfcw.env"))
 	exitCode, err := Render(ctx)
 	assert.Equal(t, nil, err)

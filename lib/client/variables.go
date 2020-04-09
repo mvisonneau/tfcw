@@ -259,7 +259,7 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 	}
 	defer envFile.Close()
 
-	tfFile, err := os.OpenFile("./tfcw.auth.tfvars", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+	tfFile, err := os.OpenFile("./tfcw.auto.tfvars", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
