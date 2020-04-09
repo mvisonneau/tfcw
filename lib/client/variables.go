@@ -455,6 +455,15 @@ func (c *Client) updateVariableExpirations(w *tfc.Workspace, variableExpirations
 		return err
 	}
 
+	if len(variableExpirations) == 0 {
+		if tfcVariableID != "" {
+			log.Debug("deleting variable expirations on TFC")
+			return c.TFC.Variables.Delete(c.Context, w.ID, tfcVariableID)
+		}
+		log.Debug("empty variable expirations and already unset on TFC")
+		return nil
+	}
+
 	if tfcVariableID != "" {
 		log.Debug("updating variable expirations on TFC")
 		_, err = c.TFC.Variables.Update(c.Context, w.ID, tfcVariableID, tfc.VariableUpdateOptions{
