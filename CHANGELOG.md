@@ -13,6 +13,7 @@ and this project adheres to [0ver](https://0ver.org).
 - fixed a panic occurring when defaults.var block was not defined
 - fixed a bug on the default definition of the HCL flag for the variable
 - prevent variables from being removed whilst using var.ttl field and tfc.purge-unmanaged-variables at the same time
+- prevent variables from being removed when using tfc.purge-unmanaged-variables with a Vault multi-key variable
 
 ## [0.0.6] - 2020-04-07
 

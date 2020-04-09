@@ -94,6 +94,17 @@ func (c *Client) purgeUnmanagedVariables(vars schemas.Variables, e TFCVariables,
 		if _, ok := e[getCategoryType(v.Kind)][v.Name]; ok {
 			delete(e[getCategoryType(v.Kind)], v.Name)
 		}
+
+		// Check if we can have inner values if we are using the Vault provider
+		if p, _ := v.GetProvider(); *p == schemas.VariableProviderVault {
+			if v.Vault.Keys != nil {
+				for _, variableName := range *v.Vault.Keys {
+					if _, ok := e[getCategoryType(v.Kind)][variableName]; ok {
+						delete(e[getCategoryType(v.Kind)], variableName)
+					}
+				}
+			}
+		}
 	}
 
 	for _, tfeVars := range e {
@@ -216,7 +227,7 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, var
 	}
 
 	// Update variable expirations on TFC
-	newVariableExpirations, updateVariableExpirations, err := computeNewVariableExpirations(cfg, variablesWithValues, variableExpirations)
+	newVariableExpirations, updateVariableExpirations, err := computeNewVariableExpirations(cfg, variablesToUpdate, variableExpirations)
 	if err != nil {
 		return err
 	}
@@ -448,7 +459,7 @@ func secureSensitiveString(sensitive string) string {
 	return fmt.Sprintf("%s********%s", string(sensitive[0]), string(sensitive[len(sensitive)-1]))
 }
 
-func computeNewVariableExpirations(cfg *schemas.Config, updatedVariables schemas.VariablesWithValues, existingVariableExpirations schemas.VariableExpirations) (variableExpirations schemas.VariableExpirations, hasChanges bool, err error) {
+func computeNewVariableExpirations(cfg *schemas.Config, updatedVariables schemas.Variables, existingVariableExpirations schemas.VariableExpirations) (variableExpirations schemas.VariableExpirations, hasChanges bool, err error) {
 	variableExpirations = existingVariableExpirations
 	if len(updatedVariables) > 0 {
 		hasChanges = true
