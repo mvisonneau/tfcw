@@ -338,7 +338,6 @@ For the following ones, you need to know which version you want to install, to f
 ~$ rpm -ivh tfcw_${tfcw_VERSION}_linux_arm64.rpm
 ```
 
-
 ## Troubleshoot
 
 You can use the `--log-level debug` flag in order to troubleshoot
@@ -369,6 +368,23 @@ persisted to local or remote state storage.
 DEBU[2020-02-18T17:48:27Z] Discarding run ID: run-Uo1C0000uvMcacBg
 DEBU[2020-02-18T17:48:27Z] Executed in 29.874019206s, exiting..
 ```
+
+### Perform local Terraform runs
+
+Sometimes you can find it useful to be able to run Terraform locally instead of TFC in order to troubleshoot or plan/apply
+your changes in a quicker fashion. Adding the following function to your [bashrc](https://www.gnu.org/software/bash/manual/html_node/Bash-Startup-Files.html) or [zshrc](https://www.zsh.org/) could help you dynamically reprogramming
+your workspace in order to try your changes locally, using your regular terraform binaries.
+
+```bash
+tfcw-local () {
+  tfcw workspace operations disable > /dev/null
+	tfcw render --render-type local > /dev/null
+	[[ "$?" == "0" ]] && source tfcw.env
+  terraform "$@"
+}
+```
+
+of course this config is quite opinionated and tailored to specific needs so feel free to amend it as you need!
 
 ## Develop / Test
 
