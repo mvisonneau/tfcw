@@ -378,8 +378,8 @@ your workspace in order to try your changes locally, using your regular terrafor
 ```bash
 tfcw-local () {
   tfcw workspace operations disable > /dev/null
-	tfcw render --render-type local > /dev/null
-	[[ "$?" == "0" ]] && source tfcw.env
+  tfcw render --render-type local > /dev/null
+  [[ "$?" == "0" ]] && source tfcw.env
   terraform "$@"
 }
 ```
