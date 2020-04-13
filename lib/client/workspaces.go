@@ -180,6 +180,16 @@ func (c *Client) GetWorkspaceCurrentRunID(w *tfc.Workspace) (string, error) {
 	return "", fmt.Errorf("workspace %s is currently idle", w.ID)
 }
 
+// SetWorkspaceOperations update the workspace operations value
+func (c *Client) SetWorkspaceOperations(w *tfc.Workspace, operations bool) (err error) {
+	opts := tfc.WorkspaceUpdateOptions{
+		Operations: tfc.Bool(operations),
+	}
+
+	_, err = c.TFC.Workspaces.UpdateByID(c.Context, w.ID, opts)
+	return
+}
+
 func (c *Client) updateSSHKey(w *tfc.Workspace, sshKeyName string) error {
 	if sshKeyName == "-" {
 		log.Infof("Removing currently configured SSH key")

@@ -113,6 +113,22 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Usage:  "return the status of the workspace",
 					Action: cmd.ExecWrapper(cmd.WorkspaceStatus),
 				},
+				{
+					Name:  "operations",
+					Usage: "manages the operations value of the workspace",
+					Subcommands: cli.Commands{
+						{
+							Name:   "enable",
+							Usage:  "enable remote operations on the workspace",
+							Action: cmd.ExecWrapper(cmd.WorkspaceEnableOperations),
+						},
+						{
+							Name:   "disable",
+							Usage:  "disable remote operations on the workspace",
+							Action: cmd.ExecWrapper(cmd.WorkspaceDisableOperations),
+						},
+					},
+				},
 			},
 		},
 	}
