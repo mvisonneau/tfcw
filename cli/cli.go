@@ -18,7 +18,7 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 	app = cli.NewApp()
 	app.Name = "tfcw"
 	app.Version = version
-	app.Usage = "Terraform Cloud wrapper which can be used to manage variables dynamically"
+	app.Usage = "Terraform Cloud Wrapper"
 	app.EnableBashCompletion = true
 
 	app.Flags = cli.FlagsByName{
@@ -71,7 +71,7 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 	app.Commands = cli.CommandsByName{
 		{
 			Name:   "render",
-			Usage:  "render the variables",
+			Usage:  "render variables values",
 			Action: cmd.ExecWrapper(cmd.Render),
 			Flags:  cli.FlagsByName{renderType, ignoreTTLs, dryRun},
 		},
@@ -97,16 +97,24 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Action: cmd.ExecWrapper(cmd.RunDiscard),
 					Flags:  cli.FlagsByName{currentRun, message},
 				},
+				{
+					Name:   "current-id",
+					Usage:  "return the id of the current run",
+					Action: cmd.ExecWrapper(cmd.RunCurrentID),
+				},
 			},
 		},
 		{
-			Name:  "workspace",
-			Usage: "manipulate the workspace",
+			Name:      "workspace",
+			ShortName: "ws",
+			Usage:     "manipulate the workspace",
 			Subcommands: cli.Commands{
 				{
-					Name:   "current-run-id",
-					Usage:  "return the id of the current run",
-					Action: cmd.ExecWrapper(cmd.WorkspaceCurrentRunID),
+					Name:      "configure",
+					ShortName: "cfg",
+					Usage:     "apply defined configuration to the workspace",
+					Action:    cmd.ExecWrapper(cmd.WorkspaceConfigure),
+					Flags:     cli.FlagsByName{dryRun},
 				},
 				{
 					Name:   "status",

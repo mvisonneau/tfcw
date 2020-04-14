@@ -215,7 +215,7 @@ If you would prefer to keep your current way of triggering the Terraform runs, y
 ```shell
 ~$ tfcw render --help
 NAME:
-   tfcw render - render the variables
+   tfcw render - render variables values
 
 USAGE:
    tfcw render [command options] [arguments...]
@@ -230,8 +230,9 @@ You can also do [dry runs](https://en.wikipedia.org/wiki/Dry_run_(testing)) if y
 
 ```shell
 ~$ tfcw render --dry-run
-INFO[2020-02-18T17:31:36Z] Processing variables and updating their values on TFC
-INFO[2020-02-18T17:31:48Z] [DRY-RUN] Set variable credentials - (terraform) : x********x
+INFO[] Checking workspace configuration
+INFO[] Processing variables and updating their values on TFC
+INFO[] [DRY-RUN] Set variable credentials - (terraform) : x********x
 ```
 
 ## Configuration syntax
@@ -264,26 +265,26 @@ We currently support **6 sources** as variable storage backends (2 natively and 
 ```bash
 ~$ tfcw --help
 NAME:
-   tfcw - Terraform Cloud wrapper which can be used to manage variables dynamically
+   tfcw - Terraform Cloud Wrapper
 
 USAGE:
    tfcw [global options] command [command options] [arguments...]
 
 COMMANDS:
-   render     render the variables
-   run        manipulate runs
-   workspace  manipulate the workspace
-   help, h    Shows a list of commands or help for one command
+   render         render variables values
+   run            manipulate runs
+   workspace, ws  manipulate the workspace
+   help, h        Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --working-dir path, -d path                   path of the directory containing your Terraform files (default: ".") [$TFCW_WORKING_DIR]
-   --config-file path, -c path                   path of a readable TFCW configuration file (.hcl or .json) (default: "<working-dir>/tfcw.hcl") [$TFCW_CONFIG_FILE]
    --address address, -a address                 address to access Terraform Cloud API [$TFCW_ADDRESS]
-   --token token, -t token                       token to access Terraform Cloud API [$TFCW_TOKEN]
-   --organization organization, -o organization  organization to use on Terraform Cloud API [$TFCW_ORGANIZATION]
-   --workspace workspace, -w workspace           workspace to use on Terraform Cloud API [$TFCW_WORKSPACE]
+   --config-file path, -c path                   path of a readable TFCW configuration file (.hcl or .json) (default: "<working-dir>/tfcw.hcl") [$TFCW_CONFIG_FILE]
    --log-level level                             log level (debug,info,warn,fatal,panic) (default: "info") [$TFCW_LOG_LEVEL]
    --log-format format                           log format (json,text) (default: "text") [$TFCW_LOG_FORMAT]
+   --organization organization, -o organization  organization to use on Terraform Cloud API [$TFCW_ORGANIZATION]
+   --token token, -t token                       token to access Terraform Cloud API [$TFCW_TOKEN]
+   --working-dir path, -d path                   path of the directory containing your Terraform files (default: ".") [$TFCW_WORKING_DIR]
+   --workspace workspace, -w workspace           workspace to use on Terraform Cloud API [$TFCW_WORKSPACE]
    --help, -h                                    show help
 ```
 
@@ -343,23 +344,24 @@ For the following ones, you need to know which version you want to install, to f
 You can use the `--log-level debug` flag in order to troubleshoot
 
 ```bash
-~$ tfcw --log-level debug plan -f tests/stack
-INFO[2020-02-18T17:47:58Z] Processing variables and updating their values on TFC
-DEBU[2020-02-18T17:47:58Z] workspace id for foo: ws-wzzmTai00qifQAxB
-INFO[2020-02-18T17:48:07Z] Set variable credentials (terraform)
-INFO[2020-02-18T17:48:08Z] Preparing plan
-DEBU[2020-02-18T17:48:08Z] Workspace id for foo: ws-wzzmTai00qifQAxB
-DEBU[2020-02-18T17:48:08Z] Configured working directory:
-DEBU[2020-02-18T17:48:08Z] Creating configuration version..
-DEBU[2020-02-18T17:48:09Z] Configuration version ID: cv-6qwJz000vLCx5ktH
-DEBU[2020-02-18T17:48:09Z] Uploading configuration version..
-DEBU[2020-02-18T17:48:11Z] Uploaded configuration version!
-INFO[2020-02-18T17:48:12Z] Run ID: run-Uo1C0000uvMcacBg
-DEBU[2020-02-18T17:48:12Z] Plan ID: plan-xF1C0000EiFatd65
-Terraform v0.12.20
+~$ tfcw --log-level debug run create
+INFO[] Checking workspace configuration
+INFO[] Processing variables and updating their values on TFC
+DEBU[] workspace id for foo: ws-wzzmTai00qifQAxB
+INFO[] Set variable credentials (terraform)
+INFO[] Preparing plan
+DEBU[] Workspace id for foo: ws-wzzmTai00qifQAxB
+DEBU[] Configured working directory:
+DEBU[] Creating configuration version..
+DEBU[] Configuration version ID: cv-6qwJz000vLCx5ktH
+DEBU[] Uploading configuration version..
+DEBU[] Uploaded configuration version!
+INFO[] Run ID: run-Uo1C0000uvMcacBg
+DEBU[] Plan ID: plan-xF1C0000EiFatd65
+Terraform v0.12.24
 Configuring remote state backend...
 Initializing Terraform configuration...
-2020/02/18 17:48:19 [DEBUG] Using modified User-Agent: Terraform/0.12.20 TFC/d310d4ebb1
+[DEBUG] Using modified User-Agent: Terraform/0.12.24 TFC/d310d4ebb1
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
@@ -384,7 +386,7 @@ tfcw-local () {
 }
 ```
 
-of course this config is quite opinionated and tailored to specific needs so feel free to amend it as you need!
+Of course, this config is quite opinionated and tailored to specific needs so feel free to amend it as you need!
 
 ## Develop / Test
 

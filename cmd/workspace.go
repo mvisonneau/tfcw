@@ -6,6 +6,20 @@ import (
 	"github.com/urfave/cli"
 )
 
+// WorkspaceConfigure configures the workspace
+func WorkspaceConfigure(ctx *cli.Context) (int, error) {
+	c, cfg, err := configure(ctx)
+	if err != nil {
+		return 1, err
+	}
+
+	if _, err = c.ConfigureWorkspace(cfg, ctx.Bool("dry-run")); err != nil {
+		return 1, err
+	}
+
+	return 0, nil
+}
+
 // WorkspaceStatus return status of the workspace on TFC
 func WorkspaceStatus(ctx *cli.Context) (int, error) {
 	c, cfg, err := configure(ctx)
@@ -16,28 +30,6 @@ func WorkspaceStatus(ctx *cli.Context) (int, error) {
 	if err := c.GetWorkspaceStatus(cfg); err != nil {
 		return 1, err
 	}
-
-	return 0, nil
-}
-
-// WorkspaceCurrentRunID return the ID of the current run on TFC
-func WorkspaceCurrentRunID(ctx *cli.Context) (int, error) {
-	c, cfg, err := configure(ctx)
-	if err != nil {
-		return 1, err
-	}
-
-	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
-	if err != nil {
-		return 1, err
-	}
-
-	runID, err := c.GetWorkspaceCurrentRunID(w)
-	if err != nil {
-		return 1, err
-	}
-
-	fmt.Println(runID)
 
 	return 0, nil
 }

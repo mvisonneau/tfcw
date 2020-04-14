@@ -10,6 +10,7 @@ and this project adheres to [0ver](https://0ver.org).
 ### Added
 
 - A couple commands to enable/disable the operations on the workspace from the CLI
+- Refactored the CLI
 
 ## [0.0.7] - 2020-04-09
 
