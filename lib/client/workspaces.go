@@ -190,6 +190,42 @@ func (c *Client) SetWorkspaceOperations(w *tfc.Workspace, operations bool) (err 
 	return
 }
 
+// DeleteAllWorkspaceVariables delete the all the variables present on the workspace
+func (c *Client) DeleteAllWorkspaceVariables(w *tfc.Workspace) (err error) {
+	existingVariables, _, _, err := c.listVariables(w)
+
+	for _, vars := range existingVariables {
+		for _, v := range vars {
+			if err = c.TFC.Variables.Delete(c.Context, w.ID, v.ID); err != nil {
+				return err
+			}
+			log.Infof("deleted variable %s", v.Key)
+		}
+	}
+
+	return
+}
+
+// DeleteWorkspaceVariables delete the variables list passed as an argument if they are present
+// on the workspace
+func (c *Client) DeleteWorkspaceVariables(w *tfc.Workspace, variables schemas.Variables) (err error) {
+	existingVariables, _, _, err := c.listVariables(w)
+
+	for _, v := range variables {
+		kind := getCategoryType(v.Kind)
+		if _, ok := existingVariables[kind]; ok {
+			if _, ok := existingVariables[kind][v.Name]; ok {
+				if err = c.TFC.Variables.Delete(c.Context, w.ID, existingVariables[kind][v.Name].ID); err != nil {
+					return err
+				}
+				log.Infof("deleted variable %s", v.Name)
+			}
+		}
+	}
+
+	return
+}
+
 func (c *Client) updateSSHKey(w *tfc.Workspace, sshKeyName string) error {
 	if sshKeyName == "-" {
 		log.Infof("Removing currently configured SSH key")

@@ -77,3 +77,28 @@ func WorkspaceDisableOperations(ctx *cli.Context) (int, error) {
 
 	return 0, nil
 }
+
+// WorkspaceDeleteVariables removes managed or all variables on TFC
+func WorkspaceDeleteVariables(ctx *cli.Context) (int, error) {
+	c, cfg, err := configure(ctx)
+	if err != nil {
+		return 1, err
+	}
+
+	w, err := c.GetWorkspace(cfg.Runtime.TFC.Organization, cfg.Runtime.TFC.Workspace)
+	if err != nil {
+		return 1, err
+	}
+
+	if ctx.Bool("all") {
+		if err = c.DeleteAllWorkspaceVariables(w); err != nil {
+			return 1, err
+		}
+	} else {
+		if err = c.DeleteWorkspaceVariables(w, cfg.GetVariables()); err != nil {
+			return 1, err
+		}
+	}
+
+	return 0, nil
+}

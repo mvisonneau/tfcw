@@ -117,6 +117,15 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 					Flags:     cli.FlagsByName{dryRun},
 				},
 				{
+					Name:   "delete-variables",
+					Usage:  "remove configured workspace variables (default: scoped to variables defined in the config file)",
+					Action: cmd.ExecWrapper(cmd.WorkspaceDeleteVariables),
+					Flags: cli.FlagsByName{cli.BoolFlag{
+						Name:  "all, a",
+						Usage: "delete all variables",
+					}},
+				},
+				{
 					Name:   "status",
 					Usage:  "return the status of the workspace",
 					Action: cmd.ExecWrapper(cmd.WorkspaceStatus),

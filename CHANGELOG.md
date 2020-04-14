@@ -9,6 +9,7 @@ and this project adheres to [0ver](https://0ver.org).
 
 ### Added
 
+- New CLI command to be able to remove variables configured on the workspace: `workspace delete-variables`
 - A couple commands to enable/disable the operations on the workspace from the CLI
 - Refactored the CLI
 
