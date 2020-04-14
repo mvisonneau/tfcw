@@ -5,6 +5,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/mvisonneau/tfcw.svg)](https://hub.docker.com/r/mvisonneau/tfcw/)
 [![Build Status](https://cloud.drone.io/api/badges/mvisonneau/tfcw/status.svg)](https://cloud.drone.io/mvisonneau/tfcw)
 [![Coverage Status](https://coveralls.io/repos/github/mvisonneau/tfcw/badge.svg?branch=master)](https://coveralls.io/github/mvisonneau/tfcw?branch=master)
+[![Gitter](https://badges.gitter.im/terraform-cloud-wrapper/community.svg)](https://gitter.im/terraform-cloud-wrapper/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 `Terraform Cloud Wrapper (TFCW)` wraps the Terraform Cloud API. It provides an easy way to **dynamically** maintain configuration and particularily **sensitive [variables](https://www.terraform.io/docs/cloud/workspaces/variables.html)** of [Terraform Cloud (TFC) workspaces](https://www.terraform.io/docs/cloud/workspaces/index.html).
 
@@ -55,11 +56,11 @@ envvar "CLOUDFLARE_API_TOKEN" {
 That's it, you now have a declarative way to ensure that your variable is picked up from **Vault** whenever you trigger a Terraform run, even if it is a [remote operation](https://www.terraform.io/docs/cloud/run/index.html#remote-operations)!
 
 ```bash
-// Render the variables on the TFC
-~$ tfcw render tfc
-INFO[2020-04-01T13:27:55+01:00] Checking workspace configuration
-INFO[2020-04-01T13:27:56+01:00] Processing variables and updating their values on TFC
-INFO[2020-04-01T13:27:58+01:00] Set variable 'CLOUDFLARE_API_TOKEN' (environment)
+// Render the variables on TFC
+~$ tfcw render
+INFO[] Checking workspace configuration
+INFO[] Processing variables and updating their values on TFC
+INFO[] Set variable 'CLOUDFLARE_API_TOKEN' (environment)
 
 // Run terraform
 ~$ terraform plan
@@ -67,11 +68,10 @@ INFO[2020-04-01T13:27:58+01:00] Set variable 'CLOUDFLARE_API_TOKEN' (environment
 
 // Or all-in-one
 ~$ tfcw run create
-tfcw run create
-INFO[2020-04-01T16:29:23+01:00] Checking workspace configuration
-INFO[2020-04-01T16:29:23+01:00] Processing variables and updating their values on TFC
-INFO[2020-04-01T16:29:26+01:00] Set variable 'CLOUDFLARE_API_TOKEN' (environment)
-INFO[2020-04-01T16:29:27+01:00] Preparing plan
+INFO[] Checking workspace configuration
+INFO[] Processing variables and updating their values on TFC
+INFO[] Set variable 'CLOUDFLARE_API_TOKEN' (environment)
+INFO[] Preparing plan
 Terraform v0.12.24
 Configuring remote state backend...
 Initializing Terraform configuration...
@@ -177,9 +177,9 @@ That's it, you now have a declarative way to ensure that your variable is picked
 
 ```shell
 ~$ tfcw run create
-INFO[2020-04-06T17:23:09+01:00] Checking workspace configuration
-INFO[2020-04-06T17:23:09+01:00] Processing variables and updating their values on TFC
-INFO[2020-04-06T17:23:09+01:00] Preparing plan
+INFO[] Checking workspace configuration
+INFO[] Processing variables and updating their values on TFC
+INFO[] Preparing plan
 Terraform v0.12.24
 Configuring remote state backend...
 Initializing Terraform configuration...
@@ -321,21 +321,21 @@ Have a look onto the [latest release page](https://github.com/mvisonneau/tfcw/re
 For the following ones, you need to know which version you want to install, to fetch the latest available :
 
 ```bash
-~$ export tfcw_VERSION=$(curl -s "https://api.github.com/repos/mvisonneau/tfcw/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
+~$ export TFCW_VERSION=$(curl -s "https://api.github.com/repos/mvisonneau/tfcw/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
 ```
 
 ```bash
 # Binary (eg: freebsd/amd64)
-~$ wget https://github.com/mvisonneau/tfcw/releases/download/${tfcw_VERSION}/tfcw_${tfcw_VERSION}_freebsd_amd64.tar.gz
-~$ tar zxvf tfcw_${tfcw_VERSION}_freebsd_amd64.tar.gz -C /usr/local/bin
+~$ wget https://github.com/mvisonneau/tfcw/releases/download/${TFCW_VERSION}/tfcw_${TFCW_VERSION}_freebsd_amd64.tar.gz
+~$ tar zxvf tfcw_${TFCW_VERSION}_freebsd_amd64.tar.gz -C /usr/local/bin
 
 # DEB package (eg: linux/386)
-~$ wget https://github.com/mvisonneau/tfcw/releases/download/${tfcw_VERSION}/tfcw_${tfcw_VERSION}_linux_386.deb
-~$ dpkg -i tfcw_${tfcw_VERSION}_linux_386.deb
+~$ wget https://github.com/mvisonneau/tfcw/releases/download/${TFCW_VERSION}/tfcw_${TFCW_VERSION}_linux_386.deb
+~$ dpkg -i tfcw_${TFCW_VERSION}_linux_386.deb
 
 # RPM package (eg: linux/arm64)
-~$ wget https://github.com/mvisonneau/tfcw/releases/download/${tfcw_VERSION}/tfcw_${tfcw_VERSION}_linux_arm64.rpm
-~$ rpm -ivh tfcw_${tfcw_VERSION}_linux_arm64.rpm
+~$ wget https://github.com/mvisonneau/tfcw/releases/download/${TFCW_VERSION}/tfcw_${TFCW_VERSION}_linux_arm64.rpm
+~$ rpm -ivh tfcw_${TFCW_VERSION}_linux_arm64.rpm
 ```
 
 ## Troubleshoot
