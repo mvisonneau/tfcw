@@ -7,11 +7,16 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [0.0.8] - 2020-04-14
+
 ### Added
 
 - New CLI command to be able to remove variables configured on the workspace: `workspace delete-variables`
 - A couple commands to enable/disable the operations on the workspace from the CLI
-- Refactored the CLI
+
+### Changed
+
+- Renamed some CLI commands & helpers
 
 ## [0.0.7] - 2020-04-09
 
@@ -97,7 +102,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.7...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.8...HEAD
+[0.0.8]: https://github.com/mvisonneau/tfcw/tree/0.0.8
 [0.0.7]: https://github.com/mvisonneau/tfcw/tree/0.0.7
 [0.0.6]: https://github.com/mvisonneau/tfcw/tree/0.0.6
 [0.0.5]: https://github.com/mvisonneau/tfcw/tree/0.0.5
