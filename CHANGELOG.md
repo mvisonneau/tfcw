@@ -7,6 +7,8 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [0.0.9] - 2020-09-14
+
 ### Added
 
 - gosec tests
@@ -116,7 +118,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.8...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.9...HEAD
+[0.0.9]: https://github.com/mvisonneau/tfcw/tree/0.0.9
 [0.0.8]: https://github.com/mvisonneau/tfcw/tree/0.0.8
 [0.0.7]: https://github.com/mvisonneau/tfcw/tree/0.0.7
 [0.0.6]: https://github.com/mvisonneau/tfcw/tree/0.0.6
