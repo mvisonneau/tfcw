@@ -253,13 +253,13 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, dry
 }
 
 func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
-	envFile, err := os.OpenFile("./tfcw.env", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+	envFile, err := os.OpenFile("./tfcw.env", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return err
 	}
 	defer envFile.Close()
 
-	tfFile, err := os.OpenFile("./tfcw.auto.tfvars", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+	tfFile, err := os.OpenFile("./tfcw.auto.tfvars", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return err
 	}

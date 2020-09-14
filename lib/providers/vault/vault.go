@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	vault "github.com/hashicorp/vault/api"
 	"github.com/mitchellh/go-homedir"
@@ -24,9 +25,13 @@ func GetClient(address, token string) (*Client, error) {
 	}
 
 	if len(address) > 0 {
-		c.SetAddress(address)
+		if err = c.SetAddress(address); err != nil {
+			return nil, err
+		}
 	} else if len(os.Getenv("VAULT_ADDR")) > 0 {
-		c.SetAddress(os.Getenv("VAULT_ADDR"))
+		if err = c.SetAddress(os.Getenv("VAULT_ADDR")); err != nil {
+			return nil, err
+		}
 	} else {
 		return nil, fmt.Errorf("Vault address is not defined")
 	}
@@ -37,7 +42,8 @@ func GetClient(address, token string) (*Client, error) {
 		token := os.Getenv("VAULT_TOKEN")
 		if len(token) == 0 {
 			home, _ := homedir.Dir()
-			f, err := ioutil.ReadFile(home + "/.vault-token")
+			vaultTokenPath := filepath.Join(home, "/.vault-token")
+			f, err := ioutil.ReadFile(vaultTokenPath)
 			if err != nil {
 				return nil, fmt.Errorf("Vault token is not defined (VAULT_TOKEN or ~/.vault-token)")
 			}

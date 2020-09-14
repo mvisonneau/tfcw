@@ -7,6 +7,10 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- gosec tests
+
 ### Changed
 
 - default branch from `master` to `main`
@@ -14,6 +18,7 @@ and this project adheres to [0ver](https://0ver.org).
   - go to **1.15**
   - terraform to **0.13.2**
   - go-tfe to **0.10.1**
+- fixed some missed error handlings
 
 ## [0.0.8] - 2020-04-14
 

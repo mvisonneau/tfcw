@@ -62,21 +62,27 @@ func (c *Client) CreateRun(cfg *schemas.Config, w *tfc.Workspace, opts *TFCCreat
 
 	if len(opts.OutputPath) > 0 {
 		log.Debugf("saving run ID on disk at '%s'", opts.OutputPath)
-		if err = ioutil.WriteFile(opts.OutputPath, []byte(run.ID), 0644); err != nil {
-			c.DiscardRun(run.ID, opts.Message)
+		if err = ioutil.WriteFile(opts.OutputPath, []byte(run.ID), 0600); err != nil {
+			if err = c.DiscardRun(run.ID, opts.Message); err != nil {
+				return err
+			}
 			return err
 		}
 	}
 
 	planID, err := c.getTerraformPlanID(run)
 	if err != nil {
-		c.DiscardRun(run.ID, opts.Message)
+		if err = c.DiscardRun(run.ID, opts.Message); err != nil {
+			return err
+		}
 		return err
 	}
 
 	plan, err := c.waitForTerraformPlan(planID, opts.StartTimeout)
 	if err != nil {
-		c.DiscardRun(run.ID, opts.Message)
+		if err = c.DiscardRun(run.ID, opts.Message); err != nil {
+			return err
+		}
 		return err
 	}
 
@@ -118,9 +124,11 @@ func (c *Client) CreateRun(cfg *schemas.Config, w *tfc.Workspace, opts *TFCCreat
 // ApproveRun given its ID
 func (c *Client) ApproveRun(runID, message string) error {
 	log.Infof("Approving run ID: %s", runID)
-	c.TFC.Runs.Apply(c.Context, runID, tfc.RunApplyOptions{
+	if err := c.TFC.Runs.Apply(c.Context, runID, tfc.RunApplyOptions{
 		Comment: &message,
-	})
+	}); err != nil {
+		return err
+	}
 
 	// Refresh run object to fetch the Apply.ID
 	run, err := c.TFC.Runs.Read(c.Context, runID)

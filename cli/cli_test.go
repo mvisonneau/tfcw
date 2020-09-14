@@ -8,7 +8,7 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	assert.NotPanics(t, func() { Run("0.0.0") })
+	assert.NotPanics(t, func() { Run("0.0.0", []string{"vac", "--version"}) })
 }
 
 func TestNewApp(t *testing.T) {
