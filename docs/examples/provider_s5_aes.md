@@ -1,6 +1,6 @@
 # Example of a variable configuration using a value stored in a S5 payload ciphered with AES
 
-You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/master/examples/aes-gcm.md).
+You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/main/examples/aes-gcm.md).
 
 We will consider here that the `S5_AES_KEY` environment variable has been configured accordingly.
 

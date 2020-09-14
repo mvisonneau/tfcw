@@ -7,6 +7,10 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Changed
+
+- default branch from `master` to `main`
+
 ## [0.0.8] - 2020-04-14
 
 ### Added

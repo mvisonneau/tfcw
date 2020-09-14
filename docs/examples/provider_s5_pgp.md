@@ -1,6 +1,6 @@
 # Example of a variable configuration using a value stored in a S5 payload ciphered with a PGP keypair
 
-You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/master/examples/pgp.md).
+You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/main/examples/pgp.md).
 
 ```hcl
 tfc {

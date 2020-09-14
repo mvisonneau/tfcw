@@ -284,35 +284,35 @@ s5 {
   engine = "aes"
 
   // AES configuration
-  // More details here: https://github.com/mvisonneau/s5/blob/master/examples/aes-gcm.md
+  // More details here: https://github.com/mvisonneau/s5/blob/main/examples/aes-gcm.md
   aes {
     // AES key to use (required, can also be defined using the S5_AES_KEY env variable)
     key = "3cf9d1b57c588f68bfd04b2e9644bd9e90c03cd18d15caba9d5b0b7162d52a69"
   }
 
   // AWS configuration
-  // More details here: https://github.com/mvisonneau/s5/blob/master/examples/aws-kms.md
+  // More details here: https://github.com/mvisonneau/s5/blob/main/examples/aws-kms.md
   aws {
     // ARN of the KMS key to use (required, can also be defined using the S5_AWS_KMS_KEY_ARN env variable)
     kms-key-arn = "arn:aws:kms:*:111111111111:key/mykey"
   }
 
   // GCP configuration
-  // More details here: https://github.com/mvisonneau/s5/blob/master/examples/gcp-kms.md
+  // More details here: https://github.com/mvisonneau/s5/blob/main/examples/gcp-kms.md
   gcp {
     // Name of the KMS key to use (required, can also be defined using the S5_GCP_KMS_KEY_NAME env variable)
     kms-key-name = "foo"
   }
 
   // PGP configuration
-  // More details here: https://github.com/mvisonneau/s5/blob/master/examples/pgp.md
+  // More details here: https://github.com/mvisonneau/s5/blob/main/examples/pgp.md
   pgp {
     public-key-path  = "~/public-key.pem"
     private-key-path = "~/private-key.pem"
   }
 
   // Vault configuration
-  // More details here: https://github.com/mvisonneau/s5/blob/master/examples/vault.md
+  // More details here: https://github.com/mvisonneau/s5/blob/main/examples/vault.md
   vault {
     transit-key = "default"
   }

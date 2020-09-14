@@ -1,6 +1,6 @@
 # Example of a variable configuration using a value stored in a S5 payload ciphered with a Vault transit key
 
-You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/master/examples/vault.md).
+You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/main/examples/vault.md).
 
 We will consider here that the necessary accesses for Vault and the transit key have been configured accordingly.
 

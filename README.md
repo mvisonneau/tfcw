@@ -4,7 +4,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/mvisonneau/tfcw)](https://goreportcard.com/report/github.com/mvisonneau/tfcw)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mvisonneau/tfcw.svg)](https://hub.docker.com/r/mvisonneau/tfcw/)
 [![Build Status](https://cloud.drone.io/api/badges/mvisonneau/tfcw/status.svg)](https://cloud.drone.io/mvisonneau/tfcw)
-[![Coverage Status](https://coveralls.io/repos/github/mvisonneau/tfcw/badge.svg?branch=master)](https://coveralls.io/github/mvisonneau/tfcw?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/mvisonneau/tfcw/badge.svg?branch=main)](https://coveralls.io/github/mvisonneau/tfcw?branch=main)
 [![Gitter](https://badges.gitter.im/terraform-cloud-wrapper/community.svg)](https://gitter.im/terraform-cloud-wrapper/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 `Terraform Cloud Wrapper (TFCW)` wraps the Terraform Cloud API. It provides an easy way to **dynamically** maintain configuration and particularily **sensitive [variables](https://www.terraform.io/docs/cloud/workspaces/variables.html)** of [Terraform Cloud (TFC) workspaces](https://www.terraform.io/docs/cloud/workspaces/index.html).

@@ -1,6 +1,6 @@
 # Example of a variable configuration using a value stored in a S5 payload ciphered with AWS-KMS
 
-You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/master/examples/aws-kms.md).
+You can find more details on [how to use this cipher engine here](https://github.com/mvisonneau/s5/blob/main/examples/aws-kms.md).
 
 We will consider here that the necessary accesses to the AWS KMS key have been configured accordingly.
 
