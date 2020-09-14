@@ -14,6 +14,7 @@ and this project adheres to [0ver](https://0ver.org).
 ### Changed
 
 - default branch from `master` to `main`
+- Bumped urfave/cli to v2
 - upgraded all dependencies to their latest version, in particular:
   - go to **1.15**
   - terraform to **0.13.2**

@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	tfcw "github.com/mvisonneau/tfcw/lib/client"
-	"github.com/urfave/cli"
+	cli "github.com/urfave/cli/v2"
 
 	log "github.com/sirupsen/logrus"
 )

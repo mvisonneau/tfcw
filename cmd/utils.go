@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclsimple"
 	"github.com/mvisonneau/go-helpers/logger"
-	"github.com/urfave/cli"
+	cli "github.com/urfave/cli/v2"
 	"github.com/zclconf/go-cty/cty/function"
 
 	tfcw "github.com/mvisonneau/tfcw/lib/client"
@@ -26,8 +26,8 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 	start = ctx.App.Metadata["startTime"].(time.Time)
 
 	lc := &logger.Config{
-		Level:  ctx.GlobalString("log-level"),
-		Format: ctx.GlobalString("log-format"),
+		Level:  ctx.String("log-level"),
+		Format: ctx.String("log-format"),
 	}
 
 	if err = lc.Configure(); err != nil {
@@ -36,11 +36,11 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 
 	cfg = &schemas.Config{
 		Runtime: schemas.Runtime{
-			WorkingDir: ctx.GlobalString("working-dir"),
+			WorkingDir: ctx.String("working-dir"),
 		},
 	}
 
-	tfcwConfigFile := computeConfigFilePath(cfg.Runtime.WorkingDir, ctx.GlobalString("config-file"))
+	tfcwConfigFile := computeConfigFilePath(cfg.Runtime.WorkingDir, ctx.String("config-file"))
 	log.Debugf("Using config file at %s", tfcwConfigFile)
 
 	// Create and EvalContext to define functions that we can use within the HCL for interpolation
@@ -63,8 +63,13 @@ func configure(ctx *cli.Context) (c *tfcw.Client, cfg *schemas.Config, err error
 	return
 }
 
-func exit(exitCode int, err error) *cli.ExitError {
-	defer log.Debugf("Executed in %s, exiting..", time.Since(start))
+func exit(exitCode int, err error) cli.ExitCoder {
+	defer log.WithFields(
+		log.Fields{
+			"execution-time": time.Since(start),
+		},
+	).Debug("exited..")
+
 	if err != nil {
 		log.Error(err.Error())
 	}
@@ -73,7 +78,7 @@ func exit(exitCode int, err error) *cli.ExitError {
 }
 
 // ExecWrapper gracefully logs and exits our `run` functions
-func ExecWrapper(f func(ctx *cli.Context) (int, error)) func(*cli.Context) error {
+func ExecWrapper(f func(ctx *cli.Context) (int, error)) cli.ActionFunc {
 	return func(ctx *cli.Context) error {
 		return exit(f(ctx))
 	}
@@ -93,25 +98,25 @@ func computeRuntimeConfigurationForTFC(cfg *schemas.Config, ctx *cli.Context) (e
 	}
 
 	// Address
-	cfg.Runtime.TFC.Address, err = computeRuntimeTFCAddress(cfg.Runtime.WorkingDir, ctx.GlobalString("address"), cfg.TFC.Address)
+	cfg.Runtime.TFC.Address, err = computeRuntimeTFCAddress(cfg.Runtime.WorkingDir, ctx.String("address"), cfg.TFC.Address)
 	if err != nil {
 		return
 	}
 
 	// Token
-	cfg.Runtime.TFC.Token, err = computeRuntimeTFCToken(cfg.Runtime.WorkingDir, ctx.GlobalString("token"), cfg.TFC.Token)
+	cfg.Runtime.TFC.Token, err = computeRuntimeTFCToken(cfg.Runtime.WorkingDir, ctx.String("token"), cfg.TFC.Token)
 	if err != nil {
 		return
 	}
 
 	// Organization
-	cfg.Runtime.TFC.Organization, err = computeRuntimeTFCOrganization(cfg.Runtime.WorkingDir, ctx.GlobalString("organization"), cfg.TFC.Organization)
+	cfg.Runtime.TFC.Organization, err = computeRuntimeTFCOrganization(cfg.Runtime.WorkingDir, ctx.String("organization"), cfg.TFC.Organization)
 	if err != nil {
 		return
 	}
 
 	// Workspace
-	cfg.Runtime.TFC.Workspace, err = computeRuntimeTFCWorkspace(cfg.Runtime.WorkingDir, ctx.GlobalString("workspace"), cfg.TFC.Workspace.Name)
+	cfg.Runtime.TFC.Workspace, err = computeRuntimeTFCWorkspace(cfg.Runtime.WorkingDir, ctx.String("workspace"), cfg.TFC.Workspace.Name)
 	return
 }
 

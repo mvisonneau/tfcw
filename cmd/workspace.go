@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/urfave/cli"
+	cli "github.com/urfave/cli/v2"
 )
 
 // WorkspaceConfigure configures the workspace

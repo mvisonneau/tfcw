@@ -5,8 +5,9 @@ import (
 	"os"
 	"time"
 
+	cli "github.com/urfave/cli/v2"
+
 	"github.com/mvisonneau/tfcw/cmd"
-	"github.com/urfave/cli"
 )
 
 // Run handles the instanciation of the CLI application
@@ -27,49 +28,55 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 	app.EnableBashCompletion = true
 
 	app.Flags = cli.FlagsByName{
-		cli.StringFlag{
-			Name:   "address,a",
-			EnvVar: "TFCW_ADDRESS",
-			Usage:  "`address` to access Terraform Cloud API",
+		&cli.StringFlag{
+			Name:    "address",
+			Aliases: []string{"a"},
+			EnvVars: []string{"TFCW_ADDRESS"},
+			Usage:   "`address` to access Terraform Cloud API",
 		},
-		cli.StringFlag{
-			Name:   "config-file,c",
-			EnvVar: "TFCW_CONFIG_FILE",
-			Usage:  "`path` of a readable TFCW configuration file (.hcl or .json)",
-			Value:  "<working-dir>/tfcw.hcl",
+		&cli.StringFlag{
+			Name:    "config-file",
+			Aliases: []string{"c"},
+			EnvVars: []string{"TFCW_CONFIG_FILE"},
+			Usage:   "`path` of a readable TFCW configuration file (.hcl or .json)",
+			Value:   "<working-dir>/tfcw.hcl",
 		},
-		cli.StringFlag{
-			Name:   "log-level",
-			EnvVar: "TFCW_LOG_LEVEL",
-			Usage:  "log `level` (debug,info,warn,fatal,panic)",
-			Value:  "info",
+		&cli.StringFlag{
+			Name:    "log-level",
+			EnvVars: []string{"TFCW_LOG_LEVEL"},
+			Usage:   "log `level` (debug,info,warn,fatal,panic)",
+			Value:   "info",
 		},
-		cli.StringFlag{
-			Name:   "log-format",
-			EnvVar: "TFCW_LOG_FORMAT",
-			Usage:  "log `format` (json,text)",
-			Value:  "text",
+		&cli.StringFlag{
+			Name:    "log-format",
+			EnvVars: []string{"TFCW_LOG_FORMAT"},
+			Usage:   "log `format` (json,text)",
+			Value:   "text",
 		},
-		cli.StringFlag{
-			Name:   "organization,o",
-			EnvVar: "TFCW_ORGANIZATION",
-			Usage:  "`organization` to use on Terraform Cloud API",
+		&cli.StringFlag{
+			Name:    "organization",
+			Aliases: []string{"o"},
+			EnvVars: []string{"TFCW_ORGANIZATION"},
+			Usage:   "`organization` to use on Terraform Cloud API",
 		},
-		cli.StringFlag{
-			Name:   "token,t",
-			EnvVar: "TFCW_TOKEN",
-			Usage:  "`token` to access Terraform Cloud API",
+		&cli.StringFlag{
+			Name:    "token",
+			Aliases: []string{"t"},
+			EnvVars: []string{"TFCW_TOKEN"},
+			Usage:   "`token` to access Terraform Cloud API",
 		},
-		cli.StringFlag{
-			Name:   "working-dir,d",
-			EnvVar: "TFCW_WORKING_DIR",
-			Usage:  "`path` of the directory containing your Terraform files",
-			Value:  ".",
+		&cli.StringFlag{
+			Name:    "working-dir",
+			Aliases: []string{"d"},
+			EnvVars: []string{"TFCW_WORKING_DIR"},
+			Usage:   "`path` of the directory containing your Terraform files",
+			Value:   ".",
 		},
-		cli.StringFlag{
-			Name:   "workspace,w",
-			EnvVar: "TFCW_WORKSPACE",
-			Usage:  "`workspace` to use on Terraform Cloud API",
+		&cli.StringFlag{
+			Name:    "workspace",
+			Aliases: []string{"w"},
+			EnvVars: []string{"TFCW_WORKSPACE"},
+			Usage:   "`workspace` to use on Terraform Cloud API",
 		},
 	}
 
@@ -110,22 +117,22 @@ func NewApp(version string, start time.Time) (app *cli.App) {
 			},
 		},
 		{
-			Name:      "workspace",
-			ShortName: "ws",
-			Usage:     "manipulate the workspace",
+			Name:    "workspace",
+			Aliases: []string{"ws"},
+			Usage:   "manipulate the workspace",
 			Subcommands: cli.Commands{
 				{
-					Name:      "configure",
-					ShortName: "cfg",
-					Usage:     "apply defined configuration to the workspace",
-					Action:    cmd.ExecWrapper(cmd.WorkspaceConfigure),
-					Flags:     cli.FlagsByName{dryRun},
+					Name:    "configure",
+					Aliases: []string{"cfg"},
+					Usage:   "apply defined configuration to the workspace",
+					Action:  cmd.ExecWrapper(cmd.WorkspaceConfigure),
+					Flags:   cli.FlagsByName{dryRun},
 				},
 				{
 					Name:   "delete-variables",
 					Usage:  "remove configured workspace variables (default: scoped to variables defined in the config file)",
 					Action: cmd.ExecWrapper(cmd.WorkspaceDeleteVariables),
-					Flags: cli.FlagsByName{cli.BoolFlag{
+					Flags: cli.FlagsByName{&cli.BoolFlag{
 						Name:  "all, a",
 						Usage: "delete all variables",
 					}},
