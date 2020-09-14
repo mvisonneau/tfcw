@@ -39,7 +39,7 @@ brews:
   - description: *description
     homepage: *homepage
     folder: Formula
-    github:
+    tap:
       owner: mvisonneau
       name: homebrew-tap
 

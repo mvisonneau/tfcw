@@ -10,6 +10,10 @@ and this project adheres to [0ver](https://0ver.org).
 ### Changed
 
 - default branch from `master` to `main`
+- upgraded all dependencies to their latest version, in particular:
+  - go to **1.15**
+  - terraform to **0.13.2**
+  - go-tfe to **0.10.1**
 
 ## [0.0.8] - 2020-04-14
 
