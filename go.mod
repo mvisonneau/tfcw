@@ -10,7 +10,7 @@ require (
 	github.com/hashicorp/vault v1.3.2
 	github.com/hashicorp/vault/api v1.0.5-0.20200117231345-460d63e36490
 	github.com/jpillora/backoff v1.0.0
-	github.com/manifoldco/promptui v0.7.0
+	github.com/manifoldco/promptui v0.8.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mvisonneau/go-helpers v0.0.0-20200224131125-cb5cc4e6def9
 	github.com/mvisonneau/s5 v0.0.0-20200911102212-e0293447f0a8
