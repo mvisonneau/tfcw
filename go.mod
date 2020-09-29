@@ -16,7 +16,7 @@ require (
 	github.com/mvisonneau/s5 v0.0.0-20200911102212-e0293447f0a8
 	github.com/openlyinc/pointy v1.1.2
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli/v2 v2.2.0
 	github.com/zclconf/go-cty v1.6.1
