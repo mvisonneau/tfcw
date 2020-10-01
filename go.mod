@@ -6,7 +6,7 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.2 // indirect
 	github.com/hashicorp/go-tfe v0.10.2
 	github.com/hashicorp/hcl/v2 v2.6.0
-	github.com/hashicorp/terraform v0.13.3
+	github.com/hashicorp/terraform v0.13.4
 	github.com/hashicorp/vault v1.3.2
 	github.com/hashicorp/vault/api v1.0.5-0.20200117231345-460d63e36490
 	github.com/jpillora/backoff v1.0.0
