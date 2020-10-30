@@ -7,9 +7,14 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [v0.0.10] - 2020-10-30
+
 ### Changed
 
-- upgraded all dependencies
+- Prefix new releases with `^v` to make pkg.go.dev happy
+- Upgraded all dependencies
+- Refactored codebase following golang file structure
+- Fixed goreleaser config
 
 ## [0.0.9] - 2020-09-14
 
@@ -122,7 +127,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/0.0.9...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/v0.0.10...HEAD
+[v0.0.10]: https://github.com/mvisonneau/tfcw/tree/v0.0.10
 [0.0.9]: https://github.com/mvisonneau/tfcw/tree/0.0.9
 [0.0.8]: https://github.com/mvisonneau/tfcw/tree/0.0.8
 [0.0.7]: https://github.com/mvisonneau/tfcw/tree/0.0.7

@@ -72,7 +72,7 @@ INFO[] Checking workspace configuration
 INFO[] Processing variables and updating their values on TFC
 INFO[] Set variable 'CLOUDFLARE_API_TOKEN' (environment)
 INFO[] Preparing plan
-Terraform v0.12.24
+Terraform v0.13.5
 Configuring remote state backend...
 Initializing Terraform configuration...
 [...]
@@ -180,7 +180,7 @@ That's it, you now have a declarative way to ensure that your variable is picked
 INFO[] Checking workspace configuration
 INFO[] Processing variables and updating their values on TFC
 INFO[] Preparing plan
-Terraform v0.12.24
+Terraform v0.13.5
 Configuring remote state backend...
 Initializing Terraform configuration...
 2020/04/06 17:23:13 [DEBUG] Using modified User-Agent: Terraform/0.12.24 TFC/d310d4ebb1
@@ -358,7 +358,7 @@ DEBU[] Uploading configuration version..
 DEBU[] Uploaded configuration version!
 INFO[] Run ID: run-Uo1C0000uvMcacBg
 DEBU[] Plan ID: plan-xF1C0000EiFatd65
-Terraform v0.12.24
+Terraform v0.13.5
 Configuring remote state backend...
 Initializing Terraform configuration...
 [DEBUG] Using modified User-Agent: Terraform/0.12.24 TFC/d310d4ebb1
