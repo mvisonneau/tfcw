@@ -72,6 +72,11 @@ steps:
       - apk add --no-cache make
       - make release
 
+  - name: gopkg-refresh
+    image: curlimages/curl
+    commands:
+      - curl https://sum.golang.org/lookup/github.com/mvisonneau/tfcw@${DRONE_TAG}
+
 trigger:
   repo:
     - mvisonneau/tfcw
@@ -83,6 +88,6 @@ depends_on:
   - coverage
 ---
 kind: signature
-hmac: ada9f3974df6a17655f804b3ea75c90a685f7648fd531e34b1aa6dde4d32c4f7
+hmac: eb7b1cf977892f0ffa0cb40e5ac6bffcbda6bf4ec22a6474ceb1e243269cfca4
 
 ...

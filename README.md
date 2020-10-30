@@ -1,6 +1,6 @@
 # 💝 TFCW - Terraform Cloud Wrapper
 
-[![GoDoc](https://godoc.org/github.com/mvisonneau/tfcw?status.svg)](https://godoc.org/github.com/mvisonneau/tfcw)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/mvisonneau/tfcw)](https://pkg.go.dev/mod/github.com/mvisonneau/tfcw)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mvisonneau/tfcw)](https://goreportcard.com/report/github.com/mvisonneau/tfcw)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mvisonneau/tfcw.svg)](https://hub.docker.com/r/mvisonneau/tfcw/)
 [![Build Status](https://cloud.drone.io/api/badges/mvisonneau/tfcw/status.svg)](https://cloud.drone.io/mvisonneau/tfcw)
