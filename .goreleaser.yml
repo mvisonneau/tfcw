@@ -3,7 +3,8 @@ before:
     - go mod download
 
 builds:
-  - env:
+  - main: ./cmd/tfcw
+    env:
       - CGO_ENABLED=0
     goos:
       - darwin
@@ -15,6 +16,11 @@ builds:
       - 386
       - amd64
       - arm64
+    flags:
+      - -trimpath
+    ignore:
+      - goos: darwin
+        goarch: 386
 
 archives:
   - format_overrides:
@@ -22,14 +28,10 @@ archives:
         format: zip
 
 nfpms:
-  - maintainer: &author
-      Maxime VISONNEAU <maxime.visonneau@gmail.com>
-    description: &description
-      Safely Store Super Sensitive Stuff
-    license: &license
-      Apache 2.0
-    homepage: &homepage
-      https://github.com/mvisonneau/s5
+  - maintainer: &author Maxime VISONNEAU <maxime.visonneau@gmail.com>
+    description: &description Terraform Cloud Wrapper
+    license: &license Apache 2.0
+    homepage: &homepage https://github.com/mvisonneau/tfcw
     vendor: *author
     formats:
       - deb
@@ -52,10 +54,11 @@ scoop:
     name: scoops
 
 checksum:
-  name_template: checksums.txt
+  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
+  algorithm: sha256
 
 snapshot:
-  name_template: "{{ .Tag }}-{{ .ShortCommit }}"
+  name_template: '{{ .Tag }}-{{ .ShortCommit }}'
 
 changelog:
   skip: true
