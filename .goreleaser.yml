@@ -23,7 +23,8 @@ builds:
         goarch: 386
 
 archives:
-  - format_overrides:
+  - name_template: '{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}'
+    format_overrides:
       - goos: windows
         format: zip
 
@@ -33,6 +34,7 @@ nfpms:
     license: &license Apache 2.0
     homepage: &homepage https://github.com/mvisonneau/tfcw
     vendor: *author
+    file_name_template: '{{ .ProjectName }}_{{ .Tag }}_{{ .Os }}_{{ .Arch }}'
     formats:
       - deb
       - rpm
@@ -54,7 +56,7 @@ scoop:
     name: scoops
 
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Version }}_SHA256SUMS'
+  name_template: '{{ .ProjectName }}_{{ .Tag }}_SHA256SUMS'
   algorithm: sha256
 
 snapshot:
