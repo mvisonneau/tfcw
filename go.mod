@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.5.3 // indirect
-	github.com/hashicorp/go-tfe v0.10.2
+	github.com/hashicorp/go-tfe v0.11.1
 	github.com/hashicorp/hcl/v2 v2.7.0
 	github.com/hashicorp/terraform v0.13.5
 	github.com/hashicorp/vault v1.3.2
