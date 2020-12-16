@@ -1,5 +1,5 @@
 NAME          := tfcw
-FILES         := $(shell find * -type f ! -path 'vendor/*' -name '*.go')
+FILES         := $(shell git ls-files */*.go)
 REPOSITORY    := mvisonneau/$(NAME)
 .DEFAULT_GOAL := help
 
@@ -49,31 +49,23 @@ gosec: setup ## Test code for security vulnerabilities
 
 .PHONY: test
 test: ## Run the tests against the codebase
-	go test -v ./...
+	go test -v -count=1 -race ./...
 
 .PHONY: install
 install: ## Build and install locally the binary (dev purpose)
-	go install .
+	go install ./cmd/$(NAME)
 
 .PHONY: build-local
 build-local: ## Build the binaries using local GOOS
-	go build .
+	go build ./cmd/$(NAME)
 
 .PHONY: build
 build: setup ## Build the binaries
 	goreleaser release --snapshot --skip-publish --rm-dist
 
-.PHONY: build-linux-amd64
-build-linux-amd64: ## Build the binaries
-	goreleaser release --snapshot --skip-publish --rm-dist -f .goreleaser.linux-amd64.yml
-
 .PHONY: release
 release: setup ## Build & release the binaries
 	goreleaser release --rm-dist
-
-.PHONY: publish-coveralls
-publish-coveralls: setup ## Publish coverage results on coveralls
-	goveralls -service drone.io -coverprofile=coverage.out
 
 .PHONY: clean
 clean: ## Remove binary if it exists
@@ -82,7 +74,7 @@ clean: ## Remove binary if it exists
 .PHONY: coverage
 coverage: ## Generates coverage report
 	rm -rf *.out
-	go test -v ./... -coverpkg=./... -coverprofile=coverage.out
+	go test -count=1 -race -v ./... -coverpkg=./... -coverprofile=coverage.out
 
 .PHONY: show-coverage
 show-coverage: ## Display coverage report in browser
@@ -92,10 +84,6 @@ show-coverage: ## Display coverage report in browser
 is-git-dirty: ## Tests if git is in a dirty state
 	@git status --porcelain
 	@test $(shell git status --porcelain | grep -c .) -eq 0
-
-.PHONY: sign-drone
-sign-drone: ## Sign Drone CI configuration
-	drone sign $(REPOSITORY) --save
 
 .PHONY: all
 all: lint test build coverage ## Test, builds and ship package for all supported platforms

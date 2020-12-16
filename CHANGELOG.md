@@ -7,6 +7,17 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- Release GitHub container registry based images: [ghcr.io/mvisonneau/tfcw](https://github.com/users/mvisonneau/packages/container/package/tfcw)
+- Release `arm64v8` based container images as part of docker manifests in both **docker.io** and **ghcr.io**
+- GPG sign released artifacts checksums
+
+### Changed
+
+- Updated all dependencies / Terraform to `0.14.2`
+- Migrated CI from Drone to GitHub actions
+
 ## [v0.0.10] - 2020-10-30
 
 ### Changed
