@@ -3,7 +3,7 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/mvisonneau/tfcw)](https://pkg.go.dev/mod/github.com/mvisonneau/tfcw)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mvisonneau/tfcw)](https://goreportcard.com/report/github.com/mvisonneau/tfcw)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mvisonneau/tfcw.svg)](https://hub.docker.com/r/mvisonneau/tfcw/)
-[![Build Status](https://cloud.drone.io/api/badges/mvisonneau/tfcw/status.svg)](https://cloud.drone.io/mvisonneau/tfcw)
+[![Build Status](https://github.com/mvisonneau/tfcw/workflows/test/badge.svg?branch=main)](https://github.com/mvisonneau/tfcw/actions)
 [![Coverage Status](https://coveralls.io/repos/github/mvisonneau/tfcw/badge.svg?branch=main)](https://coveralls.io/github/mvisonneau/tfcw?branch=main)
 [![Gitter](https://badges.gitter.im/terraform-cloud-wrapper/community.svg)](https://gitter.im/terraform-cloud-wrapper/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
@@ -292,6 +292,9 @@ GLOBAL OPTIONS:
 
 Have a look onto the [latest release page](https://github.com/mvisonneau/tfcw/releases/latest) and pick your flavor.
 
+Checksums are signed with the [following GPG key](https://keybase.io/mvisonneau/pgp_keys.asc): `C09C A9F7 1C5C 988E 65E3  E5FC ADEA 38ED C46F 25BE`
+
+
 ### Go
 
 ```bash
@@ -307,7 +310,9 @@ Have a look onto the [latest release page](https://github.com/mvisonneau/tfcw/re
 ### Docker
 
 ```bash
-~$ docker run -it --rm mvisonneau/tfcw
+~$ docker run -it --rm docker.io/mvisonneau/tfcw
+or
+~$ docker run -it --rm ghcr.io/mvisonneau/tfcw
 ```
 
 ### Scoop

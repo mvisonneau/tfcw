@@ -57,7 +57,7 @@ install: ## Build and install locally the binary (dev purpose)
 
 .PHONY: build-local
 build-local: ## Build the binaries using local GOOS
-	go build ./cmd/$(NAME)
+	CGO_ENABLED=0 go build ./cmd/$(NAME)
 
 .PHONY: build
 build: setup ## Build the binaries

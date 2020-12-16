@@ -115,15 +115,15 @@ docker_manifests:
       - ghcr.io/mvisonneau/tfcw:latest-arm64v8
 
 checksum:
-  name_template: '{{ .ProjectName }}_{{ .Tag }}_SHA256SUMS'
-  algorithm: sha256
+  name_template: '{{ .ProjectName }}_{{ .Tag }}_SHA512SUMS.txt'
+  algorithm: sha512
 
 signs:
   - artifacts: checksum
     args:
       [
         '-u',
-        '4D8900874BE004976FD945D892E0D0BACD70E16F',
+        'C09CA9F71C5C988E65E3E5FCADEA38EDC46F25BE',
         '--output',
         '${signature}',
         '--detach-sign',
