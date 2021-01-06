@@ -17,9 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	wd, _ = os.Getwd()
-)
+var wd, _ = os.Getwd()
 
 func TestGetClient(t *testing.T) {
 	os.Setenv("HOME", wd)

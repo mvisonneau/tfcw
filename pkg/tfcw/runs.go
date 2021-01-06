@@ -62,7 +62,7 @@ func (c *Client) CreateRun(cfg *schemas.Config, w *tfc.Workspace, opts *TFCCreat
 
 	if len(opts.OutputPath) > 0 {
 		log.Debugf("saving run ID on disk at '%s'", opts.OutputPath)
-		if err = ioutil.WriteFile(opts.OutputPath, []byte(run.ID), 0600); err != nil {
+		if err = ioutil.WriteFile(opts.OutputPath, []byte(run.ID), 0o600); err != nil {
 			if err = c.DiscardRun(run.ID, opts.Message); err != nil {
 				return err
 			}
@@ -185,7 +185,6 @@ func (c *Client) createRun(w *tfc.Workspace, configVersion *tfc.ConfigurationVer
 		ConfigurationVersion: configVersion,
 		Workspace:            w,
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("error creating run: %s", err)
 	}
@@ -359,7 +358,6 @@ func promptApproveRun() bool {
 func saveRunID(runID, outputFile string) {
 	if len(outputFile) > 0 {
 		log.Debugf("Saving run ID '%s' onto file %s.", runID, outputFile)
-
 	} else {
 		log.Debugf("Output file not defined, not saving run ID on disk.")
 	}

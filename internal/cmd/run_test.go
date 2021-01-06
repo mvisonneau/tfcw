@@ -9,9 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	wd, _ = os.Getwd()
-)
+var wd, _ = os.Getwd()
 
 const (
 	validConfig = `

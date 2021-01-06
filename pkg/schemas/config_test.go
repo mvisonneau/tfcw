@@ -136,7 +136,6 @@ func TestComputeNewVariableExpirations(t *testing.T) {
 	}
 	_, _, err = testConfig.ComputeNewVariableExpirations(updatedVariables, existingVariableExpirations)
 	assert.Error(t, err)
-
 }
 
 func TestConfigGetVariablesToUpdate(t *testing.T) {
