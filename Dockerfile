@@ -23,7 +23,5 @@ COPY tfcw /usr/local/bin/
 # Run as nobody user
 USER 65534
 
-EXPOSE 8080
-
 ENTRYPOINT ["/usr/local/bin/tfcw"]
 CMD [""]
