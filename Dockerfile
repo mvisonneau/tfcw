@@ -4,7 +4,7 @@ ARG ARCH
 # BUILD CONTAINER
 ##
 
-FROM alpine:3.12 as builder
+FROM alpine:3.13.2 as builder
 
 RUN \
 apk add --no-cache ca-certificates
