@@ -3,8 +3,10 @@
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/mvisonneau/tfcw)](https://pkg.go.dev/mod/github.com/mvisonneau/tfcw)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mvisonneau/tfcw)](https://goreportcard.com/report/github.com/mvisonneau/tfcw)
 [![Docker Pulls](https://img.shields.io/docker/pulls/mvisonneau/tfcw.svg)](https://hub.docker.com/r/mvisonneau/tfcw/)
-[![Build Status](https://github.com/mvisonneau/tfcw/workflows/test/badge.svg?branch=main)](https://github.com/mvisonneau/tfcw/actions)
+[![test](https://github.com/mvisonneau/tfcw/actions/workflows/test.yml/badge.svg)](https://github.com/mvisonneau/tfcw/actions/workflows/test.yml)
 [![Coverage Status](https://coveralls.io/repos/github/mvisonneau/tfcw/badge.svg?branch=main)](https://coveralls.io/github/mvisonneau/tfcw?branch=main)
+[![release](https://github.com/mvisonneau/tfcw/actions/workflows/release.yml/badge.svg)](https://github.com/mvisonneau/tfcw/actions/workflows/release.yml)
+[![tfcw](https://snapcraft.io/tfcw/badge.svg)](https://snapcraft.io/tfcw)
 [![Gitter](https://badges.gitter.im/terraform-cloud-wrapper/community.svg)](https://gitter.im/terraform-cloud-wrapper/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 `Terraform Cloud Wrapper (TFCW)` wraps the Terraform Cloud API. It provides an easy way to **dynamically** maintain configuration and particularily **sensitive [variables](https://www.terraform.io/docs/cloud/workspaces/variables.html)** of [Terraform Cloud (TFC) workspaces](https://www.terraform.io/docs/cloud/workspaces/index.html).
@@ -305,6 +307,12 @@ Checksums are signed with the [following GPG key](https://keybase.io/mvisonneau/
 
 ```bash
 ~$ brew install mvisonneau/tap/tfcw
+```
+
+### Snapcraft
+
+```bash
+~$ snap install tfcw
 ```
 
 ### Docker

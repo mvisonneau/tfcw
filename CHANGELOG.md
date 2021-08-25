@@ -7,12 +7,21 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- `snapcraft` releases
+- pre-releases on every commit made upon the default branch (main)
+
 ### Changed
 
 - Upgraded all dependencies to their most recent versions
 - Upgraded to go `1.17`
 - Disabled some tests related to Vault in order to not have to import the full project as a dependency anymore
 - Forked the `hashicorp/terraform` to be able to continue leveraging the **configs** lib
+
+### Removed
+
+- `freebsd` and `solaris` releases
 
 ## [v0.0.11] - 2020-12-17
 

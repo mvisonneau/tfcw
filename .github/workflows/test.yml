@@ -2,15 +2,19 @@
 name: test
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
     strategy:
       matrix:
-        go-version:
-          - 1.15
         os:
           - ubuntu-20.04
           - macos-10.15
@@ -26,10 +30,10 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.17
 
       - name: Lint
-        if: ${{ matrix.os == 'ubuntu-20.04' && matrix.go-version == '1.15' }}
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
         run: make lint
 
       - name: Test
@@ -37,9 +41,9 @@ jobs:
 
       - name: Publish coverage to coveralls.io
         uses: shogo82148/actions-goveralls@v1
-        if: ${{ matrix.os == 'ubuntu-20.04' && matrix.go-version == '1.15' }}
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
         with:
           path-to-profile: coverage.out
 
       - name: Build
-        run: make build-local
+        run: make build
