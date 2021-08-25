@@ -8,7 +8,7 @@ export GO111MODULE=on
 .PHONY: setup
 setup: ## Install required libraries/tools for build tasks
 	@command -v cover 2>&1 >/dev/null       || GO111MODULE=off go get -u -v golang.org/x/tools/cmd/cover
-	@command -v gofumpt 2>&1 >/dev/null   || GO111MODULE=off go get -u -v mvdan.cc/gofumpt
+	@command -v gofumpt 2>&1 >/dev/null     || GO111MODULE=off go get -u -v mvdan.cc/gofumpt
 	@command -v gosec 2>&1 >/dev/null       || GO111MODULE=off go get -u -v github.com/securego/gosec/cmd/gosec
 	@command -v goveralls 2>&1 >/dev/null   || GO111MODULE=off go get -u -v github.com/mattn/goveralls
 	@command -v ineffassign 2>&1 >/dev/null || GO111MODULE=off go get -u -v github.com/gordonklaus/ineffassign
@@ -45,7 +45,7 @@ misspell: setup ## Test code with misspell
 
 .PHONY: gosec
 gosec: setup ## Test code for security vulnerabilities
-	gosec -exclude=G304,G307 ./...
+	gosec ./...
 
 .PHONY: test
 test: ## Run the tests against the codebase
@@ -55,17 +55,23 @@ test: ## Run the tests against the codebase
 install: ## Build and install locally the binary (dev purpose)
 	go install ./cmd/$(NAME)
 
-.PHONY: build-local
-build-local: ## Build the binaries using local GOOS
-	CGO_ENABLED=0 go build ./cmd/$(NAME)
-
 .PHONY: build
-build: setup ## Build the binaries
-	goreleaser release --snapshot --skip-publish --rm-dist
+build: ## Build the binaries using local GOOS
+	go build ./cmd/$(NAME)
 
 .PHONY: release
-release: setup ## Build & release the binaries
+release: ## Build & release the binaries (stable)
+	git tag -d edge
 	goreleaser release --rm-dist
+	find dist -type f -name "*.snap" -exec snapcraft upload --release stable,edge '{}' \;
+
+.PHONY: prerelease
+prerelease: setup ## Build & prerelease the binaries (edge)
+	@\
+		REPOSITORY=$(REPOSITORY) \
+		NAME=$(NAME) \
+		GITHUB_TOKEN=$(GITHUB_TOKEN) \
+		.github/prerelease.sh
 
 .PHONY: clean
 clean: ## Remove binary if it exists
@@ -76,8 +82,8 @@ coverage: ## Generates coverage report
 	rm -rf *.out
 	go test -count=1 -race -v ./... -coverpkg=./... -coverprofile=coverage.out
 
-.PHONY: show-coverage
-show-coverage: ## Display coverage report in browser
+.PHONY: coverage-html
+coverage-html: ## Generates coverage report and displays it in the browser
 	go tool cover -html=coverage.out
 
 .PHONY: is-git-dirty
