@@ -1,7 +1,7 @@
 // There seems to be a bug in a lib importer by hashicorp/vault/api that prevents the test from running
 // correctly on darwin..
 //
-//go:build !darwin
+// +build !darwin
 
 package vault
 

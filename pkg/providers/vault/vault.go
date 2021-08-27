@@ -42,7 +42,7 @@ func GetClient(address, token string) (*Client, error) {
 		if len(token) == 0 {
 			home, _ := homedir.Dir()
 			vaultTokenPath := filepath.Join(home, "/.vault-token")
-			f, err := ioutil.ReadFile(vaultTokenPath)
+			f, err := ioutil.ReadFile(filepath.Clean(vaultTokenPath))
 			if err != nil {
 				return nil, fmt.Errorf("Vault token is not defined (VAULT_TOKEN or ~/.vault-token)")
 			}
