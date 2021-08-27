@@ -256,25 +256,13 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) (err error) {
 	if err != nil {
 		return err
 	}
-
-	defer func() {
-		cerr := envFile.Close()
-		if err == nil {
-			err = cerr
-		}
-	}()
+	defer envFile.Close()
 
 	tfFile, err := os.OpenFile("./tfcw.auto.tfvars", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return err
 	}
-
-	defer func() {
-		cerr := tfFile.Close()
-		if err == nil {
-			err = cerr
-		}
-	}()
+	defer tfFile.Close()
 
 	variablesWithValues := schemas.VariablesWithValues{}
 	values := make(chan *schemas.VariableWithValue)
