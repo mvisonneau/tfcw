@@ -26,6 +26,9 @@ tfc {
 func createTestConfigFile(config string) (string, string, error) {
 	tmpDir := os.TempDir()
 	tmpFile, err := ioutil.TempFile(tmpDir, "tfcw-test-cfg-")
+	if err != nil {
+		return "", "", err
+	}
 
 	if _, err = tmpFile.Write([]byte(config)); err != nil {
 		return "", "", fmt.Errorf("Failed to write to temporary file : %s", err.Error())

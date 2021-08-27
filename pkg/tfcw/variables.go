@@ -251,18 +251,30 @@ func (c *Client) renderVariablesOnTFC(cfg *schemas.Config, w *tfc.Workspace, dry
 	return nil
 }
 
-func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
+func (c *Client) renderVariablesLocally(vars schemas.Variables) (err error) {
 	envFile, err := os.OpenFile("./tfcw.env", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return err
 	}
-	defer envFile.Close()
+
+	defer func() {
+		cerr := envFile.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
 
 	tfFile, err := os.OpenFile("./tfcw.auto.tfvars", os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0o600)
 	if err != nil {
 		return err
 	}
-	defer tfFile.Close()
+
+	defer func() {
+		cerr := tfFile.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
 
 	variablesWithValues := schemas.VariablesWithValues{}
 	values := make(chan *schemas.VariableWithValue)
@@ -302,7 +314,7 @@ func (c *Client) renderVariablesLocally(vars schemas.Variables) error {
 		}
 	}
 
-	return nil
+	return
 }
 
 func (c *Client) renderVariableOnTFC(cfg *schemas.Config, w *tfc.Workspace, v *schemas.VariableWithValue, e TFCVariables, dryRun bool) (err error) {

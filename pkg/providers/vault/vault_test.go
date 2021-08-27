@@ -1,17 +1,15 @@
-// +build !darwin
 // There seems to be a bug in a lib importer by hashicorp/vault/api that prevents the test from running
 // correctly on darwin..
+//
+//go:build !darwin
 
 package vault
 
 import (
 	"fmt"
-	"net"
 	"os"
 	"testing"
 
-	"github.com/hashicorp/vault/api"
-	"github.com/mvisonneau/tfcw/pkg/schemas"
 	"github.com/stretchr/testify/assert"
 )
 

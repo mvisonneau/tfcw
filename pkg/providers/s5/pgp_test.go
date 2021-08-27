@@ -99,6 +99,9 @@ zEf3M5x90Fd3C5eNFo1VKFRvowCDXKp2TZVOl48+pyK8cB4=
 
 func createTestPGPKeys(publicKey, privateKey string) (string, string, error) {
 	tmpFilePublic, err := ioutil.TempFile(os.TempDir(), "tfcw-test-pgp-pub-")
+	if err != nil {
+		return "", "", err
+	}
 
 	if _, err = tmpFilePublic.Write([]byte(publicKey)); err != nil {
 		return "", "", fmt.Errorf("Failed to write to temporary file : %s", err.Error())
