@@ -3,7 +3,7 @@ module github.com/mvisonneau/tfcw
 go 1.17
 
 require (
-	github.com/hashicorp/go-tfe v0.18.0
+	github.com/hashicorp/go-tfe v0.19.0
 	github.com/hashicorp/hcl/v2 v2.10.1
 	github.com/hashicorp/terraform v1.0.5
 	github.com/hashicorp/vault/api v1.2.0
