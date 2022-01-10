@@ -3,7 +3,7 @@ module github.com/mvisonneau/tfcw
 go 1.17
 
 require (
-	github.com/hashicorp/go-tfe v0.20.0
+	github.com/hashicorp/go-tfe v0.22.0
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/hashicorp/terraform v1.0.5
 	github.com/hashicorp/vault/api v1.3.0
@@ -38,7 +38,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
-	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-cmp v0.5.6 // indirect
