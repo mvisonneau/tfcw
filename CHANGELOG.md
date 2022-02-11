@@ -7,6 +7,8 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+## [v0.0.13] - 2022-02-11
+
 ### Added
 
 - Release container images to `quay.io`
@@ -166,7 +168,8 @@ and this project adheres to [0ver](https://0ver.org).
 - dry-run feature on render function
 - purge unmanaged variables
 
-[Unreleased]: https://github.com/mvisonneau/tfcw/compare/v0.0.12...HEAD
+[Unreleased]: https://github.com/mvisonneau/tfcw/compare/v0.0.13...HEAD
+[v0.0.13]: https://github.com/mvisonneau/tfcw/tree/v0.0.13
 [v0.0.12]: https://github.com/mvisonneau/tfcw/tree/v0.0.12
 [v0.0.11]: https://github.com/mvisonneau/tfcw/tree/v0.0.11
 [v0.0.10]: https://github.com/mvisonneau/tfcw/tree/v0.0.10
