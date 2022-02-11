@@ -300,7 +300,7 @@ Checksums are signed with the [following GPG key](https://keybase.io/mvisonneau/
 ### Go
 
 ```bash
-~$ go get -u github.com/mvisonneau/tfcw
+~$ go install github.com/mvisonneau/tfcw/cmd/tfcw@latest
 ```
 
 ### Homebrew
@@ -319,8 +319,8 @@ Checksums are signed with the [following GPG key](https://keybase.io/mvisonneau/
 
 ```bash
 ~$ docker run -it --rm docker.io/mvisonneau/tfcw
-or
 ~$ docker run -it --rm ghcr.io/mvisonneau/tfcw
+~$ docker run -it --rm quay.io/mvisonneau/tfcw
 ```
 
 ### Scoop

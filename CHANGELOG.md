@@ -7,6 +7,14 @@ and this project adheres to [0ver](https://0ver.org).
 
 ## [Unreleased]
 
+### Added
+
+- Release container images to `quay.io`
+
+### Changed
+
+- Bumped all dependencies
+
 ## [v0.0.12] - 2021-08-27
 
 ### Added

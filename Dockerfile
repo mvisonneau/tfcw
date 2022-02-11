@@ -11,7 +11,7 @@ RUN \
 # RELEASE CONTAINER
 ##
 
-FROM busybox:1.34.1-glibc
+FROM busybox:1.35.0-glibc
 
 WORKDIR /
 
