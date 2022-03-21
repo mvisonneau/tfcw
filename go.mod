@@ -14,7 +14,7 @@ require (
 	github.com/mvisonneau/s5 v0.1.12
 	github.com/openlyinc/pointy v1.1.2
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/zclconf/go-cty v1.10.0
 )
