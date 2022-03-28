@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/go-tfe v0.25.0
 	github.com/hashicorp/hcl/v2 v2.11.1
 	github.com/hashicorp/terraform v1.1.5
-	github.com/hashicorp/vault/api v1.3.1
+	github.com/hashicorp/vault/api v1.5.0
 	github.com/jpillora/backoff v1.0.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mitchellh/go-homedir v1.1.0
@@ -66,7 +66,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/jsonapi v0.0.0-20210826224640-ee7dae0fb22d // indirect
 	github.com/hashicorp/terraform-svchost v0.0.0-20200729002733-f050f53b9734 // indirect
-	github.com/hashicorp/vault/sdk v0.3.0 // indirect
+	github.com/hashicorp/vault/sdk v0.4.1 // indirect
 	github.com/hashicorp/yamux v0.0.0-20211028200310-0bc27b27de87 // indirect
 	github.com/jchavannes/go-pgp v0.0.0-20200131171414-e5978e6d02b4 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
