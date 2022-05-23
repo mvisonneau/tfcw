@@ -15,7 +15,7 @@ require (
 	github.com/openlyinc/pointy v1.1.2
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
-	github.com/urfave/cli/v2 v2.3.0
+	github.com/urfave/cli/v2 v2.8.0
 	github.com/zclconf/go-cty v1.10.0
 )
 
@@ -26,6 +26,7 @@ require (
 	cloud.google.com/go/kms v1.2.0 // indirect
 	cloud.google.com/go/storage v1.20.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
+	github.com/antzucaro/matchr v0.0.0-20210222213004-b04723ef80f0 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/apparentlymart/go-versions v1.0.1 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
