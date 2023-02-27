@@ -14,7 +14,7 @@ require (
 	github.com/mvisonneau/s5 v0.1.12
 	github.com/openlyinc/pointy v1.1.2
 	github.com/sirupsen/logrus v1.8.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.2
 	github.com/urfave/cli/v2 v2.3.0
 	github.com/zclconf/go-cty v1.10.0
 )
@@ -103,7 +103,7 @@ require (
 	google.golang.org/grpc v1.44.0 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 replace github.com/hashicorp/terraform => github.com/mvisonneau/terraform v1.1.0-alpha20210811.0.20210825144159-8012569bcac4
